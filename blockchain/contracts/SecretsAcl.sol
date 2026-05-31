@@ -146,6 +146,42 @@ contract SecretsAcl {
     }
 
     // ---------------------------------------------------------------------
+    // Secret registration
+    // ---------------------------------------------------------------------
+
+    /// @notice Registers a new secret owned by the caller.
+    /// @dev The caller becomes the secret owner and may later manage its ACL.
+    ///      Reverts with {InvalidSecretId} for a zero identifier and with
+    ///      {SecretAlreadyExists} when the identifier is already in use.
+    /// @param secretId Unique identifier of the secret (e.g. keccak256 of its name).
+    /// @param dataHash Hash binding the record to the off-chain ciphertext.
+    /// @param uri      Reference to the off-chain storage location.
+    function registerSecret(
+        bytes32 secretId,
+        bytes32 dataHash,
+        string calldata uri
+    ) external {
+        if (secretId == bytes32(0)) {
+            revert InvalidSecretId();
+        }
+        if (_secrets[secretId].exists) {
+            revert SecretAlreadyExists(secretId);
+        }
+
+        Secret storage secret = _secrets[secretId];
+        secret.owner = msg.sender;
+        secret.dataHash = dataHash;
+        secret.uri = uri;
+        secret.createdAt = block.timestamp;
+        secret.updatedAt = block.timestamp;
+        secret.exists = true;
+
+        _secretIds.push(secretId);
+
+        emit SecretRegistered(secretId, msg.sender, dataHash, block.timestamp);
+    }
+
+    // ---------------------------------------------------------------------
     // Read-only accessors
     // ---------------------------------------------------------------------
 

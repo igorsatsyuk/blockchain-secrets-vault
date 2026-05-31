@@ -93,4 +93,63 @@ describe("SecretsAcl - scaffolding and data model (#1)", function () {
       expect(grant.updatedAt).to.equal(0n);
     });
   });
+
+  describe("registerSecret (#2)", function () {
+    const secretId = ethers.id("db/prod/password");
+    const dataHash = ethers.id("ciphertext-hash");
+    const uri = "s3://vault/db/prod/password";
+
+    it("registers a secret owned by the caller", async function () {
+      const { contract, other } = await loadFixture(deployFixture);
+      await contract.connect(other).registerSecret(secretId, dataHash, uri);
+
+      expect(await contract.secretExists(secretId)).to.equal(true);
+      expect(await contract.totalSecrets()).to.equal(1n);
+      expect(await contract.secretIdAt(0)).to.equal(secretId);
+
+      const secret = await contract.getSecret(secretId);
+      expect(secret.owner).to.equal(other.address);
+      expect(secret.dataHash).to.equal(dataHash);
+      expect(secret.uri).to.equal(uri);
+      expect(secret.exists).to.equal(true);
+      expect(secret.createdAt).to.be.greaterThan(0n);
+      expect(secret.updatedAt).to.equal(secret.createdAt);
+    });
+
+    it("emits SecretRegistered with the owner and data hash", async function () {
+      const { contract, other } = await loadFixture(deployFixture);
+      const tx = await contract.connect(other).registerSecret(secretId, dataHash, uri);
+      const block = await ethers.provider.getBlock(tx.blockNumber);
+
+      await expect(tx)
+        .to.emit(contract, "SecretRegistered")
+        .withArgs(secretId, other.address, dataHash, block.timestamp);
+    });
+
+    it("tracks multiple registered secrets in the enumeration", async function () {
+      const { contract, admin, other } = await loadFixture(deployFixture);
+      const secondId = ethers.id("api/key");
+      await contract.connect(other).registerSecret(secretId, dataHash, uri);
+      await contract.connect(admin).registerSecret(secondId, dataHash, "s3://vault/api/key");
+
+      expect(await contract.totalSecrets()).to.equal(2n);
+      expect(await contract.secretIdAt(0)).to.equal(secretId);
+      expect(await contract.secretIdAt(1)).to.equal(secondId);
+    });
+
+    it("reverts when the secret id is zero", async function () {
+      const { contract, other } = await loadFixture(deployFixture);
+      await expect(
+        contract.connect(other).registerSecret(ethers.ZeroHash, dataHash, uri)
+      ).to.be.revertedWithCustomError(contract, "InvalidSecretId");
+    });
+
+    it("reverts when the secret id is already registered", async function () {
+      const { contract, other } = await loadFixture(deployFixture);
+      await contract.connect(other).registerSecret(secretId, dataHash, uri);
+      await expect(contract.connect(other).registerSecret(secretId, dataHash, uri))
+        .to.be.revertedWithCustomError(contract, "SecretAlreadyExists")
+        .withArgs(secretId);
+    });
+  });
 });
