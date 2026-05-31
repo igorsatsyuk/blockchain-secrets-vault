@@ -1,0 +1,16 @@
+{
+  "name": "blockchain-secrets-vault-contracts",
+  "version": "0.1.0",
+  "description": "Solidity contracts for Blockchain Secrets Vault (on-chain ACL and audit)",
+  "license": "MIT",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "coverage": "hardhat coverage"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.0",
+    "solidity-coverage": "^0.8.12"
+  }
+}
