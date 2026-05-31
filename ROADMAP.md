@@ -3,7 +3,7 @@
 ## Phase 1 - Blockchain
 
 - [x] [#1](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/1) `SecretsAcl.sol` smart contract scaffolding and data models
-- [ ] [#2](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/2) `registerSecret` implementation in ACL contract
+- [x] [#2](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/2) `registerSecret` implementation in ACL contract
 - [ ] [#3](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/3) `grantAccess` implementation for read/write permissions
 - [ ] [#4](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/4) `revokeAccess` implementation for permission revocation
 - [ ] [#5](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/5) `canRead` and `canWrite` access check functions
