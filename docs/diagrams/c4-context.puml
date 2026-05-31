@@ -1,0 +1,31 @@
+@startuml
+title Blockchain Secrets Vault - C4 Context Diagram
+
+skinparam backgroundColor #FFFFFF
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+actor "User / Operator" as client
+
+rectangle "Blockchain Secrets Vault System" as system {
+  rectangle "Secrets UI\n(Angular)" as ui
+  rectangle "Secrets API\n(Spring Boot WebFlux, :8080)" as api
+  rectangle "KMS Service\n(AES-GCM, key rotation)" as kms
+  rectangle "Audit Writer\n(event publisher)" as audit
+}
+
+database "Encrypted Secret Store\n(PostgreSQL / Redis)" as store
+database "SecretsAcl Smart Contract\n(Solidity / Hardhat, :8545)" as chain
+
+client --> ui : Manage secrets,\nACL and audit
+ui --> api : REST over HTTPS\nAuthorization: Bearer <JWT>
+
+api --> kms : Encrypt / decrypt\nsecret payloads
+api --> store : Store / read\nencrypted secrets
+api --> chain : Check ACL\n(canRead / canWrite)
+api --> audit : Emit access events
+
+audit --> chain : Write audit\nevent hashes
+
+@enduml

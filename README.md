@@ -14,18 +14,9 @@ The project demonstrates:
 
 ## Architecture
 
-```text
-[Client/UI]
-    |
-    v
-[Secrets API] --(encrypt/decrypt)--> [KMS Service]
-    |
-    +----(check ACL)---------------> [Blockchain ACL Contract]
-    |
-    +----(store encrypted)---------> [PostgreSQL/Redis]
-    |
-    +----(emit event)--------------> [Audit Writer] --> [Blockchain Audit]
-```
+![C4 context diagram](docs/diagrams/c4-context.png)
+
+Full diagram: [docs/architecture.md](docs/architecture.md)
 
 ### Components
 
