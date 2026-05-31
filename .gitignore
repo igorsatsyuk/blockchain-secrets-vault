@@ -1,0 +1,39 @@
+# --- OS / IDE ---
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+.vscode/
+
+# --- Java / Maven ---
+target/
+*.class
+*.log
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# --- Node / Frontend ---
+node_modules/
+dist/
+.angular/
+coverage/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+
+# --- Hardhat / Blockchain ---
+blockchain/cache/
+blockchain/artifacts/
+blockchain/typechain-types/
+blockchain/coverage/
+blockchain/coverage.json
+
+# --- Secrets / Env ---
+.env
+.env.*
+!.env.example
+deploy/env/*.env
+!deploy/env/*.example.env
+
+# --- Local brief (not part of the repo) ---
+Blockchain Secrets Vault.txt
