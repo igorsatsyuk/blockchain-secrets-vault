@@ -1,0 +1,35 @@
+@startuml
+title Sequence: Grant and Revoke Access (on-chain ACL)
+
+actor Admin
+actor "Revoked Account" as Revoked
+participant "Secrets UI\n(Angular)" as UI
+participant "Secrets API\n:8080" as API
+participant "SecretsAcl\nContract" as Contract
+participant "Audit Writer" as Audit
+
+== Grant access ==
+Admin -> UI: Grant read/write to account
+UI -> API: POST /secrets/{id}/acl\nAuthorization: Bearer <JWT>\n{ account, canRead, canWrite }
+API -> Contract: grantAccess(secretId, account, canRead, canWrite)
+Contract --> API: AccessGranted event
+API -> Audit: emit GRANT event
+Audit -> Contract: auditEvent(secretId, account, GRANT, hash)
+API --> UI: 200 OK
+
+== Revoke access ==
+Admin -> UI: Revoke access from account
+UI -> API: DELETE /secrets/{id}/acl/{account}\nAuthorization: Bearer <JWT>
+API -> Contract: revokeAccess(secretId, account)
+Contract --> API: AccessRevoked event
+API -> Audit: emit REVOKE event
+Audit -> Contract: auditEvent(secretId, account, REVOKE, hash)
+API --> UI: 200 OK
+
+== Later read attempt is rejected ==
+Revoked -> API: GET /secrets/{id}\nAuthorization: Bearer <JWT>
+API -> Contract: canRead(secretId, revokedAccount)
+Contract --> API: false
+API --> Revoked: 403 Forbidden
+
+@enduml
