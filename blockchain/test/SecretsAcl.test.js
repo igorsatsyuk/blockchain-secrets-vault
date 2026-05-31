@@ -152,4 +152,82 @@ describe("SecretsAcl - scaffolding and data model (#1)", function () {
         .withArgs(secretId);
     });
   });
+
+  describe("grantAccess (#3)", function () {
+    const secretId = ethers.id("db/prod/password");
+    const dataHash = ethers.id("ciphertext-hash");
+    const uri = "s3://vault/db/prod/password";
+
+    async function registeredFixture() {
+      const base = await deployFixture();
+      const signers = await ethers.getSigners();
+      const owner = base.other;
+      const grantee = signers[3];
+      const stranger = signers[4];
+      await base.contract.connect(owner).registerSecret(secretId, dataHash, uri);
+      return { ...base, owner, grantee, stranger };
+    }
+
+    it("lets the owner grant read and write access", async function () {
+      const { contract, owner, grantee } = await loadFixture(registeredFixture);
+      const tx = await contract.connect(owner).grantAccess(secretId, grantee.address, true, true);
+      const block = await ethers.provider.getBlock(tx.blockNumber);
+
+      await expect(tx)
+        .to.emit(contract, "AccessGranted")
+        .withArgs(secretId, grantee.address, true, true, block.timestamp);
+
+      const grant = await contract.getAccess(secretId, grantee.address);
+      expect(grant.canRead).to.equal(true);
+      expect(grant.canWrite).to.equal(true);
+      expect(grant.exists).to.equal(true);
+      expect(grant.updatedAt).to.equal(block.timestamp);
+    });
+
+    it("lets the admin grant access even when not the owner", async function () {
+      const { contract, admin, grantee } = await loadFixture(registeredFixture);
+      await contract.connect(admin).grantAccess(secretId, grantee.address, true, false);
+
+      const grant = await contract.getAccess(secretId, grantee.address);
+      expect(grant.canRead).to.equal(true);
+      expect(grant.canWrite).to.equal(false);
+      expect(grant.exists).to.equal(true);
+    });
+
+    it("overwrites an existing grant on a subsequent call", async function () {
+      const { contract, owner, grantee } = await loadFixture(registeredFixture);
+      await contract.connect(owner).grantAccess(secretId, grantee.address, true, true);
+      await contract.connect(owner).grantAccess(secretId, grantee.address, true, false);
+
+      const grant = await contract.getAccess(secretId, grantee.address);
+      expect(grant.canRead).to.equal(true);
+      expect(grant.canWrite).to.equal(false);
+    });
+
+    it("reverts when the account is the zero address", async function () {
+      const { contract, owner } = await loadFixture(registeredFixture);
+      await expect(
+        contract.connect(owner).grantAccess(secretId, ethers.ZeroAddress, true, true)
+      ).to.be.revertedWithCustomError(contract, "ZeroAddress");
+    });
+
+    it("reverts when the secret does not exist", async function () {
+      const { contract, owner, grantee } = await loadFixture(registeredFixture);
+      const unknownId = ethers.id("missing");
+      await expect(
+        contract.connect(owner).grantAccess(unknownId, grantee.address, true, true)
+      )
+        .to.be.revertedWithCustomError(contract, "SecretNotFound")
+        .withArgs(unknownId);
+    });
+
+    it("reverts when the caller is neither owner nor admin", async function () {
+      const { contract, stranger, grantee } = await loadFixture(registeredFixture);
+      await expect(
+        contract.connect(stranger).grantAccess(secretId, grantee.address, true, true)
+      )
+        .to.be.revertedWithCustomError(contract, "NotAuthorized")
+        .withArgs(stranger.address);
+    });
+  });
 });

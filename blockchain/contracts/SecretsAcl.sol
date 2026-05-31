@@ -182,6 +182,46 @@ contract SecretsAcl {
     }
 
     // ---------------------------------------------------------------------
+    // Access control
+    // ---------------------------------------------------------------------
+
+    /// @notice Grants or updates read/write access to a secret for an account.
+    /// @dev Only the secret owner or the contract admin may manage access.
+    ///      Calling again for the same account overwrites the previous grant.
+    ///      Reverts with {ZeroAddress} for a zero account, {SecretNotFound}
+    ///      when the secret is unknown and {NotAuthorized} for other callers.
+    /// @param secretId Identifier of the secret.
+    /// @param account  Account being granted access.
+    /// @param canRead  Whether the account may read the secret.
+    /// @param canWrite Whether the account may write the secret.
+    function grantAccess(
+        bytes32 secretId,
+        address account,
+        bool canRead,
+        bool canWrite
+    ) external {
+        if (account == address(0)) {
+            revert ZeroAddress();
+        }
+
+        Secret storage secret = _secrets[secretId];
+        if (!secret.exists) {
+            revert SecretNotFound(secretId);
+        }
+        if (msg.sender != secret.owner && msg.sender != admin) {
+            revert NotAuthorized(msg.sender);
+        }
+
+        AccessGrant storage grant = _acl[secretId][account];
+        grant.canRead = canRead;
+        grant.canWrite = canWrite;
+        grant.exists = true;
+        grant.updatedAt = block.timestamp;
+
+        emit AccessGranted(secretId, account, canRead, canWrite, block.timestamp);
+    }
+
+    // ---------------------------------------------------------------------
     // Read-only accessors
     // ---------------------------------------------------------------------
 
