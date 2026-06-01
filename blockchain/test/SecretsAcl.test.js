@@ -405,4 +405,81 @@ describe("SecretsAcl - scaffolding and data model (#1)", function () {
         .withArgs(unknownId);
     });
   });
+
+  describe("auditEvent (#6)", function () {
+    const secretId = ethers.id("db/prod/password");
+    const dataHash = ethers.id("ciphertext-hash");
+    const uri = "s3://vault/db/prod/password";
+    const detailsHash = ethers.id("audit-details");
+    const action = 3n; // AuditAction.READ
+
+    async function registeredFixture() {
+      const base = await deployFixture();
+      const signers = await ethers.getSigners();
+      const subject = signers[3];
+      const stranger = signers[4];
+
+      await base.contract.connect(base.other).registerSecret(secretId, dataHash, uri);
+
+      return { ...base, subject, stranger };
+    }
+
+    it("lets the admin publish an audit record", async function () {
+      const { contract, admin, subject } = await loadFixture(registeredFixture);
+      const tx = await contract
+        .connect(admin)
+        .auditEvent(secretId, subject.address, action, detailsHash);
+      const receipt = await tx.wait();
+      const block = await ethers.provider.getBlock(receipt.blockNumber);
+      const blockTimestamp = BigInt(block.timestamp);
+
+      await expect(tx)
+        .to.emit(contract, "AccessAudited")
+        .withArgs(secretId, subject.address, action, detailsHash, blockTimestamp);
+    });
+
+    it("reverts when called by a non-admin account", async function () {
+      const { contract, stranger, subject } = await loadFixture(registeredFixture);
+      await expect(
+        contract.connect(stranger).auditEvent(secretId, subject.address, action, detailsHash)
+      )
+        .to.be.revertedWithCustomError(contract, "NotAuthorized")
+        .withArgs(stranger.address);
+    });
+
+    it("reverts when the secret id is zero", async function () {
+      const { contract, admin, subject } = await loadFixture(registeredFixture);
+      await expect(
+        contract.connect(admin).auditEvent(ethers.ZeroHash, subject.address, action, detailsHash)
+      )
+        .to.be.revertedWithCustomError(contract, "InvalidSecretId");
+    });
+
+    it("reverts when the account is zero", async function () {
+      const { contract, admin } = await loadFixture(registeredFixture);
+      await expect(
+        contract.connect(admin).auditEvent(secretId, ethers.ZeroAddress, action, detailsHash)
+      )
+        .to.be.revertedWithCustomError(contract, "ZeroAddress");
+    });
+
+    it("reverts when the secret does not exist", async function () {
+      const { contract, admin, subject } = await loadFixture(registeredFixture);
+      const unknownId = ethers.id("missing");
+      await expect(
+        contract.connect(admin).auditEvent(unknownId, subject.address, action, detailsHash)
+      )
+        .to.be.revertedWithCustomError(contract, "SecretNotFound")
+        .withArgs(unknownId);
+    });
+
+    it("reverts when the audit action is outside the enum range", async function () {
+      const { contract, admin, subject } = await loadFixture(registeredFixture);
+      await expect(
+        contract.connect(admin).auditEvent(secretId, subject.address, 5, detailsHash)
+      )
+        .to.be.revertedWithCustomError(contract, "InvalidAuditAction")
+        .withArgs(5);
+    });
+  });
 });
