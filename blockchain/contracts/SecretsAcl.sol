@@ -9,8 +9,8 @@ pragma solidity ^0.8.24;
 /// @dev Issue #1 establishes the data model, storage layout, events, custom
 ///      errors and read-only accessors. Mutating operations registerSecret,
 ///      grantAccess and revokeAccess are implemented in follow-up issues #2-#4.
-///      The remaining operations canRead/canWrite and auditEvent are covered
-///      by follow-up issues #5-#6.
+///      Access-check operations canRead/canWrite are implemented in issue #5.
+///      The remaining operation auditEvent is covered by follow-up issue #6.
 contract SecretsAcl {
     // ---------------------------------------------------------------------
     // Data model
@@ -193,13 +193,13 @@ contract SecretsAcl {
     ///      when the secret is unknown and {NotAuthorized} for other callers.
     /// @param secretId Identifier of the secret.
     /// @param account  Account being granted access.
-    /// @param canRead  Whether the account may read the secret.
-    /// @param canWrite Whether the account may write the secret.
+    /// @param grantCanRead  Whether the account may read the secret.
+    /// @param grantCanWrite Whether the account may write the secret.
     function grantAccess(
         bytes32 secretId,
         address account,
-        bool canRead,
-        bool canWrite
+        bool grantCanRead,
+        bool grantCanWrite
     ) external {
         if (account == address(0)) {
             revert ZeroAddress();
@@ -214,12 +214,18 @@ contract SecretsAcl {
         }
 
         AccessGrant storage grant = _acl[secretId][account];
-        grant.canRead = canRead;
-        grant.canWrite = canWrite;
+        grant.canRead = grantCanRead;
+        grant.canWrite = grantCanWrite;
         grant.exists = true;
         grant.updatedAt = block.timestamp;
 
-        emit AccessGranted(secretId, account, canRead, canWrite, block.timestamp);
+        emit AccessGranted(
+            secretId,
+            account,
+            grantCanRead,
+            grantCanWrite,
+            block.timestamp
+        );
     }
 
     /// @notice Revokes previously granted access to a secret for an account.
@@ -248,6 +254,32 @@ contract SecretsAcl {
         delete _acl[secretId][account];
 
         emit AccessRevoked(secretId, account, block.timestamp);
+    }
+
+    /// @notice Returns whether `account` may read `secretId`.
+    /// @dev Secret owner and contract admin always have read access.
+    ///      Reverts with {InvalidSecretId} for a zero secret identifier,
+    ///      {ZeroAddress} for a zero account and {SecretNotFound} when the
+    ///      secret is unknown.
+    function canRead(bytes32 secretId, address account) external view returns (bool) {
+        Secret storage secret = _requireSecretAndAccount(secretId, account);
+        if (account == secret.owner || account == admin) {
+            return true;
+        }
+        return _acl[secretId][account].canRead;
+    }
+
+    /// @notice Returns whether `account` may write `secretId`.
+    /// @dev Secret owner and contract admin always have write access.
+    ///      Reverts with {InvalidSecretId} for a zero secret identifier,
+    ///      {ZeroAddress} for a zero account and {SecretNotFound} when the
+    ///      secret is unknown.
+    function canWrite(bytes32 secretId, address account) external view returns (bool) {
+        Secret storage secret = _requireSecretAndAccount(secretId, account);
+        if (account == secret.owner || account == admin) {
+            return true;
+        }
+        return _acl[secretId][account].canWrite;
     }
 
     // ---------------------------------------------------------------------
@@ -291,5 +323,23 @@ contract SecretsAcl {
         returns (AccessGrant memory)
     {
         return _acl[secretId][account];
+    }
+
+    function _requireSecretAndAccount(bytes32 secretId, address account)
+        internal
+        view
+        returns (Secret storage secret)
+    {
+        if (secretId == bytes32(0)) {
+            revert InvalidSecretId();
+        }
+        if (account == address(0)) {
+            revert ZeroAddress();
+        }
+
+        secret = _secrets[secretId];
+        if (!secret.exists) {
+            revert SecretNotFound(secretId);
+        }
     }
 }
