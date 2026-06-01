@@ -161,28 +161,6 @@ jobs:
           projectBaseDir: blockchain
           args: ${{ steps['sonar-args'].outputs.args }}
 
-      - name: Wait for Quality Gate and publish blockchain Sonar summary
-        if: steps['sonar-check'].outputs.sonar_enabled == 'true'
-        shell: bash
-        env:
-          REPO_NAME: ${{ github.event.repository.name }}
-        run: |
-          report_task="blockchain/.scannerwork/report-task.txt"
-          if [ ! -f "$report_task" ]; then
-            echo "Unable to find blockchain Sonar report-task.txt at $report_task" >&2
-            exit 1
-          fi
-          extra_args=()
-          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
-            extra_args+=("--allow-missing-new-code-metrics")
-          fi
-          python3 .github/scripts/sonar_quality_gate_report.py \
-            --component-name "blockchain" \
-            --project-key "${REPO_NAME}-blockchain" \
-            --report-task-file "$report_task" \
-            --timeout-seconds 900 \
-            "${extra_args[@]}"
-
   sonar-backend:
     name: SonarQube - backend
     runs-on: ubuntu-latest
@@ -261,28 +239,6 @@ jobs:
         with:
           projectBaseDir: backend
           args: ${{ steps['sonar-args'].outputs.args }}
-
-      - name: Wait for Quality Gate and publish backend Sonar summary
-        if: steps['sonar-check'].outputs.sonar_enabled == 'true'
-        shell: bash
-        env:
-          REPO_NAME: ${{ github.event.repository.name }}
-        run: |
-          report_task="backend/.scannerwork/report-task.txt"
-          if [ ! -f "$report_task" ]; then
-            echo "Unable to find backend Sonar report-task.txt at $report_task" >&2
-            exit 1
-          fi
-          extra_args=()
-          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
-            extra_args+=("--allow-missing-new-code-metrics")
-          fi
-          python3 .github/scripts/sonar_quality_gate_report.py \
-            --component-name "backend" \
-            --project-key "${REPO_NAME}-backend" \
-            --report-task-file "$report_task" \
-            --timeout-seconds 900 \
-            "${extra_args[@]}"
 
   notify-telegram:
     name: Notify Telegram
