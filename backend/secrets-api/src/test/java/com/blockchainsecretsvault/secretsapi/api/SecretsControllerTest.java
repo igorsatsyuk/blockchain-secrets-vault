@@ -131,6 +131,23 @@ class SecretsControllerTest {
     }
 
     @Test
+    void returnsBadRequestForBlankUpdateTags() {
+        SecretResponse created = create("alpha");
+
+        webTestClient.put()
+                .uri("/api/v1/secrets/{id}", created.id())
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("tags", new String[]{"prod", "  "}))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody(ErrorResponse.class)
+                .value(error -> {
+                    assertThat(error.message()).isEqualTo("Request validation failed");
+                    assertThat(error.details()).containsKey("tags[]");
+                });
+    }
+
+    @Test
     void returnsConflictForDuplicateName() {
         SecretResponse first = create("alpha");
         assertThat(first).isNotNull();
