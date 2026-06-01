@@ -18,6 +18,8 @@ The project demonstrates:
 
 Full diagram: [docs/architecture.md](docs/architecture.md)
 
+Secrets API contract: [docs/api/secrets-api.md](docs/api/secrets-api.md)
+
 ### Components
 
 - **Secrets API** - CRUD over secrets, encryption/decryption via KMS, ACL checks
