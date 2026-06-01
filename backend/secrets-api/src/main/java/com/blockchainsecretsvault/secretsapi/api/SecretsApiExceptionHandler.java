@@ -17,7 +17,7 @@ import org.springframework.web.server.ServerWebInputException;
 @RestControllerAdvice
 public class SecretsApiExceptionHandler {
 
-    private static final String BAD_REQUEST = "Bad Request";
+    private static final HttpStatus BAD_REQUEST = HttpStatus.BAD_REQUEST;
 
     @ExceptionHandler(SecretNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -34,7 +34,7 @@ public class SecretsApiExceptionHandler {
     @ExceptionHandler(EmptySecretUpdateException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleEmptyUpdate(EmptySecretUpdateException exception) {
-        return ErrorResponse.of(400, BAD_REQUEST, exception.getMessage());
+        return ErrorResponse.of(BAD_REQUEST.value(), BAD_REQUEST.getReasonPhrase(), exception.getMessage());
     }
 
     @ExceptionHandler(WebExchangeBindException.class)
@@ -52,12 +52,17 @@ public class SecretsApiExceptionHandler {
                                 )
                         )
                 ));
-        return ErrorResponse.withDetails(400, BAD_REQUEST, "Request validation failed", details);
+        return ErrorResponse.withDetails(
+                BAD_REQUEST.value(),
+                BAD_REQUEST.getReasonPhrase(),
+                "Request validation failed",
+                details
+        );
     }
 
     @ExceptionHandler(ServerWebInputException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleBadInput(ServerWebInputException exception) {
-        return ErrorResponse.of(400, BAD_REQUEST, "Malformed request");
+        return ErrorResponse.of(BAD_REQUEST.value(), BAD_REQUEST.getReasonPhrase(), "Malformed request");
     }
 }
