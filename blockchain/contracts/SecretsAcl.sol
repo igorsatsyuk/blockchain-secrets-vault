@@ -8,7 +8,7 @@ pragma solidity ^0.8.24;
 ///         immutable audit records.
 /// @dev Issue #1 establishes the data model, storage layout, events, custom
 ///      errors and read-only accessors. Mutating operations (registerSecret,
-///      grantAccess, revokeAccess, canRead/canWrite, auditEvent) are implemented
+///      grantAccess, canRead/canWrite, auditEvent) are implemented
 ///      in follow-up issues #2-#6.
 contract SecretsAcl {
     // ---------------------------------------------------------------------
@@ -219,6 +219,30 @@ contract SecretsAcl {
         grant.updatedAt = block.timestamp;
 
         emit AccessGranted(secretId, account, canRead, canWrite, block.timestamp);
+    }
+
+    /// @notice Revokes previously granted access to a secret for an account.
+    /// @dev Only the secret owner or the contract admin may revoke access.
+    ///      Reverts with {ZeroAddress} for a zero account, {SecretNotFound}
+    ///      when the secret is unknown and {NotAuthorized} for other callers.
+    /// @param secretId Identifier of the secret.
+    /// @param account  Account whose access is being revoked.
+    function revokeAccess(bytes32 secretId, address account) external {
+        if (account == address(0)) {
+            revert ZeroAddress();
+        }
+
+        Secret storage secret = _secrets[secretId];
+        if (!secret.exists) {
+            revert SecretNotFound(secretId);
+        }
+        if (msg.sender != secret.owner && msg.sender != admin) {
+            revert NotAuthorized(msg.sender);
+        }
+
+        delete _acl[secretId][account];
+
+        emit AccessRevoked(secretId, account, block.timestamp);
     }
 
     // ---------------------------------------------------------------------

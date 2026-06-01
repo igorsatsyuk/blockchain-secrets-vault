@@ -230,4 +230,83 @@ describe("SecretsAcl - scaffolding and data model (#1)", function () {
         .withArgs(stranger.address);
     });
   });
+
+  describe("revokeAccess (#4)", function () {
+    const secretId = ethers.id("db/prod/password");
+    const dataHash = ethers.id("ciphertext-hash");
+    const uri = "s3://vault/db/prod/password";
+
+    async function grantedFixture() {
+      const base = await deployFixture();
+      const signers = await ethers.getSigners();
+      const owner = base.other;
+      const grantee = signers[3];
+      const stranger = signers[4];
+
+      await base.contract.connect(owner).registerSecret(secretId, dataHash, uri);
+      await base.contract.connect(owner).grantAccess(secretId, grantee.address, true, true);
+
+      return { ...base, owner, grantee, stranger };
+    }
+
+    it("lets the owner revoke previously granted access", async function () {
+      const { contract, owner, grantee } = await loadFixture(grantedFixture);
+      const tx = await contract.connect(owner).revokeAccess(secretId, grantee.address);
+      const block = await ethers.provider.getBlock(tx.blockNumber);
+
+      await expect(tx)
+        .to.emit(contract, "AccessRevoked")
+        .withArgs(secretId, grantee.address, block.timestamp);
+
+      const grant = await contract.getAccess(secretId, grantee.address);
+      expect(grant.canRead).to.equal(false);
+      expect(grant.canWrite).to.equal(false);
+      expect(grant.exists).to.equal(false);
+      expect(grant.updatedAt).to.equal(0n);
+    });
+
+    it("lets the admin revoke access even when not the owner", async function () {
+      const { contract, admin, grantee } = await loadFixture(grantedFixture);
+      await contract.connect(admin).revokeAccess(secretId, grantee.address);
+
+      const grant = await contract.getAccess(secretId, grantee.address);
+      expect(grant.exists).to.equal(false);
+    });
+
+    it("is idempotent when access does not exist", async function () {
+      const { contract, owner, grantee } = await loadFixture(grantedFixture);
+      await contract.connect(owner).revokeAccess(secretId, grantee.address);
+      const tx = await contract.connect(owner).revokeAccess(secretId, grantee.address);
+      const block = await ethers.provider.getBlock(tx.blockNumber);
+      await expect(tx)
+        .to.emit(contract, "AccessRevoked")
+        .withArgs(secretId, grantee.address, block.timestamp);
+    });
+
+    it("reverts when the account is the zero address", async function () {
+      const { contract, owner } = await loadFixture(grantedFixture);
+      await expect(
+        contract.connect(owner).revokeAccess(secretId, ethers.ZeroAddress)
+      ).to.be.revertedWithCustomError(contract, "ZeroAddress");
+    });
+
+    it("reverts when the secret does not exist", async function () {
+      const { contract, owner, grantee } = await loadFixture(grantedFixture);
+      const unknownId = ethers.id("missing");
+      await expect(
+        contract.connect(owner).revokeAccess(unknownId, grantee.address)
+      )
+        .to.be.revertedWithCustomError(contract, "SecretNotFound")
+        .withArgs(unknownId);
+    });
+
+    it("reverts when the caller is neither owner nor admin", async function () {
+      const { contract, stranger, grantee } = await loadFixture(grantedFixture);
+      await expect(
+        contract.connect(stranger).revokeAccess(secretId, grantee.address)
+      )
+        .to.be.revertedWithCustomError(contract, "NotAuthorized")
+        .withArgs(stranger.address);
+    });
+  });
 });
