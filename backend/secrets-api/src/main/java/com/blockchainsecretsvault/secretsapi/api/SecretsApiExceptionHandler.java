@@ -4,6 +4,8 @@ import com.blockchainsecretsvault.secretsapi.service.DuplicateSecretNameExceptio
 import com.blockchainsecretsvault.secretsapi.service.EmptySecretUpdateException;
 import com.blockchainsecretsvault.secretsapi.service.SecretNotFoundException;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.support.WebExchangeBindException;
@@ -37,10 +39,16 @@ public class SecretsApiExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation(WebExchangeBindException exception) {
         Map<String, String> details = exception.getFieldErrors().stream()
-                .collect(Collectors.toMap(
+                .collect(Collectors.groupingBy(
                         error -> error.getField(),
-                        error -> error.getDefaultMessage() == null ? "invalid" : error.getDefaultMessage(),
-                        (left, right) -> left
+                        TreeMap::new,
+                        Collectors.mapping(
+                                error -> error.getDefaultMessage() == null ? "invalid" : error.getDefaultMessage(),
+                                Collectors.collectingAndThen(
+                                        Collectors.toCollection(TreeSet::new),
+                                        messages -> String.join("; ", messages)
+                                )
+                        )
                 ));
         return ErrorResponse.withDetails(400, "Bad Request", "Request validation failed", details);
     }

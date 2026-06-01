@@ -150,6 +150,21 @@ class SecretsControllerTest {
     }
 
     @Test
+    void returnsAllValidationMessagesForSameField() {
+        SecretResponse created = create("alpha");
+
+        webTestClient.put()
+                .uri("/api/v1/secrets/{id}", created.id())
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("tags", new String[]{" ".repeat(65)}))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody(ErrorResponse.class)
+                .value(error -> assertThat(error.details())
+                        .containsEntry("tags[]", "must not be blank; size must be between 0 and 64"));
+    }
+
+    @Test
     void returnsConflictForDuplicateName() {
         SecretResponse first = create("alpha");
         assertThat(first).isNotNull();
