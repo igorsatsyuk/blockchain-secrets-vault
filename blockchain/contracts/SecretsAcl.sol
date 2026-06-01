@@ -294,7 +294,7 @@ contract SecretsAcl {
         bytes32 detailsHash
     ) external onlyAdmin {
         _requireSecretAndAccount(secretId, account);
-        if (action > uint8(AuditAction.WRITE)) {
+        if (action > uint8(type(AuditAction).max)) {
             revert InvalidAuditAction(action);
         }
         emit AccessAudited(secretId, account, AuditAction(action), detailsHash, block.timestamp);

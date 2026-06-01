@@ -411,7 +411,7 @@ describe("SecretsAcl - scaffolding and data model (#1)", function () {
     const dataHash = ethers.id("ciphertext-hash");
     const uri = "s3://vault/db/prod/password";
     const detailsHash = ethers.id("audit-details");
-    const action = 3n;
+    const action = 3n; // AuditAction.READ
 
     async function registeredFixture() {
       const base = await deployFixture();
