@@ -48,7 +48,8 @@ public class InMemorySecretRepository implements SecretRepository {
     @Override
     public Collection<SecretRecord> findAll() {
         return secrets.values().stream()
-                .sorted(Comparator.comparing(SecretRecord::createdAt))
+                .sorted(Comparator.comparing(SecretRecord::createdAt)
+                        .thenComparing(SecretRecord::id))
                 .toList();
     }
 

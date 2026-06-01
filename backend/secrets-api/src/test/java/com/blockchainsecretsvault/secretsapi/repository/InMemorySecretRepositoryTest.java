@@ -41,6 +41,25 @@ class InMemorySecretRepositoryTest {
     }
 
     @Test
+    void listsSecretsWithStableIdTieBreakerWhenCreationTimeMatches() {
+        Instant createdAt = Instant.parse("2026-06-01T10:00:00Z");
+        SecretRecord second = secret(
+                UUID.fromString("00000000-0000-0000-0000-000000000002"),
+                "second",
+                createdAt
+        );
+        SecretRecord first = secret(
+                UUID.fromString("00000000-0000-0000-0000-000000000001"),
+                "first",
+                createdAt
+        );
+        repository.save(second);
+        repository.save(first);
+
+        assertThat(repository.findAll()).extracting(SecretRecord::name).containsExactly("first", "second");
+    }
+
+    @Test
     void savesOnlyWhenNameIsAvailable() {
         SecretRecord existing = secret("alpha", Instant.parse("2026-06-01T10:00:00Z"));
         repository.save(existing);
@@ -62,8 +81,12 @@ class InMemorySecretRepositoryTest {
     }
 
     private static SecretRecord secret(String name, Instant createdAt) {
+        return secret(UUID.randomUUID(), name, createdAt);
+    }
+
+    private static SecretRecord secret(UUID id, String name, Instant createdAt) {
         return new SecretRecord(
-                UUID.randomUUID(),
+                id,
                 name,
                 "description",
                 "payload",
