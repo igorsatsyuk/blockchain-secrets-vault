@@ -252,11 +252,13 @@ describe("SecretsAcl - scaffolding and data model (#1)", function () {
     it("lets the owner revoke previously granted access", async function () {
       const { contract, owner, grantee } = await loadFixture(grantedFixture);
       const tx = await contract.connect(owner).revokeAccess(secretId, grantee.address);
-      const block = await ethers.provider.getBlock(tx.blockNumber);
+      const receipt = await tx.wait();
+      const block = await ethers.provider.getBlock(receipt.blockNumber);
+      const blockTimestamp = BigInt(block.timestamp);
 
       await expect(tx)
         .to.emit(contract, "AccessRevoked")
-        .withArgs(secretId, grantee.address, block.timestamp);
+        .withArgs(secretId, grantee.address, blockTimestamp);
 
       const grant = await contract.getAccess(secretId, grantee.address);
       expect(grant.canRead).to.equal(false);
@@ -277,10 +279,12 @@ describe("SecretsAcl - scaffolding and data model (#1)", function () {
       const { contract, owner, grantee } = await loadFixture(grantedFixture);
       await contract.connect(owner).revokeAccess(secretId, grantee.address);
       const tx = await contract.connect(owner).revokeAccess(secretId, grantee.address);
-      const block = await ethers.provider.getBlock(tx.blockNumber);
+      const receipt = await tx.wait();
+      const block = await ethers.provider.getBlock(receipt.blockNumber);
+      const blockTimestamp = BigInt(block.timestamp);
       await expect(tx)
         .to.emit(contract, "AccessRevoked")
-        .withArgs(secretId, grantee.address, block.timestamp);
+        .withArgs(secretId, grantee.address, blockTimestamp);
     });
 
     it("reverts when the account is the zero address", async function () {
