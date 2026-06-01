@@ -7,9 +7,10 @@ pragma solidity ^0.8.24;
 ///         encrypted form; this contract holds only metadata, access grants and
 ///         immutable audit records.
 /// @dev Issue #1 establishes the data model, storage layout, events, custom
-///      errors and read-only accessors. Mutating operations (registerSecret,
-///      grantAccess, canRead/canWrite, auditEvent) are implemented
-///      in follow-up issues #2-#6.
+///      errors and read-only accessors. Mutating operations registerSecret,
+///      grantAccess and revokeAccess are implemented in follow-up issues #2-#4.
+///      The remaining operations canRead/canWrite and auditEvent are covered
+///      by follow-up issues #5-#6.
 contract SecretsAcl {
     // ---------------------------------------------------------------------
     // Data model
