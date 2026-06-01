@@ -76,6 +76,7 @@ jobs:
             exit 0
           fi
           host_url="${SONAR_HOST_URL:-https://sonarcloud.io}"
+          host_url="${host_url%/}"
           if [ "$host_url" = "https://sonarcloud.io" ] && [ -z "$SONAR_ORGANIZATION" ]; then
             echo "sonar_skipped=true" >> $GITHUB_OUTPUT
             echo "SONAR_ORGANIZATION not set for SonarCloud; skipping blockchain analysis"
