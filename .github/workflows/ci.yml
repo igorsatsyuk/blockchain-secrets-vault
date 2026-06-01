@@ -56,7 +56,7 @@ jobs:
       ((github.event_name == 'push' && github.ref == 'refs/heads/main') ||
       (github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'))
     outputs:
-      sonar_skipped: ${{ steps.sonar-check.outputs.sonar_skipped }}
+      sonar_skipped: ${{ steps['sonar-check'].outputs.sonar_skipped }}
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       SONAR_HOST_URL: ${{ vars.SONAR_URL }}
@@ -90,7 +90,7 @@ jobs:
           SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
 
       - name: Download blockchain coverage report
-        if: steps.sonar-check.outputs.sonar_enabled == 'true'
+        if: steps['sonar-check'].outputs.sonar_enabled == 'true'
         continue-on-error: true
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
@@ -98,7 +98,7 @@ jobs:
           path: .
 
       - name: Normalize blockchain lcov path for Sonar
-        if: steps.sonar-check.outputs.sonar_enabled == 'true'
+        if: steps['sonar-check'].outputs.sonar_enabled == 'true'
         shell: bash
         run: |
           expected_sol="blockchain/coverage/lcov.info"
@@ -114,7 +114,7 @@ jobs:
           fi
 
       - name: Build blockchain Sonar args
-        if: steps.sonar-check.outputs.sonar_enabled == 'true'
+        if: steps['sonar-check'].outputs.sonar_enabled == 'true'
         id: sonar-args
         shell: bash
         run: |
@@ -125,17 +125,17 @@ jobs:
           echo "args=${args}" >> "$GITHUB_OUTPUT"
 
       - name: Run SonarQube analysis (blockchain)
-        if: steps.sonar-check.outputs.sonar_enabled == 'true'
+        if: steps['sonar-check'].outputs.sonar_enabled == 'true'
         uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8
         env:
           SONAR_HOST_URL: ${{ vars.SONAR_URL || 'https://sonarcloud.io' }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           projectBaseDir: blockchain
-          args: ${{ steps.sonar-args.outputs.args }}
+          args: ${{ steps['sonar-args'].outputs.args }}
 
       - name: Wait for Quality Gate and publish blockchain Sonar summary
-        if: steps.sonar-check.outputs.sonar_enabled == 'true'
+        if: steps['sonar-check'].outputs.sonar_enabled == 'true'
         shell: bash
         env:
           REPO_NAME: ${{ github.event.repository.name }}
@@ -176,7 +176,7 @@ jobs:
         env:
           BLOCKCHAIN_RESULT: ${{ needs.blockchain.result }}
           SONAR_BLOCKCHAIN_RESULT: ${{ needs.sonar-blockchain.result }}
-          SONAR_BLOCKCHAIN_SKIPPED: ${{ needs.sonar-blockchain.outputs.sonar_skipped }}
+          SONAR_BLOCKCHAIN_SKIPPED: ${{ needs['sonar-blockchain'].outputs.sonar_skipped }}
 
       - name: Notify Telegram
         if: ${{ env.TELEGRAM_TO != '' && env.TELEGRAM_TOKEN != '' }}
