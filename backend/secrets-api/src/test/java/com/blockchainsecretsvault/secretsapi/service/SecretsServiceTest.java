@@ -9,6 +9,7 @@ import com.blockchainsecretsvault.secretsapi.repository.InMemorySecretRepository
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,21 @@ class SecretsServiceTest {
                     assertThat(secret.updatedAt()).isEqualTo(clock.instant());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    void normalizesTagsWithStableLocale() {
+        Locale previousDefault = Locale.getDefault();
+        Locale.setDefault(Locale.forLanguageTag("tr"));
+        try {
+            CreateSecretRequest request = new CreateSecretRequest("alpha", null, "payload", Set.of("IDENTITY"));
+
+            StepVerifier.create(service.create(request))
+                    .assertNext(secret -> assertThat(secret.tags()).containsExactly("identity"))
+                    .verifyComplete();
+        } finally {
+            Locale.setDefault(previousDefault);
+        }
     }
 
     @Test

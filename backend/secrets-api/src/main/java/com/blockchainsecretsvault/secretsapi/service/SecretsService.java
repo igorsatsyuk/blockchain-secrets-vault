@@ -7,6 +7,7 @@ import com.blockchainsecretsvault.secretsapi.repository.SecretRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -115,7 +116,7 @@ public class SecretsService {
         Set<String> normalized = new LinkedHashSet<>();
         for (String tag : tags) {
             if (tag != null && !tag.isBlank()) {
-                normalized.add(tag.trim().toLowerCase());
+                normalized.add(tag.trim().toLowerCase(Locale.ROOT));
             }
         }
         return Set.copyOf(normalized);
