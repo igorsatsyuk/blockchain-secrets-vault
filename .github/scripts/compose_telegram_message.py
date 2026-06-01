@@ -86,12 +86,14 @@ def compose_message() -> str:
 
 
 def main() -> None:
+    import secrets
     message = compose_message()
+    delimiter = f"EOF_{secrets.token_hex(16)}"
     output_path = os.environ["GITHUB_OUTPUT"]
     with open(output_path, "a", encoding="utf-8") as output_file:
-        output_file.write("message<<EOF\n")
+        output_file.write(f"message<<{delimiter}\n")
         output_file.write(message)
-        output_file.write("\nEOF\n")
+        output_file.write(f"\n{delimiter}\n")
 
 
 if __name__ == "__main__":
