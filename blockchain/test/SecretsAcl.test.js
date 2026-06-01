@@ -294,6 +294,13 @@ describe("SecretsAcl - scaffolding and data model (#1)", function () {
       ).to.be.revertedWithCustomError(contract, "ZeroAddress");
     });
 
+    it("reverts when the secret id is zero", async function () {
+      const { contract, owner, grantee } = await loadFixture(grantedFixture);
+      await expect(
+        contract.connect(owner).revokeAccess(ethers.ZeroHash, grantee.address)
+      ).to.be.revertedWithCustomError(contract, "InvalidSecretId");
+    });
+
     it("reverts when the secret does not exist", async function () {
       const { contract, owner, grantee } = await loadFixture(grantedFixture);
       const unknownId = ethers.id("missing");

@@ -224,11 +224,15 @@ contract SecretsAcl {
 
     /// @notice Revokes previously granted access to a secret for an account.
     /// @dev Only the secret owner or the contract admin may revoke access.
-    ///      Reverts with {ZeroAddress} for a zero account, {SecretNotFound}
-    ///      when the secret is unknown and {NotAuthorized} for other callers.
+    ///      Reverts with {InvalidSecretId} for a zero secret identifier,
+    ///      {ZeroAddress} for a zero account, {SecretNotFound} when the secret
+    ///      is unknown and {NotAuthorized} for other callers.
     /// @param secretId Identifier of the secret.
     /// @param account  Account whose access is being revoked.
     function revokeAccess(bytes32 secretId, address account) external {
+        if (secretId == bytes32(0)) {
+            revert InvalidSecretId();
+        }
         if (account == address(0)) {
             revert ZeroAddress();
         }
