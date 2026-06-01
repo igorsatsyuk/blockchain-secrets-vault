@@ -63,6 +63,28 @@ def wait_for_ce_task(ce_task_url: str, token: str, timeout_seconds: int, poll_se
         time.sleep(poll_seconds)
 
 
+def wait_for_quality_gate_status(
+    host_url: str,
+    analysis_id: str,
+    token: str,
+    timeout_seconds: int,
+    poll_seconds: int,
+) -> dict:
+    started = time.monotonic()
+    qg_url = f"{host_url}/api/qualitygates/project_status?analysisId={urllib.parse.quote(analysis_id)}"
+
+    while True:
+        project_status = api_get_json(qg_url, token).get("projectStatus", {})
+        status = project_status.get("status", "NONE")
+        if status != "NONE":
+            return project_status
+
+        if (time.monotonic() - started) > timeout_seconds:
+            raise TimeoutError(f"Timed out waiting for Sonar quality gate status for analysis {analysis_id}")
+
+        time.sleep(poll_seconds)
+
+
 def build_measures_url(host_url: str, project_key: str, pull_request: str | None, branch: str | None) -> str:
     metric_keys = ",".join(
         [
@@ -225,9 +247,13 @@ def main() -> int:
             print(f"Sonar CE task status is {task_status}; analysisId={analysis_id}", file=sys.stderr)
             return 1
 
-        qg_url = f"{host_url}/api/qualitygates/project_status?analysisId={urllib.parse.quote(analysis_id)}"
-        qg_payload = api_get_json(qg_url, token)
-        project_status = qg_payload.get("projectStatus", {})
+        project_status = wait_for_quality_gate_status(
+            host_url,
+            analysis_id,
+            token,
+            args.timeout_seconds,
+            args.poll_seconds,
+        )
         gate_status = project_status.get("status", "NONE")
         conditions = project_status.get("conditions", [])
 
