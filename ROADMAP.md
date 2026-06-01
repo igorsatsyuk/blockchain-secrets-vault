@@ -5,7 +5,7 @@
 - [x] [#1](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/1) `SecretsAcl.sol` smart contract scaffolding and data models
 - [x] [#2](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/2) `registerSecret` implementation in ACL contract
 - [x] [#3](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/3) `grantAccess` implementation for read/write permissions
-- [ ] [#4](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/4) `revokeAccess` implementation for permission revocation
+- [x] [#4](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/4) `revokeAccess` implementation for permission revocation
 - [ ] [#5](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/5) `canRead` and `canWrite` access check functions
 - [ ] [#6](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/6) `auditEvent` function and contract audit events
 

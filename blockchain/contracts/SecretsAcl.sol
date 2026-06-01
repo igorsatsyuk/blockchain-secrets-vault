@@ -7,9 +7,10 @@ pragma solidity ^0.8.24;
 ///         encrypted form; this contract holds only metadata, access grants and
 ///         immutable audit records.
 /// @dev Issue #1 establishes the data model, storage layout, events, custom
-///      errors and read-only accessors. Mutating operations (registerSecret,
-///      grantAccess, revokeAccess, canRead/canWrite, auditEvent) are implemented
-///      in follow-up issues #2-#6.
+///      errors and read-only accessors. Mutating operations registerSecret,
+///      grantAccess and revokeAccess are implemented in follow-up issues #2-#4.
+///      The remaining operations canRead/canWrite and auditEvent are covered
+///      by follow-up issues #5-#6.
 contract SecretsAcl {
     // ---------------------------------------------------------------------
     // Data model
@@ -219,6 +220,34 @@ contract SecretsAcl {
         grant.updatedAt = block.timestamp;
 
         emit AccessGranted(secretId, account, canRead, canWrite, block.timestamp);
+    }
+
+    /// @notice Revokes previously granted access to a secret for an account.
+    /// @dev Only the secret owner or the contract admin may revoke access.
+    ///      Reverts with {InvalidSecretId} for a zero secret identifier,
+    ///      {ZeroAddress} for a zero account, {SecretNotFound} when the secret
+    ///      is unknown and {NotAuthorized} for other callers.
+    /// @param secretId Identifier of the secret.
+    /// @param account  Account whose access is being revoked.
+    function revokeAccess(bytes32 secretId, address account) external {
+        if (secretId == bytes32(0)) {
+            revert InvalidSecretId();
+        }
+        if (account == address(0)) {
+            revert ZeroAddress();
+        }
+
+        Secret storage secret = _secrets[secretId];
+        if (!secret.exists) {
+            revert SecretNotFound(secretId);
+        }
+        if (msg.sender != secret.owner && msg.sender != admin) {
+            revert NotAuthorized(msg.sender);
+        }
+
+        delete _acl[secretId][account];
+
+        emit AccessRevoked(secretId, account, block.timestamp);
     }
 
     // ---------------------------------------------------------------------
