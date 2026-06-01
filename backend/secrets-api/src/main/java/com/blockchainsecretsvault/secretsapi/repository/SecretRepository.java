@@ -9,6 +9,8 @@ public interface SecretRepository {
 
     SecretRecord save(SecretRecord secret);
 
+    Optional<SecretRecord> saveIfNameAvailable(SecretRecord secret, Optional<UUID> existingId);
+
     Optional<SecretRecord> findById(UUID id);
 
     Optional<SecretRecord> findByName(String name);

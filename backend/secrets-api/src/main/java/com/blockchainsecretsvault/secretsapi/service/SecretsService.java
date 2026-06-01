@@ -7,6 +7,7 @@ import com.blockchainsecretsvault.secretsapi.repository.SecretRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -26,22 +27,19 @@ public class SecretsService {
 
     public Mono<SecretRecord> create(CreateSecretRequest request) {
         return Mono.fromSupplier(() -> {
-            secretRepository.findByName(request.name())
-                    .ifPresent(existing -> {
-                        throw new DuplicateSecretNameException(request.name());
-                    });
-
+            String normalizedName = normalizeName(request.name());
             Instant now = Instant.now(clock);
             SecretRecord secret = new SecretRecord(
                     UUID.randomUUID(),
-                    request.name().trim(),
+                    normalizedName,
                     normalizeNullable(request.description()),
                     request.payload(),
                     normalizeTags(request.tags()),
                     now,
                     now
             );
-            return secretRepository.save(secret);
+            return secretRepository.saveIfNameAvailable(secret, Optional.empty())
+                    .orElseThrow(() -> new DuplicateSecretNameException(normalizedName));
         });
     }
 
@@ -64,12 +62,6 @@ public class SecretsService {
                     .orElseThrow(() -> new SecretNotFoundException(id));
 
             String nextName = chooseString(request.name(), existing.name());
-            secretRepository.findByName(nextName)
-                    .filter(found -> !found.id().equals(id))
-                    .ifPresent(found -> {
-                        throw new DuplicateSecretNameException(nextName);
-                    });
-
             SecretRecord updated = new SecretRecord(
                     existing.id(),
                     nextName,
@@ -79,7 +71,8 @@ public class SecretsService {
                     existing.createdAt(),
                     Instant.now(clock)
             );
-            return secretRepository.save(updated);
+            return secretRepository.saveIfNameAvailable(updated, Optional.of(id))
+                    .orElseThrow(() -> new DuplicateSecretNameException(nextName));
         });
     }
 
@@ -95,7 +88,15 @@ public class SecretsService {
         if (candidate == null) {
             return fallback;
         }
-        String trimmed = candidate.trim();
+        return normalizeName(candidate, fallback);
+    }
+
+    private static String normalizeName(String value) {
+        return normalizeName(value, null);
+    }
+
+    private static String normalizeName(String value, String fallback) {
+        String trimmed = value.trim();
         return trimmed.isEmpty() ? fallback : trimmed;
     }
 

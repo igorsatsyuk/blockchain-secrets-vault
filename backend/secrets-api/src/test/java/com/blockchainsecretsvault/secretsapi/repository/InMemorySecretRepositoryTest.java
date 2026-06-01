@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.blockchainsecretsvault.secretsapi.model.SecretRecord;
 import java.time.Instant;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -38,6 +38,27 @@ class InMemorySecretRepositoryTest {
         repository.deleteAll();
 
         assertThat(repository.findAll()).isEmpty();
+    }
+
+    @Test
+    void savesOnlyWhenNameIsAvailable() {
+        SecretRecord existing = secret("alpha", Instant.parse("2026-06-01T10:00:00Z"));
+        repository.save(existing);
+
+        SecretRecord duplicate = secret("ALPHA", Instant.parse("2026-06-01T10:01:00Z"));
+        assertThat(repository.saveIfNameAvailable(duplicate, Optional.empty())).isEmpty();
+        assertThat(repository.findAll()).hasSize(1);
+
+        SecretRecord renamedSameId = new SecretRecord(
+                existing.id(),
+                "alpha",
+                existing.description(),
+                existing.payload(),
+                existing.tags(),
+                existing.createdAt(),
+                Instant.parse("2026-06-01T10:02:00Z")
+        );
+        assertThat(repository.saveIfNameAvailable(renamedSameId, Optional.of(existing.id()))).contains(renamedSameId);
     }
 
     private static SecretRecord secret(String name, Instant createdAt) {

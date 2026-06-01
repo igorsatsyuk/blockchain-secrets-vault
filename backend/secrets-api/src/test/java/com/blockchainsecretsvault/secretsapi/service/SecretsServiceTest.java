@@ -54,6 +54,17 @@ class SecretsServiceTest {
     }
 
     @Test
+    void rejectsDuplicateCreateWhenNameDiffersOnlyByWhitespace() {
+        service.create(new CreateSecretRequest("alpha", null, "one", Set.of())).block();
+
+        StepVerifier.create(service.create(new CreateSecretRequest("  alpha  ", null, "two", Set.of())))
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(DuplicateSecretNameException.class)
+                        .hasMessageContaining("alpha"))
+                .verify();
+    }
+
+    @Test
     void listsAndGetsExistingSecrets() {
         SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
 

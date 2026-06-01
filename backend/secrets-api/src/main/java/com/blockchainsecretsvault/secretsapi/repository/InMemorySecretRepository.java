@@ -21,6 +21,19 @@ public class InMemorySecretRepository implements SecretRepository {
     }
 
     @Override
+    public synchronized Optional<SecretRecord> saveIfNameAvailable(
+            SecretRecord secret,
+            Optional<UUID> existingId
+    ) {
+        Optional<SecretRecord> duplicate = findByName(secret.name())
+                .filter(found -> existingId.isEmpty() || !found.id().equals(existingId.get()));
+        if (duplicate.isPresent()) {
+            return Optional.empty();
+        }
+        return Optional.of(save(secret));
+    }
+
+    @Override
     public Optional<SecretRecord> findById(UUID id) {
         return Optional.ofNullable(secrets.get(id));
     }
