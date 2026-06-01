@@ -18,10 +18,13 @@ The project demonstrates:
 
 Full diagram: [docs/architecture.md](docs/architecture.md)
 
+Secrets API contract: [docs/api/secrets-api.md](docs/api/secrets-api.md)
+
 ### Components
 
-- **Secrets API** - CRUD over secrets, encryption/decryption via KMS, ACL checks
-  via the blockchain.
+- **Secrets API** - CRUD over secrets and API contract for the MVP. KMS
+  encryption/decryption and blockchain ACL checks are planned follow-up work
+  (#8, #9).
 - **KMS Service** - master key generation, AES-GCM encryption, key rotation.
 - **Blockchain ACL Contract** - stores ACL (who can read/write), revocations, and
   access audit.

@@ -8,11 +8,14 @@ SUCCESS_STATES = {"success", "skipped", "neutral"}
 # and update notify-telegram needs + env in ci.yml accordingly.
 JOB_RESULT_FIELDS = (
     ("blockchain", "BLOCKCHAIN_RESULT"),
+    ("backend", "BACKEND_RESULT"),
     ("sonarqube-blockchain", "SONAR_BLOCKCHAIN_RESULT"),
+    ("sonarqube-backend", "SONAR_BACKEND_RESULT"),
 )
 
 SONAR_SKIP_FLAGS = {
     "SONAR_BLOCKCHAIN_RESULT": "SONAR_BLOCKCHAIN_SKIPPED",
+    "SONAR_BACKEND_RESULT": "SONAR_BACKEND_SKIPPED",
 }
 
 
