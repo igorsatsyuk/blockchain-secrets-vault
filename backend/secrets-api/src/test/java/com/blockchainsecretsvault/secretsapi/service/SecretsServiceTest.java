@@ -129,7 +129,7 @@ class SecretsServiceTest {
     }
 
     @Test
-    void updateCanKeepNameWhenBlankAndClearDescriptionAndTags() {
+    void updateCanKeepNameWhenMissingAndClearDescriptionAndNormalizeTags() {
         SecretRecord created = service.create(new CreateSecretRequest(
                 "alpha",
                 "description",
@@ -137,7 +137,7 @@ class SecretsServiceTest {
                 Set.of("one")
         )).block();
 
-        UpdateSecretRequest request = new UpdateSecretRequest("  ", "  ", null, Set.of("", " TWO "));
+        UpdateSecretRequest request = new UpdateSecretRequest(null, "  ", null, Set.of(" TWO "));
 
         StepVerifier.create(service.update(created.id(), request))
                 .assertNext(updated -> {
