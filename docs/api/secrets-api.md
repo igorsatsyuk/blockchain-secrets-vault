@@ -34,7 +34,9 @@ Responses intentionally do not return the stored payload.
 }
 ```
 
-Returns `201 Created` with `Location: /api/v1/secrets/{id}`.
+Returns `201 Created` with `Location: /api/v1/secrets/{id}` and the created
+secret summary in the response body. The response body uses the Model shape
+above and intentionally omits `payload`.
 
 ## List Secrets
 
