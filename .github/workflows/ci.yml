@@ -102,7 +102,7 @@ jobs:
         shell: bash
         run: |
           expected_sol="blockchain/coverage/lcov.info"
-          found_sol=$(find . -path "*/coverage/lcov.info" 2>/dev/null | head -1 || true)
+          found_sol=$(find . -name "lcov.info" 2>/dev/null | head -1 || true)
           found_sol=${found_sol#./}
           if [ -n "$found_sol" ] && [ "$found_sol" != "$expected_sol" ]; then
             mkdir -p "$(dirname "$expected_sol")"
