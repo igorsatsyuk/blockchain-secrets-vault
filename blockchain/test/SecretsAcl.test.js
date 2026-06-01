@@ -472,5 +472,14 @@ describe("SecretsAcl - scaffolding and data model (#1)", function () {
         .to.be.revertedWithCustomError(contract, "SecretNotFound")
         .withArgs(unknownId);
     });
+
+    it("reverts when the audit action is outside the enum range", async function () {
+      const { contract, admin, subject } = await loadFixture(registeredFixture);
+      await expect(
+        contract.connect(admin).auditEvent(secretId, subject.address, 5, detailsHash)
+      )
+        .to.be.revertedWithCustomError(contract, "InvalidAuditAction")
+        .withArgs(5);
+    });
   });
 });

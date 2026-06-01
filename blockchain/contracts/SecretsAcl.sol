@@ -10,7 +10,7 @@ pragma solidity ^0.8.24;
 ///      errors and read-only accessors. Mutating operations registerSecret,
 ///      grantAccess and revokeAccess are implemented in follow-up issues #2-#4.
 ///      Access-check operations canRead/canWrite are implemented in issue #5.
-///      Audit event publishing is covered by follow-up issue #6.
+///      Audit event publishing is implemented in issue #6.
 contract SecretsAcl {
     // ---------------------------------------------------------------------
     // Data model
@@ -106,6 +106,7 @@ contract SecretsAcl {
     error SecretAlreadyExists(bytes32 secretId);
     error NotAuthorized(address account);
     error IndexOutOfBounds(uint256 index, uint256 length);
+    error InvalidAuditAction(uint8 action);
 
     // ---------------------------------------------------------------------
     // Modifiers
@@ -289,11 +290,14 @@ contract SecretsAcl {
     function auditEvent(
         bytes32 secretId,
         address account,
-        AuditAction action,
+        uint8 action,
         bytes32 detailsHash
     ) external onlyAdmin {
         _requireSecretAndAccount(secretId, account);
-        emit AccessAudited(secretId, account, action, detailsHash, block.timestamp);
+        if (action > uint8(AuditAction.WRITE)) {
+            revert InvalidAuditAction(action);
+        }
+        emit AccessAudited(secretId, account, AuditAction(action), detailsHash, block.timestamp);
     }
 
     // ---------------------------------------------------------------------
