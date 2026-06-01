@@ -127,6 +127,8 @@ class SecretsControllerTest {
                 .value(error -> {
                     assertThat(error.message()).isEqualTo("Request validation failed");
                     assertThat(error.details()).containsKeys("name", "payload");
+                    assertThat(error.details()).containsEntry("name", "must not be blank");
+                    assertThat(error.details()).containsEntry("payload", "must not be blank");
                 });
     }
 

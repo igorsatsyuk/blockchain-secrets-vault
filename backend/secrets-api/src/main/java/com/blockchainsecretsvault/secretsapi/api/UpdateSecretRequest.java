@@ -6,9 +6,9 @@ import jakarta.validation.constraints.Size;
 import java.util.Set;
 
 public record UpdateSecretRequest(
-        @Size(max = 128) @Pattern(regexp = ".*\\S.*") String name,
+        @Size(max = 128) @Pattern(regexp = ".*\\S.*", message = "must not be blank") String name,
         @Size(max = 512) String description,
-        @Size(max = 8192) @Pattern(regexp = ".*\\S.*") String payload,
+        @Size(max = 8192) @Pattern(regexp = ".*\\S.*", message = "must not be blank") String payload,
         Set<@NotBlank @Size(max = 64) String> tags
 ) {
     public boolean isEmpty() {
