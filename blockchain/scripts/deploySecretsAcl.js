@@ -1,6 +1,10 @@
 async function deploySecretsAcl(runtimeEnvironment, initialAdmin) {
-  const [defaultAdmin] = await runtimeEnvironment.ethers.getSigners();
-  const admin = initialAdmin || defaultAdmin.address;
+  let admin = initialAdmin;
+  if (admin == null) {
+    const [defaultAdmin] = await runtimeEnvironment.ethers.getSigners();
+    admin = defaultAdmin.address;
+  }
+
   const contract = await runtimeEnvironment.ethers.deployContract("SecretsAcl", [admin]);
   await contract.waitForDeployment();
 

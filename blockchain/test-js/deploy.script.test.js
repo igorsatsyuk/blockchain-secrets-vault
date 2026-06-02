@@ -8,10 +8,14 @@ describe("deploy script", function () {
     let requestedContractName;
     let requestedConstructorArgs;
     let loggedMessage;
+    let getSignersCalled = false;
 
     const fakeRuntime = {
       ethers: {
-        getSigners: async () => [{ address: adminAddress }],
+        getSigners: async () => {
+          getSignersCalled = true;
+          return [{ address: "0x9999999999999999999999999999999999999999" }];
+        },
         deployContract: async (contractName, constructorArgs) => {
           requestedContractName = contractName;
           requestedConstructorArgs = constructorArgs;
@@ -33,6 +37,7 @@ describe("deploy script", function () {
 
       expect(requestedContractName).to.equal("SecretsAcl");
       expect(requestedConstructorArgs).to.deep.equal([adminAddress]);
+      expect(getSignersCalled).to.equal(false);
       expect(result).to.equal(deployedAddress);
       expect(loggedMessage).to.equal(`SecretsAcl deployed to: ${deployedAddress}`);
     } finally {
