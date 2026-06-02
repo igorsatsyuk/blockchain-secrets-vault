@@ -39,4 +39,35 @@ describe("deploy script", function () {
       console.log = originalLog;
     }
   });
+
+  it("deploySecretsAcl uses the default signer address when admin is omitted", async function () {
+    const deployedAddress = "0x2222222222222222222222222222222222222222";
+    const defaultAdminAddress = "0x3333333333333333333333333333333333333333";
+    let requestedConstructorArgs;
+
+    const fakeRuntime = {
+      ethers: {
+        getSigners: async () => [{ address: defaultAdminAddress }],
+        deployContract: async (_contractName, constructorArgs) => {
+          requestedConstructorArgs = constructorArgs;
+          return {
+            waitForDeployment: async () => {},
+            getAddress: async () => deployedAddress
+          };
+        }
+      }
+    };
+
+    const originalLog = console.log;
+    console.log = () => {};
+
+    try {
+      const result = await deploySecretsAcl(fakeRuntime);
+
+      expect(requestedConstructorArgs).to.deep.equal([defaultAdminAddress]);
+      expect(result).to.equal(deployedAddress);
+    } finally {
+      console.log = originalLog;
+    }
+  });
 });

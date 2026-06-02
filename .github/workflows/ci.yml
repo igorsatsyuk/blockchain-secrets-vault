@@ -162,11 +162,6 @@ jobs:
         shell: bash
         run: |
           args="-Dsonar.projectKey=${{ github.event.repository.name }}-blockchain"
-          args="${args} -Dsonar.sources=contracts,scripts"
-          args="${args} -Dsonar.tests=test,test-js"
-          args="${args} -Dsonar.exclusions=node_modules/**,artifacts/**,cache/**"
-          args="${args} -Dsonar.coverage.exclusions=contracts/**,scripts/deploy.js"
-          args="${args} -Dsonar.javascript.lcov.reportPaths=coverage-js/lcov.info,coverage/lcov.info"
           if [ -n "${SONAR_ORGANIZATION}" ]; then
             args="${args} -Dsonar.organization=${SONAR_ORGANIZATION}"
           fi
