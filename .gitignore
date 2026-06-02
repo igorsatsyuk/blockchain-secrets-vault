@@ -26,6 +26,7 @@ blockchain/cache/
 blockchain/artifacts/
 blockchain/typechain-types/
 blockchain/coverage/
+blockchain/coverage-js/
 blockchain/coverage.json
 
 # --- Secrets / Env ---
