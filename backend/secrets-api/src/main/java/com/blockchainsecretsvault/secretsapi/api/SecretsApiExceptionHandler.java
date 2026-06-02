@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -42,7 +43,7 @@ public class SecretsApiExceptionHandler {
     public ErrorResponse handleValidation(WebExchangeBindException exception) {
         Map<String, String> details = exception.getFieldErrors().stream()
                 .collect(Collectors.groupingBy(
-                        error -> error.getField(),
+                        FieldError::getField,
                         TreeMap::new,
                         Collectors.mapping(
                                 error -> error.getDefaultMessage() == null ? "invalid" : error.getDefaultMessage(),

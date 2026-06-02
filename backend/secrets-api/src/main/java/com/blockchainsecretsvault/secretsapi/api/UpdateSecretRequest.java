@@ -1,18 +1,18 @@
 package com.blockchainsecretsvault.secretsapi.api;
 
+import com.blockchainsecretsvault.secretsapi.api.validation.NullOrNotBlank;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.Set;
 
 public record UpdateSecretRequest(
         @Size(max = 128, message = "size must be between 0 and 128")
-        @Pattern(regexp = ".*\\S.*", message = "must not be blank")
+        @NullOrNotBlank(message = "must not be blank")
         String name,
         @Size(max = 512, message = "size must be between 0 and 512")
         String description,
         @Size(max = 8192, message = "size must be between 0 and 8192")
-        @Pattern(regexp = ".*\\S.*", message = "must not be blank")
+        @NullOrNotBlank(message = "must not be blank")
         String payload,
         Set<
                 @NotBlank(message = "must not be blank")
