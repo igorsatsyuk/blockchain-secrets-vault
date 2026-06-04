@@ -136,8 +136,9 @@ The ACL adapter is disabled until both `blockchain.acl.contract-address` and
 
 ## Errors
 
-Validation failures return `400 Bad Request`. Duplicate names return
-`409 Conflict`. Blockchain adapter failures return `502 Bad Gateway`.
+Validation failures return `400 Bad Request`. Unknown secret ids return
+`404 Not Found`. Duplicate names return `409 Conflict`. Blockchain adapter
+failures return `502 Bad Gateway`.
 
 ```json
 {

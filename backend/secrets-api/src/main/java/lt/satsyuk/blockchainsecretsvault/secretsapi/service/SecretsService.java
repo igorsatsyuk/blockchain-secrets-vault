@@ -167,12 +167,18 @@ public class SecretsService {
     public Mono<AccessGrant> checkAccess(UUID id, String account) {
         return Mono.fromSupplier(() -> {
             requireExistingSecret(id);
-            String normalizedAccount = normalizeAccount(account);
-            return new AccessGrant(
-                    normalizedAccount,
-                    blockchainAclClient.canRead(id, normalizedAccount),
-                    blockchainAclClient.canWrite(id, normalizedAccount)
-            );
+            return normalizeAccount(account);
+        }).flatMap(normalizedAccount -> {
+            Mono<Boolean> canRead = Mono.fromSupplier(() -> blockchainAclClient.canRead(id, normalizedAccount))
+                    .subscribeOn(Schedulers.boundedElastic());
+            Mono<Boolean> canWrite = Mono.fromSupplier(() -> blockchainAclClient.canWrite(id, normalizedAccount))
+                    .subscribeOn(Schedulers.boundedElastic());
+            return Mono.zip(canRead, canWrite)
+                    .map(permissions -> new AccessGrant(
+                            normalizedAccount,
+                            permissions.getT1(),
+                            permissions.getT2()
+                    ));
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
