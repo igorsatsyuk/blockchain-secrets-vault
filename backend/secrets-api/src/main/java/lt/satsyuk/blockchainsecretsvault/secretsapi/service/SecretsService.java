@@ -39,7 +39,7 @@ public class SecretsService {
     private void initializeDefaultKey() {
         try {
             kmsService.getActiveKey(DEFAULT_KEY_ID);
-        } catch (KeyNotFoundException ignored) {
+        } catch (KeyNotFoundException _) {
             kmsService.generateKey(DEFAULT_KEY_ID);
         }
     }
@@ -54,37 +54,6 @@ public class SecretsService {
         buffer.putInt(encrypted.authTag().length);
         buffer.put(encrypted.authTag());
         return Base64.getEncoder().encodeToString(buffer.array());
-    }
-
-    private EncryptedData decodeEncryptedData(String encoded, String keyId, int keyVersion) {
-        byte[] decoded = Base64.getDecoder().decode(encoded);
-        ByteBuffer buffer = ByteBuffer.wrap(decoded);
-        
-        int ciphertextLen = buffer.getInt();
-        validateBufferLength(ciphertextLen, buffer.remaining(), "ciphertext");
-        byte[] ciphertext = new byte[ciphertextLen];
-        buffer.get(ciphertext);
-        
-        int nonceLen = buffer.getInt();
-        validateBufferLength(nonceLen, buffer.remaining(), "nonce");
-        byte[] nonce = new byte[nonceLen];
-        buffer.get(nonce);
-        
-        int authTagLen = buffer.getInt();
-        validateBufferLength(authTagLen, buffer.remaining(), "authTag");
-        byte[] authTag = new byte[authTagLen];
-        buffer.get(authTag);
-        
-        return new EncryptedData(ciphertext, nonce, authTag, keyId, keyVersion);
-    }
-    
-    private static void validateBufferLength(int required, int available, String fieldName) {
-        if (required < 0) {
-            throw new IllegalArgumentException("Invalid " + fieldName + " length: negative value");
-        }
-        if (required > available) {
-            throw new IllegalArgumentException("Corrupted encrypted data: insufficient bytes for " + fieldName);
-        }
     }
 
     public Mono<SecretRecord> create(CreateSecretRequest request) {

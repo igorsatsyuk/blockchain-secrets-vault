@@ -30,12 +30,12 @@ public record EncryptedData(
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof EncryptedData that &&
-               keyVersion == that.keyVersion &&
-               Arrays.equals(ciphertext, that.ciphertext) &&
-               Arrays.equals(nonce, that.nonce) &&
-               Arrays.equals(authTag, that.authTag) &&
-               Objects.equals(keyId, that.keyId);
+        return o instanceof EncryptedData(byte[] ct, byte[] n, byte[] at, String id, int kv) &&
+               kv == keyVersion &&
+               Arrays.equals(ciphertext, ct) &&
+               Arrays.equals(nonce, n) &&
+               Arrays.equals(authTag, at) &&
+               Objects.equals(keyId, id);
     }
 
     @Override

@@ -32,13 +32,13 @@ public record EncryptionKey(
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof EncryptionKey that &&
-                version == that.version &&
-                Objects.equals(keyId, that.keyId) &&
-                Arrays.equals(keyMaterial, that.keyMaterial) &&
-                status == that.status &&
-                Objects.equals(createdAt, that.createdAt) &&
-                Objects.equals(rotatedAt, that.rotatedAt);
+        return o instanceof EncryptionKey(String id, byte[] km, int v, KeyStatus s, Instant c, Instant r) &&
+                v == version &&
+                Objects.equals(keyId, id) &&
+                Arrays.equals(keyMaterial, km) &&
+                s == status &&
+                Objects.equals(createdAt, c) &&
+                Objects.equals(rotatedAt, r);
     }
 
     @Override
