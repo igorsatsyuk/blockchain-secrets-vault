@@ -119,9 +119,7 @@ public class Web3jBlockchainAclClient implements BlockchainAclClient {
             return transactionHash;
         } catch (BlockchainAclException exception) {
             throw exception;
-        } catch (IOException exception) {
-            throw new BlockchainAclException("Failed to submit ACL transaction", exception);
-        } catch (RuntimeException exception) {
+        } catch (IOException | RuntimeException exception) {
             throw new BlockchainAclException("Failed to submit ACL transaction", exception);
         }
     }
@@ -154,9 +152,7 @@ public class Web3jBlockchainAclClient implements BlockchainAclClient {
             return (Boolean) value.getValue();
         } catch (BlockchainAclException exception) {
             throw exception;
-        } catch (IOException exception) {
-            throw new BlockchainAclException("Failed to call ACL contract", exception);
-        } catch (RuntimeException exception) {
+        } catch (IOException | RuntimeException exception) {
             throw new BlockchainAclException("Failed to call ACL contract", exception);
         }
     }
