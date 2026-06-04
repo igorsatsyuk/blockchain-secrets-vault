@@ -13,7 +13,7 @@
 
 - [x] [#7](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/7) Secrets API MVP with CRUD and API contracts
 - [x] [#8](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/8) KMS Service with AES-GCM and key management
-- [ ] [#9](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/9) Blockchain adapter integration with ACL contract
+- [x] [#9](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/9) Blockchain adapter integration with ACL contract
 - [ ] [#10](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/10) Audit Writer for publishing access event hashes on-chain
 
 ## Phase 3 - Frontend
