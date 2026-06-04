@@ -2,12 +2,15 @@ package lt.satsyuk.blockchainsecretsvault.secretsapi.service;
 
 import lt.satsyuk.blockchainsecretsvault.kms.model.EncryptedData;
 import lt.satsyuk.blockchainsecretsvault.kms.service.KmsService;
+import lt.satsyuk.blockchainsecretsvault.kms.service.KeyNotFoundException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.CreateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.UpdateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.model.SecretRecord;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.repository.SecretRepository;
+import java.nio.ByteBuffer;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Optional;
@@ -35,9 +38,40 @@ public class SecretsService {
     private void initializeDefaultKey() {
         try {
             kmsService.getActiveKey(DEFAULT_KEY_ID);
-        } catch (Exception _) {
+        } catch (KeyNotFoundException _) {
             kmsService.generateKey(DEFAULT_KEY_ID);
         }
+    }
+
+    private String encodeEncryptedData(EncryptedData encrypted) {
+        int size = encrypted.ciphertext().length + encrypted.nonce().length + encrypted.authTag().length + 12;
+        ByteBuffer buffer = ByteBuffer.allocate(size);
+        buffer.putInt(encrypted.ciphertext().length);
+        buffer.put(encrypted.ciphertext());
+        buffer.putInt(encrypted.nonce().length);
+        buffer.put(encrypted.nonce());
+        buffer.putInt(encrypted.authTag().length);
+        buffer.put(encrypted.authTag());
+        return Base64.getEncoder().encodeToString(buffer.array());
+    }
+
+    private EncryptedData decodeEncryptedData(String encoded, String keyId, int keyVersion) {
+        byte[] decoded = Base64.getDecoder().decode(encoded);
+        ByteBuffer buffer = ByteBuffer.wrap(decoded);
+        
+        int ciphertextLen = buffer.getInt();
+        byte[] ciphertext = new byte[ciphertextLen];
+        buffer.get(ciphertext);
+        
+        int nonceLen = buffer.getInt();
+        byte[] nonce = new byte[nonceLen];
+        buffer.get(nonce);
+        
+        int authTagLen = buffer.getInt();
+        byte[] authTag = new byte[authTagLen];
+        buffer.get(authTag);
+        
+        return new EncryptedData(ciphertext, nonce, authTag, keyId, keyVersion);
     }
 
     public Mono<SecretRecord> create(CreateSecretRequest request) {
@@ -51,7 +85,7 @@ public class SecretsService {
                     UUID.randomUUID(),
                     normalizedName,
                     normalizeNullable(request.description()),
-                    new String(encrypted.ciphertext()),
+                    encodeEncryptedData(encrypted),
                     DEFAULT_KEY_ID,
                     encrypted.keyVersion(),
                     normalizeTags(request.tags()),
@@ -88,7 +122,7 @@ public class SecretsService {
             
             if (request.payload() != null) {
                 EncryptedData encrypted = kmsService.encrypt(DEFAULT_KEY_ID, request.payload().getBytes());
-                nextEncryptedPayload = new String(encrypted.ciphertext());
+                nextEncryptedPayload = encodeEncryptedData(encrypted);
                 nextKeyVersion = encrypted.keyVersion();
             }
             
