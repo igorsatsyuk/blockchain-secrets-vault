@@ -1,6 +1,8 @@
 package lt.satsyuk.blockchainsecretsvault.kms.model;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Objects;
 
 public record EncryptionKey(
     String keyId,
@@ -27,4 +29,35 @@ public record EncryptionKey(
             throw new IllegalArgumentException("createdAt cannot be null");
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof EncryptionKey that)) return false;
+        return version == that.version &&
+                Objects.equals(keyId, that.keyId) &&
+                Arrays.equals(keyMaterial, that.keyMaterial) &&
+                status == that.status &&
+                Objects.equals(createdAt, that.createdAt) &&
+                Objects.equals(rotatedAt, that.rotatedAt);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(keyId, version, status, createdAt, rotatedAt);
+        result = 31 * result + Arrays.hashCode(keyMaterial);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "EncryptionKey{" +
+                "keyId='" + keyId + '\'' +
+                ", keyMaterial=" + Arrays.toString(keyMaterial) +
+                ", version=" + version +
+                ", status=" + status +
+                ", createdAt=" + createdAt +
+                ", rotatedAt=" + rotatedAt +
+                '}';
+    }
 }
+

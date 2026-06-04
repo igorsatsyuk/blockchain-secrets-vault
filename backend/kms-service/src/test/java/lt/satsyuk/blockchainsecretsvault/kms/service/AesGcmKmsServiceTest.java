@@ -5,7 +5,6 @@ import lt.satsyuk.blockchainsecretsvault.kms.model.EncryptionKey;
 import lt.satsyuk.blockchainsecretsvault.kms.model.KeyStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
 
@@ -141,7 +140,7 @@ class AesGcmKmsServiceTest {
     
     @Test
     void testRotateKey() {
-        EncryptionKey originalKey = kmsService.generateKey(TEST_KEY_ID);
+        kmsService.generateKey(TEST_KEY_ID);
         
         EncryptionKey rotatedNewKey = kmsService.rotateKey(TEST_KEY_ID);
         

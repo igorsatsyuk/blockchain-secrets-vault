@@ -35,7 +35,7 @@ public class SecretsService {
     private void initializeDefaultKey() {
         try {
             kmsService.getActiveKey(DEFAULT_KEY_ID);
-        } catch (Exception e) {
+        } catch (Exception _) {
             kmsService.generateKey(DEFAULT_KEY_ID);
         }
     }

@@ -112,7 +112,7 @@ public class AesGcmKmsService implements KmsService {
             cipher.init(Cipher.ENCRYPT_MODE, keySpec, spec);
             byte[] ciphertext = cipher.doFinal(plaintext);
             
-            byte[] authTag = extractAuthTag(cipher, ciphertext);
+            byte[] authTag = extractAuthTag(ciphertext);
             byte[] actualCiphertext = removeSuffixAuthTag(ciphertext, authTag.length);
             
             return new EncryptedData(
@@ -187,7 +187,7 @@ public class AesGcmKmsService implements KmsService {
         return keyId + "#" + version;
     }
     
-    private byte[] extractAuthTag(Cipher cipher, byte[] ciphertext) {
+    private byte[] extractAuthTag(byte[] ciphertext) {
         byte[] authTag = new byte[AUTH_TAG_SIZE / 8];
         System.arraycopy(ciphertext, ciphertext.length - authTag.length, authTag, 0, authTag.length);
         return authTag;

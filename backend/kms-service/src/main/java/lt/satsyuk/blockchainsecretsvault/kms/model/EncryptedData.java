@@ -46,4 +46,15 @@ public record EncryptedData(
         result = 31 * result + Arrays.hashCode(authTag);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "EncryptedData{" +
+                "ciphertext=" + Arrays.toString(ciphertext) +
+                ", nonce=" + Arrays.toString(nonce) +
+                ", authTag=" + Arrays.toString(authTag) +
+                ", keyId='" + keyId + '\'' +
+                ", keyVersion=" + keyVersion +
+                '}';
+    }
 }
