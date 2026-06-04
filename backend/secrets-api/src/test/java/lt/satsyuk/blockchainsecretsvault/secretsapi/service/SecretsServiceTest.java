@@ -1,7 +1,11 @@
 package lt.satsyuk.blockchainsecretsvault.secretsapi.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import lt.satsyuk.blockchainsecretsvault.kms.model.EncryptedData;
+import lt.satsyuk.blockchainsecretsvault.kms.service.KmsService;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.CreateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.UpdateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.model.SecretRecord;
@@ -19,7 +23,25 @@ class SecretsServiceTest {
 
     private final InMemorySecretRepository repository = new InMemorySecretRepository();
     private final Clock clock = Clock.fixed(Instant.parse("2026-06-01T12:00:00Z"), ZoneOffset.UTC);
-    private final SecretsService service = new SecretsService(repository, clock);
+    private final KmsService kmsService = createMockKmsService();
+    private final SecretsService service = new SecretsService(repository, kmsService, clock);
+
+    private static KmsService createMockKmsService() {
+        KmsService mock = mock(KmsService.class);
+        EncryptedData mockEncrypted = new EncryptedData(
+            "encrypted".getBytes(),
+            new byte[12],
+            new byte[16],
+            "default-secret-key",
+            0
+        );
+        when(mock.encrypt("default-secret-key", "secret-value".getBytes())).thenReturn(mockEncrypted);
+        when(mock.encrypt("default-secret-key", "payload".getBytes())).thenReturn(mockEncrypted);
+        when(mock.encrypt("default-secret-key", "one".getBytes())).thenReturn(mockEncrypted);
+        when(mock.encrypt("default-secret-key", "two".getBytes())).thenReturn(mockEncrypted);
+        when(mock.encrypt("default-secret-key", "new-payload".getBytes())).thenReturn(mockEncrypted);
+        return mock;
+    }
 
     @Test
     void createsSecretWithNormalizedFields() {
@@ -35,7 +57,7 @@ class SecretsServiceTest {
                     assertThat(secret.id()).isNotNull();
                     assertThat(secret.name()).isEqualTo("payment-api");
                     assertThat(secret.description()).isEqualTo("tokens");
-                    assertThat(secret.payload()).isEqualTo("secret-value");
+                    assertThat(secret.encryptionKeyId()).isEqualTo("default-secret-key");
                     assertThat(secret.tags()).containsExactlyInAnyOrder("prod", "api");
                     assertThat(secret.createdAt()).isEqualTo(clock.instant());
                     assertThat(secret.updatedAt()).isEqualTo(clock.instant());
@@ -120,7 +142,7 @@ class SecretsServiceTest {
                     assertThat(updated.id()).isEqualTo(created.id());
                     assertThat(updated.name()).isEqualTo("beta");
                     assertThat(updated.description()).isEqualTo("description");
-                    assertThat(updated.payload()).isEqualTo("new-payload");
+                    assertThat(updated.encryptionKeyId()).isEqualTo("default-secret-key");
                     assertThat(updated.tags()).containsExactly("two");
                     assertThat(updated.createdAt()).isEqualTo(created.createdAt());
                     assertThat(updated.updatedAt()).isEqualTo(clock.instant());
@@ -143,7 +165,7 @@ class SecretsServiceTest {
                 .assertNext(updated -> {
                     assertThat(updated.name()).isEqualTo("alpha");
                     assertThat(updated.description()).isNull();
-                    assertThat(updated.payload()).isEqualTo("payload");
+                    assertThat(updated.encryptionKeyId()).isEqualTo("default-secret-key");
                     assertThat(updated.tags()).containsExactly("two");
                 })
                 .verifyComplete();

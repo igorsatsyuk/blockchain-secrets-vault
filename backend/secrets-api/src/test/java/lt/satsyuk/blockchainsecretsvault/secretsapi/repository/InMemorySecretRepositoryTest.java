@@ -72,7 +72,9 @@ class InMemorySecretRepositoryTest {
                 existing.id(),
                 "alpha",
                 existing.description(),
-                existing.payload(),
+                existing.encryptedPayload(),
+                existing.encryptionKeyId(),
+                existing.encryptionKeyVersion(),
                 existing.tags(),
                 existing.createdAt(),
                 Instant.parse("2026-06-01T10:02:00Z")
@@ -89,11 +91,14 @@ class InMemorySecretRepositoryTest {
                 id,
                 name,
                 "description",
-                "payload",
+                "encrypted_payload",
+                "default-secret-key",
+                0,
                 Set.of("prod"),
                 createdAt,
                 createdAt
         );
     }
 }
+
 

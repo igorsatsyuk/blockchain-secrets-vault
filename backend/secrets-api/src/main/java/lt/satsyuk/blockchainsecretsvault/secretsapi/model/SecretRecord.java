@@ -8,10 +8,13 @@ public record SecretRecord(
         UUID id,
         String name,
         String description,
-        String payload,
+        String encryptedPayload,
+        String encryptionKeyId,
+        int encryptionKeyVersion,
         Set<String> tags,
         Instant createdAt,
         Instant updatedAt
 ) {
 }
+
 

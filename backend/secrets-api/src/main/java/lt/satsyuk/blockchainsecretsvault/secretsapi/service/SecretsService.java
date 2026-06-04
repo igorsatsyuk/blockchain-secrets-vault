@@ -1,5 +1,7 @@
 package lt.satsyuk.blockchainsecretsvault.secretsapi.service;
 
+import lt.satsyuk.blockchainsecretsvault.kms.model.EncryptedData;
+import lt.satsyuk.blockchainsecretsvault.kms.service.KmsService;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.CreateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.UpdateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.model.SecretRecord;
@@ -19,22 +21,39 @@ import reactor.core.publisher.Mono;
 public class SecretsService {
 
     private final SecretRepository secretRepository;
+    private final KmsService kmsService;
     private final Clock clock;
+    private static final String DEFAULT_KEY_ID = "default-secret-key";
 
-    public SecretsService(SecretRepository secretRepository, Clock clock) {
+    public SecretsService(SecretRepository secretRepository, KmsService kmsService, Clock clock) {
         this.secretRepository = secretRepository;
+        this.kmsService = kmsService;
         this.clock = clock;
+        initializeDefaultKey();
+    }
+
+    private void initializeDefaultKey() {
+        try {
+            kmsService.getActiveKey(DEFAULT_KEY_ID);
+        } catch (Exception e) {
+            kmsService.generateKey(DEFAULT_KEY_ID);
+        }
     }
 
     public Mono<SecretRecord> create(CreateSecretRequest request) {
         return Mono.fromSupplier(() -> {
             String normalizedName = normalizeName(request.name());
             Instant now = Instant.now(clock);
+            
+            EncryptedData encrypted = kmsService.encrypt(DEFAULT_KEY_ID, request.payload().getBytes());
+            
             SecretRecord secret = new SecretRecord(
                     UUID.randomUUID(),
                     normalizedName,
                     normalizeNullable(request.description()),
-                    request.payload(),
+                    new String(encrypted.ciphertext()),
+                    DEFAULT_KEY_ID,
+                    encrypted.keyVersion(),
                     normalizeTags(request.tags()),
                     now,
                     now
@@ -63,11 +82,23 @@ public class SecretsService {
                     .orElseThrow(() -> new SecretNotFoundException(id));
 
             String nextName = chooseString(request.name(), existing.name());
+            
+            String nextEncryptedPayload = existing.encryptedPayload();
+            int nextKeyVersion = existing.encryptionKeyVersion();
+            
+            if (request.payload() != null) {
+                EncryptedData encrypted = kmsService.encrypt(DEFAULT_KEY_ID, request.payload().getBytes());
+                nextEncryptedPayload = new String(encrypted.ciphertext());
+                nextKeyVersion = encrypted.keyVersion();
+            }
+            
             SecretRecord updated = new SecretRecord(
                     existing.id(),
                     nextName,
                     request.description() == null ? existing.description() : normalizeNullable(request.description()),
-                    request.payload() == null ? existing.payload() : request.payload(),
+                    nextEncryptedPayload,
+                    DEFAULT_KEY_ID,
+                    nextKeyVersion,
                     request.tags() == null ? existing.tags() : normalizeTags(request.tags()),
                     existing.createdAt(),
                     Instant.now(clock)
