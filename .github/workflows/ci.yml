@@ -117,6 +117,15 @@ jobs:
             echo "SONAR_ORGANIZATION not set for SonarCloud; skipping blockchain analysis"
             exit 0
           fi
+
+          scanner_url="https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-8.1.0.6389-linux-x64.zip"
+          scanner_http_code=$(curl -s -o /dev/null -w "%{http_code}" "$scanner_url" || true)
+          if [ "$scanner_http_code" -ge 400 ] || [ "$scanner_http_code" -eq 0 ]; then
+            echo "sonar_skipped=true" >> $GITHUB_OUTPUT
+            echo "Sonar scanner binary is not reachable (HTTP $scanner_http_code); skipping blockchain analysis"
+            exit 0
+          fi
+
           echo "sonar_skipped=false" >> $GITHUB_OUTPUT
           echo "sonar_enabled=true" >> $GITHUB_OUTPUT
         env:
