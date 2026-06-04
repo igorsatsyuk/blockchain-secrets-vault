@@ -11,6 +11,7 @@
 
     <modules>
         <module>secrets-api</module>
+        <module>kms-service</module>
     </modules>
 
     <properties>
@@ -20,7 +21,7 @@
         <spring-boot.version>3.5.0</spring-boot.version>
         <jacoco.version>0.8.13</jacoco.version>
         <sonar.coverage.jacoco.xmlReportPaths>
-            ${project.basedir}/secrets-api/target/site/jacoco/jacoco.xml
+            ${project.basedir}/secrets-api/target/site/jacoco/jacoco.xml,${project.basedir}/kms-service/target/site/jacoco/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
