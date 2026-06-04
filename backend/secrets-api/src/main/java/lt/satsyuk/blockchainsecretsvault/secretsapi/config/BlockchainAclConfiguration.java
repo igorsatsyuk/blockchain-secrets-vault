@@ -14,13 +14,17 @@ import org.web3j.protocol.http.HttpService;
 @EnableConfigurationProperties(BlockchainAclProperties.class)
 public class BlockchainAclConfiguration {
 
+    @Bean(destroyMethod = "shutdown")
+    Web3j web3j(BlockchainAclProperties properties) {
+        return Web3j.build(new HttpService(properties.rpcUrl()));
+    }
+
     @Bean
-    BlockchainAclClient blockchainAclClient(BlockchainAclProperties properties) {
+    BlockchainAclClient blockchainAclClient(BlockchainAclProperties properties, Web3j web3j) {
         if (!properties.enabled()) {
             return new DisabledBlockchainAclClient();
         }
 
-        Web3j web3j = Web3j.build(new HttpService(properties.rpcUrl()));
         Credentials credentials = Credentials.create(properties.privateKey());
         return new Web3jBlockchainAclClient(
                 web3j,

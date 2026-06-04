@@ -77,12 +77,12 @@ public class SecretsController {
             @PathVariable("account") String account
     ) {
         return secretsService.revokeAccess(id, account)
-                .map(transactionHash -> ResponseEntity
+                .map(transaction -> ResponseEntity
                         .status(HttpStatus.ACCEPTED)
                         .body(new AclTransactionResponse(
                                 id,
-                                transactionHash.account(),
-                                transactionHash.transactionHash()
+                                transaction.account(),
+                                transaction.transactionHash()
                         )));
     }
 

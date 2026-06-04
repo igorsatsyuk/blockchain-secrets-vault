@@ -111,7 +111,11 @@ public class Web3jBlockchainAclClient implements BlockchainAclClient {
             if (transaction.hasError()) {
                 throw new BlockchainAclException(transaction.getError().getMessage());
             }
-            return transaction.getTransactionHash();
+            String transactionHash = transaction.getTransactionHash();
+            if (!hasText(transactionHash)) {
+                throw new BlockchainAclException("ACL transaction response did not include a transaction hash");
+            }
+            return transactionHash;
         } catch (IOException exception) {
             throw new BlockchainAclException("Failed to submit ACL transaction", exception);
         }
@@ -130,8 +134,12 @@ public class Web3jBlockchainAclClient implements BlockchainAclClient {
             if (response.hasError()) {
                 throw new BlockchainAclException(response.getError().getMessage());
             }
+            String responseValue = response.getValue();
+            if (!hasText(responseValue)) {
+                throw new BlockchainAclException("ACL contract returned no boolean value");
+            }
             List<?> values = FunctionReturnDecoder.decode(
-                    response.getValue(),
+                    responseValue,
                     function.getOutputParameters()
             );
             if (values.isEmpty()) {
@@ -155,6 +163,10 @@ public class Web3jBlockchainAclClient implements BlockchainAclClient {
 
     private static Bytes32 secretId(UUID secretId) {
         return new Bytes32(SecretIdCodec.toBytes32(secretId));
+    }
+
+    private static boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 
     @FunctionalInterface

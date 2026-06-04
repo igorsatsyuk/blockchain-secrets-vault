@@ -21,6 +21,7 @@ import org.springframework.web.server.ServerWebInputException;
 public class SecretsApiExceptionHandler {
 
     private static final HttpStatus BAD_REQUEST = HttpStatus.BAD_REQUEST;
+    private static final HttpStatus BAD_GATEWAY = HttpStatus.BAD_GATEWAY;
 
     @ExceptionHandler(SecretNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -49,7 +50,7 @@ public class SecretsApiExceptionHandler {
     @ExceptionHandler(BlockchainAclException.class)
     @ResponseStatus(HttpStatus.BAD_GATEWAY)
     public ErrorResponse handleBlockchainAcl(BlockchainAclException exception) {
-        return ErrorResponse.of(502, "Bad Gateway", exception.getMessage());
+        return ErrorResponse.of(BAD_GATEWAY.value(), BAD_GATEWAY.getReasonPhrase(), exception.getMessage());
     }
 
     @ExceptionHandler(WebExchangeBindException.class)

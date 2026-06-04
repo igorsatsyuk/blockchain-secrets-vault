@@ -64,6 +64,15 @@ class Web3jBlockchainAclClientTest {
     }
 
     @Test
+    void rejectsTransactionResponsesWithoutHash() {
+        Web3jBlockchainAclClient client = clientWithTransactionSender((_, _, _, _, _) -> new EthSendTransaction());
+
+        assertThatThrownBy(() -> client.grantAccess(SECRET_ID, ACCOUNT, true, true))
+                .isInstanceOf(BlockchainAclException.class)
+                .hasMessage("ACL transaction response did not include a transaction hash");
+    }
+
+    @Test
     void decodesReadAndWriteAccessChecks() throws IOException {
         Web3j web3j = web3jReturning("0x" + FunctionEncoder.encodeConstructor(List.of(new Bool(true))));
         Web3jBlockchainAclClient client = clientWithWeb3j(web3j);
@@ -85,6 +94,13 @@ class Web3jBlockchainAclClientTest {
         Web3jBlockchainAclClient emptyClient = clientWithWeb3j(emptyWeb3j);
 
         assertThatThrownBy(() -> emptyClient.canWrite(SECRET_ID, ACCOUNT))
+                .isInstanceOf(BlockchainAclException.class)
+                .hasMessage("ACL contract returned no boolean value");
+
+        Web3j blankWeb3j = web3jReturning(" ");
+        Web3jBlockchainAclClient blankClient = clientWithWeb3j(blankWeb3j);
+
+        assertThatThrownBy(() -> blankClient.canWrite(SECRET_ID, ACCOUNT))
                 .isInstanceOf(BlockchainAclException.class)
                 .hasMessage("ACL contract returned no boolean value");
 

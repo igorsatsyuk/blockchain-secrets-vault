@@ -42,12 +42,17 @@ class BlockchainAclPropertiesTest {
         BlockchainAclConfiguration configuration = new BlockchainAclConfiguration();
 
         BlockchainAclClient client = configuration.blockchainAclClient(
-                new BlockchainAclProperties(null, null, null, null, null)
+                new BlockchainAclProperties(null, null, null, null, null),
+                mockWeb3j()
         );
 
         assertThat(client).isInstanceOf(DisabledBlockchainAclClient.class);
         assertThatThrownBy(() -> client.canRead(null, "0x1111111111111111111111111111111111111111"))
                 .isInstanceOf(BlockchainAclException.class)
                 .hasMessage("Blockchain ACL adapter is not configured");
+    }
+
+    private static org.web3j.protocol.Web3j mockWeb3j() {
+        return org.mockito.Mockito.mock(org.web3j.protocol.Web3j.class);
     }
 }
