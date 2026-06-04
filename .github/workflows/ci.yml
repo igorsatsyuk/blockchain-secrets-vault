@@ -298,6 +298,8 @@ jobs:
             "-Dsonar.projectKey=${REPO_NAME}-backend"
             "-Dsonar.projectName=${REPO_NAME}-backend"
             "-Dsonar.token=${SONAR_TOKEN}"
+            "-Dsonar.sources=secrets-api/src/main,kms-service/src/main"
+            "-Dsonar.tests=secrets-api/src/test,kms-service/src/test"
           )
 
           if [ -n "${report_paths}" ]; then
