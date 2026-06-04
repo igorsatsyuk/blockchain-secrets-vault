@@ -150,7 +150,7 @@ public class Web3jBlockchainAclClient implements BlockchainAclClient {
             List<? extends Type<?>> inputs,
             List<? extends TypeReference<?>> outputs
     ) {
-        return new Function(name, inputs.stream().map(type -> (Type) type).toList(), (List) outputs);
+        return new Function(name, inputs.stream().map(Type.class::cast).toList(), (List) outputs);
     }
 
     private static Bytes32 secretId(UUID secretId) {
