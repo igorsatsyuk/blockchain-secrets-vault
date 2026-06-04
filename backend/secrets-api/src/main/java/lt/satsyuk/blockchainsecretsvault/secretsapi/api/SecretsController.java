@@ -27,6 +27,7 @@ public class SecretsController {
         this.secretsService = secretsService;
     }
 
+
     @PostMapping
     public Mono<ResponseEntity<SecretResponse>> create(@Valid @RequestBody CreateSecretRequest request) {
         return secretsService.create(request)
@@ -62,13 +63,19 @@ public class SecretsController {
     }
 
     @PutMapping("/{id}/acl/{account}")
-    public Mono<AclTransactionResponse> grantAccess(
+    public Mono<ResponseEntity<AclTransactionResponse>> grantAccess(
             @PathVariable("id") UUID id,
             @PathVariable("account") String account,
             @Valid @RequestBody GrantAccessRequest request
     ) {
         return secretsService.grantAccess(id, account, request.canRead(), request.canWrite())
-                .map(transaction -> new AclTransactionResponse(id, transaction.account(), transaction.transactionHash()));
+                .map(transaction -> ResponseEntity
+                        .status(HttpStatus.ACCEPTED)
+                        .body(new AclTransactionResponse(
+                                id,
+                                transaction.account(),
+                                transaction.transactionHash()
+                        )));
     }
 
     @DeleteMapping("/{id}/acl/{account}")
@@ -95,4 +102,3 @@ public class SecretsController {
                 .map(grant -> AccessGrantResponse.from(id, grant));
     }
 }
-

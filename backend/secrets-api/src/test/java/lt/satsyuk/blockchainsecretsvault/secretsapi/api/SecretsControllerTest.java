@@ -33,6 +33,7 @@ class SecretsControllerTest {
         secretRepository.deleteAll();
     }
 
+
     @Test
     void createsListsGetsUpdatesAndDeletesSecret() {
         SecretResponse created = webTestClient.post()
@@ -218,7 +219,7 @@ class SecretsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(Map.of("canRead", true, "canWrite", false))
                 .exchange()
-                .expectStatus().isOk()
+                .expectStatus().isAccepted()
                 .expectBody(AclTransactionResponse.class)
                 .value(response -> {
                     assertThat(response.account()).isEqualTo(account);
@@ -280,4 +281,3 @@ class SecretsControllerTest {
                 .getResponseBody();
     }
 }
-

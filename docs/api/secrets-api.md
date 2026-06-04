@@ -86,7 +86,7 @@ the remaining 16 bytes.
 }
 ```
 
-Returns `200 OK` with the submitted transaction hash.
+Returns `202 Accepted` with the submitted transaction hash.
 
 ```json
 {
