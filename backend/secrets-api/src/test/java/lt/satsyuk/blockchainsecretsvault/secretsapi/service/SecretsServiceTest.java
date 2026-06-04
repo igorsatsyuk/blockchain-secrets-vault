@@ -1,6 +1,8 @@
 package lt.satsyuk.blockchainsecretsvault.secretsapi.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -35,11 +37,7 @@ class SecretsServiceTest {
             "default-secret-key",
             0
         );
-        when(mock.encrypt("default-secret-key", "secret-value".getBytes())).thenReturn(mockEncrypted);
-        when(mock.encrypt("default-secret-key", "payload".getBytes())).thenReturn(mockEncrypted);
-        when(mock.encrypt("default-secret-key", "one".getBytes())).thenReturn(mockEncrypted);
-        when(mock.encrypt("default-secret-key", "two".getBytes())).thenReturn(mockEncrypted);
-        when(mock.encrypt("default-secret-key", "new-payload".getBytes())).thenReturn(mockEncrypted);
+        when(mock.encrypt(anyString(), any(byte[].class))).thenReturn(mockEncrypted);
         return mock;
     }
 
