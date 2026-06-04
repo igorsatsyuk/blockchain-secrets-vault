@@ -298,13 +298,8 @@ class AesGcmKmsServiceTest {
     
     @Test
     void testEncryptionKeyValidation() {
-        assertThrows(IllegalArgumentException.class,
-            () -> new EncryptionKey("", new byte[32], 0, KeyStatus.ACTIVE, Instant.now(), null));
-        
-        assertThrows(IllegalArgumentException.class,
-            () -> new EncryptionKey("key", new byte[0], 0, KeyStatus.ACTIVE, Instant.now(), null));
-        
-        assertThrows(IllegalArgumentException.class,
-            () -> new EncryptionKey("key", new byte[32], -1, KeyStatus.ACTIVE, Instant.now(), null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("", new byte[32], 0, KeyStatus.ACTIVE, Instant.now(), null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key", new byte[0], 0, KeyStatus.ACTIVE, Instant.now(), null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key", new byte[32], -1, KeyStatus.ACTIVE, Instant.now(), null));
     }
 }

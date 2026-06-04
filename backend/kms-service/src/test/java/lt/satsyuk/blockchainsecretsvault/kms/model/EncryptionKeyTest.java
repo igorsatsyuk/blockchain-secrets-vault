@@ -41,20 +41,17 @@ class EncryptionKeyTest {
     
     @Test
     void testEncryptionKeyEmptyKeyMaterial() {
-        assertThrows(IllegalArgumentException.class,
-            () -> new EncryptionKey("key-id", new byte[0], 0, KeyStatus.ACTIVE, Instant.now(), null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key-id", new byte[0], 0, KeyStatus.ACTIVE, Instant.now(), null));
     }
     
     @Test
     void testEncryptionKeyNegativeVersion() {
-        assertThrows(IllegalArgumentException.class,
-            () -> new EncryptionKey("key-id", new byte[32], -1, KeyStatus.ACTIVE, Instant.now(), null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key-id", new byte[32], -1, KeyStatus.ACTIVE, Instant.now(), null));
     }
     
     @Test
     void testEncryptionKeyNullStatus() {
-        assertThrows(IllegalArgumentException.class,
-            () -> new EncryptionKey("key-id", new byte[32], 0, null, Instant.now(), null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key-id", new byte[32], 0, null, Instant.now(), null));
     }
     
     @Test
