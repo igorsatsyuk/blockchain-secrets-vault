@@ -83,6 +83,15 @@ class Web3jBlockchainAclClientTest {
                 .isInstanceOf(BlockchainAclException.class)
                 .hasMessage("Failed to submit ACL transaction")
                 .hasCauseInstanceOf(IOException.class);
+
+        Web3jBlockchainAclClient runtimeClient = clientWithTransactionSender((_, _, _, _, _) -> {
+            throw new IllegalStateException("malformed transaction");
+        });
+
+        assertThatThrownBy(() -> runtimeClient.grantAccess(SECRET_ID, ACCOUNT, true, true))
+                .isInstanceOf(BlockchainAclException.class)
+                .hasMessage("Failed to submit ACL transaction")
+                .hasCauseInstanceOf(IllegalStateException.class);
     }
 
     @Test
@@ -133,6 +142,14 @@ class Web3jBlockchainAclClientTest {
                 .isInstanceOf(BlockchainAclException.class)
                 .hasMessage("Failed to call ACL contract")
                 .hasCauseInstanceOf(IOException.class);
+
+        Web3j runtimeWeb3j = web3jThrowing(new IllegalStateException("malformed response"));
+        Web3jBlockchainAclClient runtimeClient = clientWithWeb3j(runtimeWeb3j);
+
+        assertThatThrownBy(() -> runtimeClient.canRead(SECRET_ID, ACCOUNT))
+                .isInstanceOf(BlockchainAclException.class)
+                .hasMessage("Failed to call ACL contract")
+                .hasCauseInstanceOf(IllegalStateException.class);
     }
 
     private static Web3jBlockchainAclClient clientWithTransactionSender(
@@ -191,6 +208,15 @@ class Web3jBlockchainAclClientTest {
 
     @SuppressWarnings("unchecked")
     private static Web3j web3jThrowing(IOException exception) throws IOException {
+        Web3j web3j = mock(Web3j.class);
+        Request<?, EthCall> request = mock(Request.class);
+        when(request.send()).thenThrow(exception);
+        doReturn(request).when(web3j).ethCall(any(), eq(org.web3j.protocol.core.DefaultBlockParameterName.LATEST));
+        return web3j;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Web3j web3jThrowing(RuntimeException exception) throws IOException {
         Web3j web3j = mock(Web3j.class);
         Request<?, EthCall> request = mock(Request.class);
         when(request.send()).thenThrow(exception);

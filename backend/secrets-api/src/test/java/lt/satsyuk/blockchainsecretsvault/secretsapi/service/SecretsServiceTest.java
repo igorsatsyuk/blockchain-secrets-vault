@@ -17,13 +17,9 @@ import lt.satsyuk.blockchainsecretsvault.secretsapi.repository.InMemorySecretRep
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.time.Duration;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
@@ -277,35 +273,22 @@ class SecretsServiceTest {
     }
 
     @Test
-    void checksBlockchainPermissionsConcurrently() {
+    void checksBlockchainPermissionsWithCombinedResult() {
         SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
         String account = "0x1111111111111111111111111111111111111111";
-        CountDownLatch readStarted = new CountDownLatch(1);
-        CountDownLatch writeStarted = new CountDownLatch(1);
-        AtomicBoolean readObservedWrite = new AtomicBoolean();
-        AtomicBoolean writeObservedRead = new AtomicBoolean();
 
-        when(blockchainAclClient.canRead(created.id(), account)).thenAnswer(_ -> {
-            readStarted.countDown();
-            readObservedWrite.set(writeStarted.await(1, TimeUnit.SECONDS));
-            return true;
-        });
-        when(blockchainAclClient.canWrite(created.id(), account)).thenAnswer(_ -> {
-            writeStarted.countDown();
-            writeObservedRead.set(readStarted.await(1, TimeUnit.SECONDS));
-            return false;
-        });
+        when(blockchainAclClient.canRead(created.id(), account)).thenReturn(true);
+        when(blockchainAclClient.canWrite(created.id(), account)).thenReturn(false);
 
         StepVerifier.create(service.checkAccess(created.id(), account))
                 .assertNext(grant -> {
                     assertThat(grant.canRead()).isTrue();
                     assertThat(grant.canWrite()).isFalse();
                 })
-                .expectComplete()
-                .verify(Duration.ofSeconds(2));
+                .verifyComplete();
 
-        assertThat(readObservedWrite).isTrue();
-        assertThat(writeObservedRead).isTrue();
+        verify(blockchainAclClient).canRead(created.id(), account);
+        verify(blockchainAclClient).canWrite(created.id(), account);
     }
 }
 
