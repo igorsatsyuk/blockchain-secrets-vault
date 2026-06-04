@@ -290,6 +290,7 @@ jobs:
             -Djacoco.skip=true
             -DskipTests
             verify
+            jacoco:report
             sonar:sonar
             "-Dsonar.host.url=${host_url}"
             "-Dsonar.projectKey=${REPO_NAME}-backend"
