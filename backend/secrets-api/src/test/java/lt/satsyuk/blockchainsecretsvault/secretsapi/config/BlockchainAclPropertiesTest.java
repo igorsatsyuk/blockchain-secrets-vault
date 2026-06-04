@@ -2,11 +2,15 @@ package lt.satsyuk.blockchainsecretsvault.secretsapi.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.math.BigInteger;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclClient;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.DisabledBlockchainAclClient;
+import org.springframework.beans.factory.ObjectProvider;
+import org.web3j.protocol.Web3j;
 import org.junit.jupiter.api.Test;
 
 class BlockchainAclPropertiesTest {
@@ -40,19 +44,23 @@ class BlockchainAclPropertiesTest {
     @Test
     void createsDisabledClientWhenContractSettingsAreMissing() {
         BlockchainAclConfiguration configuration = new BlockchainAclConfiguration();
+        ObjectProvider<Web3j> web3j = mockWeb3jProvider();
 
         BlockchainAclClient client = configuration.blockchainAclClient(
                 new BlockchainAclProperties(null, null, null, null, null),
-                mockWeb3j()
+                web3j
         );
 
         assertThat(client).isInstanceOf(DisabledBlockchainAclClient.class);
         assertThatThrownBy(() -> client.canRead(null, "0x1111111111111111111111111111111111111111"))
                 .isInstanceOf(BlockchainAclException.class)
                 .hasMessage("Blockchain ACL adapter is not configured");
+        verifyNoInteractions(web3j);
     }
 
-    private static org.web3j.protocol.Web3j mockWeb3j() {
-        return org.mockito.Mockito.mock(org.web3j.protocol.Web3j.class);
+    private static ObjectProvider<Web3j> mockWeb3jProvider() {
+        @SuppressWarnings("unchecked")
+        ObjectProvider<Web3j> provider = mock(ObjectProvider.class);
+        return provider;
     }
 }
