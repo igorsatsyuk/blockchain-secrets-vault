@@ -39,4 +39,9 @@ public interface KmsService {
      * Mark key as compromised
      */
     EncryptionKey compromiseKey(String keyId);
+
+    /**
+     * Mark key as retired and block new encryptions with this keyId
+     */
+    EncryptionKey retireKey(String keyId);
 }

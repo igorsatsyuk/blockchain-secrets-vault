@@ -50,9 +50,9 @@ public record EncryptedData(
     @Override
     public String toString() {
         return "EncryptedData{" +
-                "ciphertext=" + Arrays.toString(ciphertext) +
-                ", nonce=" + Arrays.toString(nonce) +
-                ", authTag=" + Arrays.toString(authTag) +
+                "ciphertextLength=" + ciphertext.length +
+                ", nonceLength=" + nonce.length +
+                ", authTagLength=" + authTag.length +
                 ", keyId='" + keyId + '\'' +
                 ", keyVersion=" + keyVersion +
                 '}';

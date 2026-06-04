@@ -19,8 +19,8 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class AesGcmKmsService implements KmsService {
@@ -33,76 +33,81 @@ public class AesGcmKmsService implements KmsService {
     private static final String KEY_VERSION_FORMAT = "%s#%d";
     
     private final SecureRandom secureRandom = new SecureRandom();
-    private final Map<String, EncryptionKey> keyStore = new HashMap<>();
-    private final Map<String, Integer> keyVersions = new HashMap<>();
+    private final Map<String, EncryptionKey> keyStore = new ConcurrentHashMap<>();
+    private final Map<String, Integer> keyVersions = new ConcurrentHashMap<>();
+    private final Object lifecycleLock = new Object();
     
     @Override
     public EncryptionKey generateKey(String keyId) {
-        if (keyVersions.containsKey(keyId)) {
-            String message = String.format("Key already exists: %s", keyId);
-            throw new IllegalArgumentException(message);
-        }
-        
-        try {
-            KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
-            keyGen.init(KEY_SIZE, secureRandom);
-            byte[] keyMaterial = keyGen.generateKey().getEncoded();
+        synchronized (lifecycleLock) {
+            if (keyVersions.containsKey(keyId)) {
+                String message = String.format("Key already exists: %s", keyId);
+                throw new IllegalArgumentException(message);
+            }
             
-            EncryptionKey key = new EncryptionKey(
-                keyId,
-                keyMaterial,
-                0,
-                KeyStatus.ACTIVE,
-                Instant.now(),
-                null
-            );
-            
-            keyStore.put(keyVersionKey(keyId, 0), key);
-            keyVersions.put(keyId, 0);
-            
-            return key;
-        } catch (NoSuchAlgorithmException e) {
-            logger.error("Failed to generate key for keyId: {}", keyId, e);
-            throw new EncryptionFailedException("Failed to generate key", e);
+            try {
+                KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
+                keyGen.init(KEY_SIZE, secureRandom);
+                byte[] keyMaterial = keyGen.generateKey().getEncoded();
+                
+                EncryptionKey key = new EncryptionKey(
+                    keyId,
+                    keyMaterial,
+                    0,
+                    KeyStatus.ACTIVE,
+                    Instant.now(),
+                    null
+                );
+                
+                keyStore.put(keyVersionKey(keyId, 0), key);
+                keyVersions.put(keyId, 0);
+                
+                return key;
+            } catch (NoSuchAlgorithmException e) {
+                logger.error("Failed to generate key for keyId: {}", keyId, e);
+                throw new EncryptionFailedException("Failed to generate key", e);
+            }
         }
     }
     
     @Override
     public EncryptionKey rotateKey(String keyId) {
-        EncryptionKey activeKey = getActiveKey(keyId);
-        
-        try {
-            int newVersion = activeKey.version() + 1;
-            KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
-            keyGen.init(KEY_SIZE, secureRandom);
-            byte[] keyMaterial = keyGen.generateKey().getEncoded();
+        synchronized (lifecycleLock) {
+            EncryptionKey activeKey = getActiveKey(keyId);
             
-            EncryptionKey rotatedKey = new EncryptionKey(
-                activeKey.keyId(),
-                activeKey.keyMaterial(),
-                activeKey.version(),
-                KeyStatus.ROTATED,
-                activeKey.createdAt(),
-                Instant.now()
-            );
-            
-            EncryptionKey newActiveKey = new EncryptionKey(
-                keyId,
-                keyMaterial,
-                newVersion,
-                KeyStatus.ACTIVE,
-                Instant.now(),
-                null
-            );
-            
-            keyStore.put(keyVersionKey(keyId, activeKey.version()), rotatedKey);
-            keyStore.put(keyVersionKey(keyId, newVersion), newActiveKey);
-            keyVersions.put(keyId, newVersion);
-            
-            return newActiveKey;
-        } catch (NoSuchAlgorithmException e) {
-            logger.error("Failed to rotate key for keyId: {}", keyId, e);
-            throw new EncryptionFailedException("Failed to rotate key", e);
+            try {
+                int newVersion = activeKey.version() + 1;
+                KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
+                keyGen.init(KEY_SIZE, secureRandom);
+                byte[] keyMaterial = keyGen.generateKey().getEncoded();
+                
+                EncryptionKey rotatedKey = new EncryptionKey(
+                    activeKey.keyId(),
+                    activeKey.keyMaterial(),
+                    activeKey.version(),
+                    KeyStatus.ROTATED,
+                    activeKey.createdAt(),
+                    Instant.now()
+                );
+                
+                EncryptionKey newActiveKey = new EncryptionKey(
+                    keyId,
+                    keyMaterial,
+                    newVersion,
+                    KeyStatus.ACTIVE,
+                    Instant.now(),
+                    null
+                );
+                
+                keyStore.put(keyVersionKey(keyId, activeKey.version()), rotatedKey);
+                keyStore.put(keyVersionKey(keyId, newVersion), newActiveKey);
+                keyVersions.put(keyId, newVersion);
+                
+                return newActiveKey;
+            } catch (NoSuchAlgorithmException e) {
+                logger.error("Failed to rotate key for keyId: {}", keyId, e);
+                throw new EncryptionFailedException("Failed to rotate key", e);
+            }
         }
     }
     
@@ -180,24 +185,50 @@ public class AesGcmKmsService implements KmsService {
             String message = String.format("Key not found: %s", keyId);
             throw new KeyNotFoundException(message);
         }
-        return getKey(keyId, version);
+        EncryptionKey key = getKey(keyId, version);
+        if (key.status() != KeyStatus.ACTIVE) {
+            String message = String.format("Key is not active: %s status: %s", keyId, key.status());
+            throw new IllegalStateException(message);
+        }
+        return key;
     }
     
     @Override
     public EncryptionKey compromiseKey(String keyId) {
-        EncryptionKey activeKey = getActiveKey(keyId);
-        
-        EncryptionKey compromisedKey = new EncryptionKey(
-            activeKey.keyId(),
-            activeKey.keyMaterial(),
-            activeKey.version(),
-            KeyStatus.COMPROMISED,
-            activeKey.createdAt(),
-            Instant.now()
-        );
-        
-        keyStore.put(keyVersionKey(keyId, activeKey.version()), compromisedKey);
-        return compromisedKey;
+        synchronized (lifecycleLock) {
+            EncryptionKey activeKey = getActiveKey(keyId);
+            
+            EncryptionKey compromisedKey = new EncryptionKey(
+                activeKey.keyId(),
+                activeKey.keyMaterial(),
+                activeKey.version(),
+                KeyStatus.COMPROMISED,
+                activeKey.createdAt(),
+                Instant.now()
+            );
+            
+            keyStore.put(keyVersionKey(keyId, activeKey.version()), compromisedKey);
+            return compromisedKey;
+        }
+    }
+
+    @Override
+    public EncryptionKey retireKey(String keyId) {
+        synchronized (lifecycleLock) {
+            EncryptionKey activeKey = getActiveKey(keyId);
+
+            EncryptionKey retiredKey = new EncryptionKey(
+                activeKey.keyId(),
+                activeKey.keyMaterial(),
+                activeKey.version(),
+                KeyStatus.RETIRED,
+                activeKey.createdAt(),
+                Instant.now()
+            );
+
+            keyStore.put(keyVersionKey(keyId, activeKey.version()), retiredKey);
+            return retiredKey;
+        }
     }
     
     private String keyVersionKey(String keyId, int version) {

@@ -231,12 +231,82 @@ class AesGcmKmsServiceTest {
         assertEquals(KeyStatus.COMPROMISED, compromisedKey.status());
         assertNotNull(compromisedKey.rotatedAt());
     }
+
+    @Test
+    void testGetActiveKeyAfterCompromise() {
+        kmsService.generateKey(TEST_KEY_ID);
+        kmsService.compromiseKey(TEST_KEY_ID);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> kmsService.getActiveKey(TEST_KEY_ID));
+        assertTrue(exception.getMessage().contains("not active"));
+    }
+
+    @Test
+    void testEncryptAfterCompromise() {
+        kmsService.generateKey(TEST_KEY_ID);
+        kmsService.compromiseKey(TEST_KEY_ID);
+
+        assertThrows(IllegalStateException.class, () -> kmsService.encrypt(TEST_KEY_ID, TEST_PLAINTEXT));
+    }
+
+    @Test
+    void testDecryptAfterCompromise() {
+        kmsService.generateKey(TEST_KEY_ID);
+        EncryptedData encryptedBeforeCompromise = kmsService.encrypt(TEST_KEY_ID, TEST_PLAINTEXT);
+
+        kmsService.compromiseKey(TEST_KEY_ID);
+
+        byte[] decrypted = kmsService.decrypt(encryptedBeforeCompromise);
+        assertArrayEquals(TEST_PLAINTEXT, decrypted);
+    }
     
     @Test
     void testCompromiseNonExistentKey() {
         assertThrows(KeyNotFoundException.class, () -> {
             kmsService.compromiseKey("non-existent");
         });
+    }
+
+    @Test
+    void testRetireKey() {
+        kmsService.generateKey(TEST_KEY_ID);
+
+        EncryptionKey retiredKey = kmsService.retireKey(TEST_KEY_ID);
+
+        assertEquals(KeyStatus.RETIRED, retiredKey.status());
+        assertNotNull(retiredKey.rotatedAt());
+    }
+
+    @Test
+    void testEncryptAfterRetire() {
+        kmsService.generateKey(TEST_KEY_ID);
+        kmsService.retireKey(TEST_KEY_ID);
+
+        assertThrows(IllegalStateException.class, () -> kmsService.encrypt(TEST_KEY_ID, TEST_PLAINTEXT));
+    }
+
+    @Test
+    void testRotateAfterRetire() {
+        kmsService.generateKey(TEST_KEY_ID);
+        kmsService.retireKey(TEST_KEY_ID);
+
+        assertThrows(IllegalStateException.class, () -> kmsService.rotateKey(TEST_KEY_ID));
+    }
+
+    @Test
+    void testDecryptAfterRetire() {
+        kmsService.generateKey(TEST_KEY_ID);
+        EncryptedData encryptedBeforeRetire = kmsService.encrypt(TEST_KEY_ID, TEST_PLAINTEXT);
+
+        kmsService.retireKey(TEST_KEY_ID);
+
+        byte[] decrypted = kmsService.decrypt(encryptedBeforeRetire);
+        assertArrayEquals(TEST_PLAINTEXT, decrypted);
+    }
+
+    @Test
+    void testRetireNonExistentKey() {
+        assertThrows(KeyNotFoundException.class, () -> kmsService.retireKey("non-existent"));
     }
     
     @Test

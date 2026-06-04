@@ -127,5 +127,11 @@ class EncryptedDataTest {
         assertNotNull(str);
         assertTrue(str.contains("key"));
         assertTrue(str.contains("0"));
+        assertTrue(str.contains("ciphertextLength=32"));
+        assertTrue(str.contains("nonceLength=12"));
+        assertTrue(str.contains("authTagLength=16"));
+        assertFalse(str.contains("ciphertext=["));
+        assertFalse(str.contains("nonce=["));
+        assertFalse(str.contains("authTag=["));
     }
 }

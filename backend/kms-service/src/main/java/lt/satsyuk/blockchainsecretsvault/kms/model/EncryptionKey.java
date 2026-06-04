@@ -52,7 +52,7 @@ public record EncryptionKey(
     public String toString() {
         return "EncryptionKey{" +
                 "keyId='" + keyId + '\'' +
-                ", keyMaterial=" + Arrays.toString(keyMaterial) +
+                ", keyMaterialLength=" + keyMaterial.length +
                 ", version=" + version +
                 ", status=" + status +
                 ", createdAt=" + createdAt +
@@ -60,4 +60,3 @@ public record EncryptionKey(
                 '}';
     }
 }
-

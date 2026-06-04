@@ -116,5 +116,7 @@ class EncryptionKeyTest {
         assertNotNull(str);
         assertTrue(str.contains("key-id"));
         assertTrue(str.contains("ACTIVE"));
+        assertTrue(str.contains("keyMaterialLength=32"));
+        assertFalse(str.contains("keyMaterial=["));
     }
 }
