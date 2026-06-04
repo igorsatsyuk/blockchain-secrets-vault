@@ -86,4 +86,50 @@ class EncryptionKeyTest {
         assertEquals(created, key.createdAt());
         assertEquals(rotated, key.rotatedAt());
     }
+
+    @Test
+    void testEncryptionKeyEquals() {
+        byte[] keyMaterial = new byte[32];
+        Instant now = Instant.now();
+        
+        EncryptionKey key1 = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
+        EncryptionKey key2 = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
+        
+        assertEquals(key1, key2);
+    }
+
+    @Test
+    void testEncryptionKeyNotEquals() {
+        byte[] keyMaterial = new byte[32];
+        Instant now = Instant.now();
+        
+        EncryptionKey key1 = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
+        EncryptionKey key2 = new EncryptionKey("key-id", keyMaterial, 1, KeyStatus.ACTIVE, now, null);
+        
+        assertNotEquals(key1, key2);
+    }
+
+    @Test
+    void testEncryptionKeyHashCode() {
+        byte[] keyMaterial = new byte[32];
+        Instant now = Instant.now();
+        
+        EncryptionKey key1 = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
+        EncryptionKey key2 = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
+        
+        assertEquals(key1.hashCode(), key2.hashCode());
+    }
+
+    @Test
+    void testEncryptionKeyToString() {
+        byte[] keyMaterial = new byte[32];
+        Instant now = Instant.now();
+        
+        EncryptionKey key = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
+        String str = key.toString();
+        
+        assertNotNull(str);
+        assertTrue(str.contains("key-id"));
+        assertTrue(str.contains("ACTIVE"));
+    }
 }

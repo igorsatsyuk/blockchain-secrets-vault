@@ -114,4 +114,18 @@ class EncryptedDataTest {
             new EncryptedData(new byte[32], new byte[12], new byte[16], "key", -1);
         });
     }
+
+    @Test
+    void testEncryptedDataToString() {
+        byte[] ciphertext = new byte[32];
+        byte[] nonce = new byte[12];
+        byte[] authTag = new byte[16];
+        
+        EncryptedData data = new EncryptedData(ciphertext, nonce, authTag, "key", 0);
+        String str = data.toString();
+        
+        assertNotNull(str);
+        assertTrue(str.contains("key"));
+        assertTrue(str.contains("0"));
+    }
 }
