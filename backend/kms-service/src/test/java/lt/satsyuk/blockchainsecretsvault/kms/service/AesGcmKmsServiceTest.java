@@ -15,6 +15,7 @@ class AesGcmKmsServiceTest {
     private AesGcmKmsService kmsService;
     private static final String TEST_KEY_ID = "test-key";
     private static final byte[] TEST_PLAINTEXT = "Secret data to encrypt".getBytes();
+    private static final Instant FIXED_INSTANT = Instant.parse("2024-01-01T00:00:00Z");
     
     @BeforeEach
     void setUp() {
@@ -298,8 +299,8 @@ class AesGcmKmsServiceTest {
     
     @Test
     void testEncryptionKeyValidation() {
-        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("", new byte[32], 0, KeyStatus.ACTIVE, Instant.now(), null));
-        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key", new byte[0], 0, KeyStatus.ACTIVE, Instant.now(), null));
-        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key", new byte[32], -1, KeyStatus.ACTIVE, Instant.now(), null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("", new byte[32], 0, KeyStatus.ACTIVE, FIXED_INSTANT, null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key", new byte[0], 0, KeyStatus.ACTIVE, FIXED_INSTANT, null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key", new byte[32], -1, KeyStatus.ACTIVE, FIXED_INSTANT, null));
     }
 }

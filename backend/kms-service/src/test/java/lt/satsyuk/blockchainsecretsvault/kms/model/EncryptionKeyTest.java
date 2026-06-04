@@ -7,6 +7,7 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EncryptionKeyTest {
+    private static final Instant FIXED_INSTANT = Instant.parse("2024-01-01T00:00:00Z");
     
     @Test
     void testEncryptionKeyCreation() {
@@ -25,33 +26,33 @@ class EncryptionKeyTest {
     
     @Test
     void testEncryptionKeyBlankKeyId() {
-        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("", new byte[32], 0, KeyStatus.ACTIVE, Instant.now(), null));
-        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("   ", new byte[32], 0, KeyStatus.ACTIVE, Instant.now(), null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("", new byte[32], 0, KeyStatus.ACTIVE, FIXED_INSTANT, null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("   ", new byte[32], 0, KeyStatus.ACTIVE, FIXED_INSTANT, null));
     }
     
     @Test
     void testEncryptionKeyNullKeyId() {
-        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey(null, new byte[32], 0, KeyStatus.ACTIVE, Instant.now(), null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey(null, new byte[32], 0, KeyStatus.ACTIVE, FIXED_INSTANT, null));
     }
     
     @Test
     void testEncryptionKeyNullKeyMaterial() {
-        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key-id", null, 0, KeyStatus.ACTIVE, Instant.now(), null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key-id", null, 0, KeyStatus.ACTIVE, FIXED_INSTANT, null));
     }
     
     @Test
     void testEncryptionKeyEmptyKeyMaterial() {
-        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key-id", new byte[0], 0, KeyStatus.ACTIVE, Instant.now(), null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key-id", new byte[0], 0, KeyStatus.ACTIVE, FIXED_INSTANT, null));
     }
     
     @Test
     void testEncryptionKeyNegativeVersion() {
-        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key-id", new byte[32], -1, KeyStatus.ACTIVE, Instant.now(), null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key-id", new byte[32], -1, KeyStatus.ACTIVE, FIXED_INSTANT, null));
     }
     
     @Test
     void testEncryptionKeyNullStatus() {
-        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key-id", new byte[32], 0, null, Instant.now(), null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key-id", new byte[32], 0, null, FIXED_INSTANT, null));
     }
     
     @Test
