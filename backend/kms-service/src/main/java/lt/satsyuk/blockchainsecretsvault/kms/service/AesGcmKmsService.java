@@ -3,12 +3,20 @@ package lt.satsyuk.blockchainsecretsvault.kms.service;
 import lt.satsyuk.blockchainsecretsvault.kms.model.EncryptedData;
 import lt.satsyuk.blockchainsecretsvault.kms.model.EncryptionKey;
 import lt.satsyuk.blockchainsecretsvault.kms.model.KeyStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.HashMap;
@@ -16,12 +24,14 @@ import java.util.Map;
 
 @Service
 public class AesGcmKmsService implements KmsService {
-    
+    private static final Logger logger = LoggerFactory.getLogger(AesGcmKmsService.class);
     private static final String ALGORITHM = "AES";
     private static final String CIPHER_ALGORITHM = "AES/GCM/NoPadding";
     private static final int KEY_SIZE = 256;
     private static final int IV_SIZE = 12;
     private static final int AUTH_TAG_SIZE = 128;
+    private static final String KEY_VERSION_FORMAT = "%s#%d";
+    
     private final SecureRandom secureRandom = new SecureRandom();
     private final Map<String, EncryptionKey> keyStore = new HashMap<>();
     private final Map<String, Integer> keyVersions = new HashMap<>();
@@ -29,7 +39,8 @@ public class AesGcmKmsService implements KmsService {
     @Override
     public EncryptionKey generateKey(String keyId) {
         if (keyVersions.containsKey(keyId)) {
-            throw new IllegalArgumentException("Key already exists: " + keyId);
+            String message = String.format("Key already exists: %s", keyId);
+            throw new IllegalArgumentException(message);
         }
         
         try {
@@ -50,7 +61,8 @@ public class AesGcmKmsService implements KmsService {
             keyVersions.put(keyId, 0);
             
             return key;
-        } catch (Exception e) {
+        } catch (NoSuchAlgorithmException e) {
+            logger.error("Failed to generate key for keyId: {}", keyId, e);
             throw new EncryptionFailedException("Failed to generate key", e);
         }
     }
@@ -88,7 +100,8 @@ public class AesGcmKmsService implements KmsService {
             keyVersions.put(keyId, newVersion);
             
             return newActiveKey;
-        } catch (Exception e) {
+        } catch (NoSuchAlgorithmException e) {
+            logger.error("Failed to rotate key for keyId: {}", keyId, e);
             throw new EncryptionFailedException("Failed to rotate key", e);
         }
     }
@@ -122,7 +135,8 @@ public class AesGcmKmsService implements KmsService {
                 keyId,
                 key.version()
             );
-        } catch (Exception e) {
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
+            logger.error("Encryption failed for keyId: {}", keyId, e);
             throw new EncryptionFailedException("Encryption failed", e);
         }
     }
@@ -143,7 +157,8 @@ public class AesGcmKmsService implements KmsService {
             System.arraycopy(encryptedData.authTag(), 0, ciphertextWithTag, encryptedData.ciphertext().length, encryptedData.authTag().length);
             
             return cipher.doFinal(ciphertextWithTag);
-        } catch (Exception e) {
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
+            logger.error("Decryption failed for keyId: {}, version: {}", encryptedData.keyId(), encryptedData.keyVersion(), e);
             throw new DecryptionFailedException("Decryption failed", e);
         }
     }
@@ -152,7 +167,8 @@ public class AesGcmKmsService implements KmsService {
     public EncryptionKey getKey(String keyId, int version) {
         EncryptionKey key = keyStore.get(keyVersionKey(keyId, version));
         if (key == null) {
-            throw new KeyNotFoundException("Key not found: " + keyId + " version: " + version);
+            String message = String.format("Key not found: %s version: %d", keyId, version);
+            throw new KeyNotFoundException(message);
         }
         return key;
     }
@@ -161,7 +177,8 @@ public class AesGcmKmsService implements KmsService {
     public EncryptionKey getActiveKey(String keyId) {
         Integer version = keyVersions.get(keyId);
         if (version == null) {
-            throw new KeyNotFoundException("Key not found: " + keyId);
+            String message = String.format("Key not found: %s", keyId);
+            throw new KeyNotFoundException(message);
         }
         return getKey(keyId, version);
     }
@@ -184,7 +201,7 @@ public class AesGcmKmsService implements KmsService {
     }
     
     private String keyVersionKey(String keyId, int version) {
-        return keyId + "#" + version;
+        return String.format(KEY_VERSION_FORMAT, keyId, version);
     }
     
     private byte[] extractAuthTag(byte[] ciphertext) {
