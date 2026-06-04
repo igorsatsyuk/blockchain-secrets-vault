@@ -205,7 +205,8 @@ class SecretsControllerTest {
     @Test
     void grantsRevokesAndChecksAcl() {
         SecretResponse created = create("alpha");
-        String account = "0x1111111111111111111111111111111111111111";
+        String account = "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd";
+        String mixedCaseAccount = "0x" + account.substring(2).toUpperCase();
 
         when(blockchainAclClient.grantAccess(created.id(), account, true, false)).thenReturn("0xgrant");
         when(blockchainAclClient.revokeAccess(created.id(), account)).thenReturn("0xrevoke");
@@ -213,13 +214,16 @@ class SecretsControllerTest {
         when(blockchainAclClient.canWrite(created.id(), account)).thenReturn(false);
 
         webTestClient.put()
-                .uri("/api/v1/secrets/{id}/acl/{account}", created.id(), account)
+                .uri("/api/v1/secrets/{id}/acl/{account}", created.id(), mixedCaseAccount)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(Map.of("canRead", true, "canWrite", false))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(AclTransactionResponse.class)
-                .value(response -> assertThat(response.transactionHash()).isEqualTo("0xgrant"));
+                .value(response -> {
+                    assertThat(response.account()).isEqualTo(account);
+                    assertThat(response.transactionHash()).isEqualTo("0xgrant");
+                });
 
         webTestClient.get()
                 .uri("/api/v1/secrets/{id}/acl/{account}", created.id(), account)
@@ -233,11 +237,14 @@ class SecretsControllerTest {
                 });
 
         webTestClient.delete()
-                .uri("/api/v1/secrets/{id}/acl/{account}", created.id(), account)
+                .uri("/api/v1/secrets/{id}/acl/{account}", created.id(), mixedCaseAccount)
                 .exchange()
                 .expectStatus().isAccepted()
                 .expectBody(AclTransactionResponse.class)
-                .value(response -> assertThat(response.transactionHash()).isEqualTo("0xrevoke"));
+                .value(response -> {
+                    assertThat(response.account()).isEqualTo(account);
+                    assertThat(response.transactionHash()).isEqualTo("0xrevoke");
+                });
     }
 
     @Test

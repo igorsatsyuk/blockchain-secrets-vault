@@ -68,7 +68,7 @@ public class SecretsController {
             @Valid @RequestBody GrantAccessRequest request
     ) {
         return secretsService.grantAccess(id, account, request.canRead(), request.canWrite())
-                .map(transactionHash -> new AclTransactionResponse(id, account, transactionHash));
+                .map(transaction -> new AclTransactionResponse(id, transaction.account(), transaction.transactionHash()));
     }
 
     @DeleteMapping("/{id}/acl/{account}")
@@ -79,7 +79,11 @@ public class SecretsController {
         return secretsService.revokeAccess(id, account)
                 .map(transactionHash -> ResponseEntity
                         .status(HttpStatus.ACCEPTED)
-                        .body(new AclTransactionResponse(id, account, transactionHash)));
+                        .body(new AclTransactionResponse(
+                                id,
+                                transactionHash.account(),
+                                transactionHash.transactionHash()
+                        )));
     }
 
     @GetMapping("/{id}/acl/{account}")

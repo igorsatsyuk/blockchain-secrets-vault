@@ -5,6 +5,7 @@ import lt.satsyuk.blockchainsecretsvault.kms.service.KmsService;
 import lt.satsyuk.blockchainsecretsvault.kms.service.KeyNotFoundException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.CreateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.UpdateSecretRequest;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AclTransaction;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AccessGrant;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclClient;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.model.SecretRecord;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.web3j.crypto.WalletUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 public class SecretsService {
@@ -144,20 +146,22 @@ public class SecretsService {
         });
     }
 
-    public Mono<String> grantAccess(UUID id, String account, boolean canRead, boolean canWrite) {
+    public Mono<AclTransaction> grantAccess(UUID id, String account, boolean canRead, boolean canWrite) {
         return Mono.fromSupplier(() -> {
             requireExistingSecret(id);
             String normalizedAccount = normalizeAccount(account);
-            return blockchainAclClient.grantAccess(id, normalizedAccount, canRead, canWrite);
-        });
+            String transactionHash = blockchainAclClient.grantAccess(id, normalizedAccount, canRead, canWrite);
+            return new AclTransaction(normalizedAccount, transactionHash);
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    public Mono<String> revokeAccess(UUID id, String account) {
+    public Mono<AclTransaction> revokeAccess(UUID id, String account) {
         return Mono.fromSupplier(() -> {
             requireExistingSecret(id);
             String normalizedAccount = normalizeAccount(account);
-            return blockchainAclClient.revokeAccess(id, normalizedAccount);
-        });
+            String transactionHash = blockchainAclClient.revokeAccess(id, normalizedAccount);
+            return new AclTransaction(normalizedAccount, transactionHash);
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
     public Mono<AccessGrant> checkAccess(UUID id, String account) {
@@ -169,7 +173,7 @@ public class SecretsService {
                     blockchainAclClient.canRead(id, normalizedAccount),
                     blockchainAclClient.canWrite(id, normalizedAccount)
             );
-        });
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
     private SecretRecord requireExistingSecret(UUID id) {

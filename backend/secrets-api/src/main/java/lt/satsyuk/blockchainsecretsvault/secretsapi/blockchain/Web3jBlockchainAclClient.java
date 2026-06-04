@@ -26,7 +26,7 @@ public class Web3jBlockchainAclClient implements BlockchainAclClient {
 
     private final Web3j web3j;
     private final Credentials credentials;
-    private final RawTransactionManager transactionManager;
+    private final TransactionSender transactionSender;
     private final String contractAddress;
     private final BigInteger gasPrice;
     private final BigInteger gasLimit;
@@ -40,7 +40,24 @@ public class Web3jBlockchainAclClient implements BlockchainAclClient {
     ) {
         this.web3j = web3j;
         this.credentials = credentials;
-        this.transactionManager = new RawTransactionManager(web3j, credentials);
+        RawTransactionManager transactionManager = new RawTransactionManager(web3j, credentials);
+        this.transactionSender = transactionManager::sendTransaction;
+        this.contractAddress = contractAddress;
+        this.gasPrice = gasPrice;
+        this.gasLimit = gasLimit;
+    }
+
+    Web3jBlockchainAclClient(
+            Web3j web3j,
+            Credentials credentials,
+            TransactionSender transactionSender,
+            String contractAddress,
+            BigInteger gasPrice,
+            BigInteger gasLimit
+    ) {
+        this.web3j = web3j;
+        this.credentials = credentials;
+        this.transactionSender = transactionSender;
         this.contractAddress = contractAddress;
         this.gasPrice = gasPrice;
         this.gasLimit = gasLimit;
@@ -84,7 +101,7 @@ public class Web3jBlockchainAclClient implements BlockchainAclClient {
 
     private String send(Function function) {
         try {
-            EthSendTransaction transaction = transactionManager.sendTransaction(
+            EthSendTransaction transaction = transactionSender.sendTransaction(
                     gasPrice,
                     gasLimit,
                     contractAddress,
@@ -113,18 +130,42 @@ public class Web3jBlockchainAclClient implements BlockchainAclClient {
             if (response.hasError()) {
                 throw new BlockchainAclException(response.getError().getMessage());
             }
-            List<Type> values = FunctionReturnDecoder.decode(response.getValue(), function.getOutputParameters());
-            return (Boolean) values.getFirst().getValue();
+            List<?> values = FunctionReturnDecoder.decode(
+                    response.getValue(),
+                    function.getOutputParameters()
+            );
+            if (values.isEmpty()) {
+                throw new BlockchainAclException("ACL contract returned no boolean value");
+            }
+            Type<?> value = (Type<?>) values.getFirst();
+            return (Boolean) value.getValue();
         } catch (IOException exception) {
             throw new BlockchainAclException("Failed to call ACL contract", exception);
         }
     }
 
-    private static Function function(String name, List<Type> inputs, List<TypeReference<?>> outputs) {
-        return new Function(name, inputs, outputs);
+    @SuppressWarnings({"rawtypes", "unchecked", "java:S3740"})
+    private static Function function(
+            String name,
+            List<? extends Type<?>> inputs,
+            List<? extends TypeReference<?>> outputs
+    ) {
+        return new Function(name, inputs.stream().map(type -> (Type) type).toList(), (List) outputs);
     }
 
     private static Bytes32 secretId(UUID secretId) {
         return new Bytes32(SecretIdCodec.toBytes32(secretId));
+    }
+
+    @FunctionalInterface
+    interface TransactionSender {
+
+        EthSendTransaction sendTransaction(
+                BigInteger gasPrice,
+                BigInteger gasLimit,
+                String to,
+                String data,
+                BigInteger value
+        ) throws IOException;
     }
 }

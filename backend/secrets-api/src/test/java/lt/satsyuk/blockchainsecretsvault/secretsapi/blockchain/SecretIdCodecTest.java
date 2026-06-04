@@ -13,8 +13,9 @@ class SecretIdCodecTest {
 
         byte[] encoded = SecretIdCodec.toBytes32(secretId);
 
-        assertThat(encoded).hasSize(32);
-        assertThat(encoded).startsWith(
+        assertThat(encoded)
+                .hasSize(32)
+                .startsWith(
                 (byte) 0x00,
                 (byte) 0x11,
                 (byte) 0x22,
@@ -31,8 +32,7 @@ class SecretIdCodecTest {
                 (byte) 0xdd,
                 (byte) 0xee,
                 (byte) 0xff
-        );
-        assertThat(encoded).endsWith(
+        ).endsWith(
                 (byte) 0,
                 (byte) 0,
                 (byte) 0,

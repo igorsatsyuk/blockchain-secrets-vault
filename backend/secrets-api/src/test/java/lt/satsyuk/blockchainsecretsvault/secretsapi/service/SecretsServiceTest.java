@@ -232,7 +232,10 @@ class SecretsServiceTest {
         when(blockchainAclClient.canWrite(created.id(), account)).thenReturn(false);
 
         StepVerifier.create(service.grantAccess(created.id(), account, true, false))
-                .expectNext("0xgrant")
+                .assertNext(transaction -> {
+                    assertThat(transaction.account()).isEqualTo(account);
+                    assertThat(transaction.transactionHash()).isEqualTo("0xgrant");
+                })
                 .verifyComplete();
 
         StepVerifier.create(service.checkAccess(created.id(), account))
@@ -244,7 +247,10 @@ class SecretsServiceTest {
                 .verifyComplete();
 
         StepVerifier.create(service.revokeAccess(created.id(), account))
-                .expectNext("0xrevoke")
+                .assertNext(transaction -> {
+                    assertThat(transaction.account()).isEqualTo(account);
+                    assertThat(transaction.transactionHash()).isEqualTo("0xrevoke");
+                })
                 .verifyComplete();
 
         verify(blockchainAclClient).grantAccess(created.id(), account, true, false);
