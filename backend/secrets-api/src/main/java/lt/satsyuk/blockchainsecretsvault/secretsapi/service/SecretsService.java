@@ -8,6 +8,7 @@ import lt.satsyuk.blockchainsecretsvault.secretsapi.api.UpdateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.model.SecretRecord;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.repository.SecretRepository;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Base64;
@@ -38,7 +39,7 @@ public class SecretsService {
     private void initializeDefaultKey() {
         try {
             kmsService.getActiveKey(DEFAULT_KEY_ID);
-        } catch (KeyNotFoundException _) {
+        } catch (KeyNotFoundException ignored) {
             kmsService.generateKey(DEFAULT_KEY_ID);
         }
     }
@@ -79,7 +80,8 @@ public class SecretsService {
             String normalizedName = normalizeName(request.name());
             Instant now = Instant.now(clock);
             
-            EncryptedData encrypted = kmsService.encrypt(DEFAULT_KEY_ID, request.payload().getBytes());
+            EncryptedData encrypted = kmsService.encrypt(DEFAULT_KEY_ID, 
+                request.payload().getBytes(StandardCharsets.UTF_8));
             
             SecretRecord secret = new SecretRecord(
                     UUID.randomUUID(),
@@ -121,7 +123,8 @@ public class SecretsService {
             int nextKeyVersion = existing.encryptionKeyVersion();
             
             if (request.payload() != null) {
-                EncryptedData encrypted = kmsService.encrypt(DEFAULT_KEY_ID, request.payload().getBytes());
+                EncryptedData encrypted = kmsService.encrypt(DEFAULT_KEY_ID, 
+                    request.payload().getBytes(StandardCharsets.UTF_8));
                 nextEncryptedPayload = encodeEncryptedData(encrypted);
                 nextKeyVersion = encrypted.keyVersion();
             }
