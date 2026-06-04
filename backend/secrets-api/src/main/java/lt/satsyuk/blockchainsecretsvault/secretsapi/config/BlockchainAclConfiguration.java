@@ -38,7 +38,8 @@ public class BlockchainAclConfiguration {
                 credentials,
                 properties.contractAddress(),
                 properties.gasPrice(),
-                properties.gasLimit()
+                properties.gasLimit(),
+                properties.chainId()
         );
     }
 

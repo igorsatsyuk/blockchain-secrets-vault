@@ -6,13 +6,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedConstruction;
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.datatypes.Bool;
 import org.web3j.crypto.Credentials;
@@ -21,6 +24,7 @@ import org.web3j.protocol.core.Request;
 import org.web3j.protocol.core.Response;
 import org.web3j.protocol.core.methods.response.EthCall;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
+import org.web3j.tx.RawTransactionManager;
 
 class Web3jBlockchainAclClientTest {
 
@@ -29,9 +33,28 @@ class Web3jBlockchainAclClientTest {
     private static final String CONTRACT = "0x2222222222222222222222222222222222222222";
     private static final BigInteger GAS_PRICE = BigInteger.valueOf(10);
     private static final BigInteger GAS_LIMIT = BigInteger.valueOf(20);
+    private static final long CHAIN_ID = 31_337L;
     private static final Credentials CREDENTIALS = Credentials.create(
             "0000000000000000000000000000000000000000000000000000000000000001"
     );
+
+    @Test
+    void createsChainIdAwareTransactionManager() {
+        Web3j web3j = mock(Web3j.class);
+        AtomicReference<List<?>> constructorArguments = new AtomicReference<>();
+
+        try (MockedConstruction<RawTransactionManager> _ = mockConstruction(
+                RawTransactionManager.class,
+                (_, context) -> constructorArguments.set(context.arguments())
+        )) {
+            new Web3jBlockchainAclClient(web3j, CREDENTIALS, CONTRACT, GAS_PRICE, GAS_LIMIT, CHAIN_ID);
+
+            assertThat(constructorArguments.get()).hasSize(3);
+            assertThat(constructorArguments.get().get(0)).isSameAs(web3j);
+            assertThat(constructorArguments.get().get(1)).isSameAs(CREDENTIALS);
+            assertThat(constructorArguments.get().get(2)).isEqualTo(CHAIN_ID);
+        }
+    }
 
     @Test
     void submitsGrantAndRevokeTransactions() {

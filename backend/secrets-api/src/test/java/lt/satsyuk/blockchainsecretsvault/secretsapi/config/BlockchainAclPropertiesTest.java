@@ -17,28 +17,33 @@ class BlockchainAclPropertiesTest {
 
     @Test
     void appliesDefaultsAndDisablesClientWhenContractSettingsAreMissing() {
-        BlockchainAclProperties properties = new BlockchainAclProperties(null, null, null, null, null);
+        BlockchainAclProperties properties = new BlockchainAclProperties(null, null, null, null, null, null);
 
         assertThat(properties.rpcUrl()).isEqualTo("http://localhost:8545");
         assertThat(properties.gasPrice()).isEqualTo(BigInteger.valueOf(20_000_000_000L));
         assertThat(properties.gasLimit()).isEqualTo(BigInteger.valueOf(300_000L));
+        assertThat(properties.chainId()).isEqualTo(31_337L);
         assertThat(properties.enabled()).isFalse();
     }
 
     @Test
     void enablesClientWhenContractAddressAndPrivateKeyArePresent() {
         BlockchainAclProperties properties = new BlockchainAclProperties(
-                "http://node:8545",
-                "0x1111111111111111111111111111111111111111",
-                "private-key",
+                "  http://node:8545  ",
+                "  0x1111111111111111111111111111111111111111  ",
+                "  private-key  ",
                 BigInteger.ONE,
-                BigInteger.TEN
+                BigInteger.TEN,
+                1L
         );
 
         assertThat(properties.enabled()).isTrue();
         assertThat(properties.rpcUrl()).isEqualTo("http://node:8545");
+        assertThat(properties.contractAddress()).isEqualTo("0x1111111111111111111111111111111111111111");
+        assertThat(properties.privateKey()).isEqualTo("private-key");
         assertThat(properties.gasPrice()).isEqualTo(BigInteger.ONE);
         assertThat(properties.gasLimit()).isEqualTo(BigInteger.TEN);
+        assertThat(properties.chainId()).isEqualTo(1L);
     }
 
     @Test
@@ -47,7 +52,7 @@ class BlockchainAclPropertiesTest {
         ObjectProvider<Web3j> web3j = mockWeb3jProvider();
 
         BlockchainAclClient client = configuration.blockchainAclClient(
-                new BlockchainAclProperties(null, null, null, null, null),
+                new BlockchainAclProperties(null, null, null, null, null, null),
                 web3j
         );
 

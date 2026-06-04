@@ -133,6 +133,7 @@ The ACL adapter is disabled until both `blockchain.acl.contract-address` and
 - `blockchain.acl.rpc-url`, default `http://localhost:8545`
 - `blockchain.acl.gas-price`, default `20000000000`
 - `blockchain.acl.gas-limit`, default `300000`
+- `blockchain.acl.chain-id`, default `31337`
 
 ## Errors
 

@@ -36,11 +36,12 @@ public class Web3jBlockchainAclClient implements BlockchainAclClient {
             Credentials credentials,
             String contractAddress,
             BigInteger gasPrice,
-            BigInteger gasLimit
+            BigInteger gasLimit,
+            long chainId
     ) {
         this.web3j = web3j;
         this.credentials = credentials;
-        RawTransactionManager transactionManager = new RawTransactionManager(web3j, credentials);
+        RawTransactionManager transactionManager = new RawTransactionManager(web3j, credentials, chainId);
         this.transactionSender = transactionManager::sendTransaction;
         this.contractAddress = contractAddress;
         this.gasPrice = gasPrice;
