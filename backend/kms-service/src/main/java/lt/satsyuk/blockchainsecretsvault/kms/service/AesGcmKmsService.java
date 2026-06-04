@@ -39,6 +39,7 @@ public class AesGcmKmsService implements KmsService {
     
     @Override
     public EncryptionKey generateKey(String keyId) {
+        validateKeyId(keyId);
         synchronized (lifecycleLock) {
             if (keyVersions.containsKey(keyId)) {
                 String message = String.format("Key already exists: %s", keyId);
@@ -72,6 +73,7 @@ public class AesGcmKmsService implements KmsService {
     
     @Override
     public EncryptionKey rotateKey(String keyId) {
+        validateKeyId(keyId);
         synchronized (lifecycleLock) {
             EncryptionKey activeKey = getActiveKey(keyId);
             
@@ -99,9 +101,9 @@ public class AesGcmKmsService implements KmsService {
                     null
                 );
                 
-                keyStore.put(keyVersionKey(keyId, activeKey.version()), rotatedKey);
                 keyStore.put(keyVersionKey(keyId, newVersion), newActiveKey);
                 keyVersions.put(keyId, newVersion);
+                keyStore.put(keyVersionKey(keyId, activeKey.version()), rotatedKey);
                 
                 return newActiveKey;
             } catch (NoSuchAlgorithmException e) {
@@ -113,6 +115,7 @@ public class AesGcmKmsService implements KmsService {
     
     @Override
     public EncryptedData encrypt(String keyId, byte[] plaintext) {
+        validateKeyId(keyId);
         if (plaintext == null || plaintext.length == 0) {
             throw new IllegalArgumentException("Plaintext cannot be empty");
         }
@@ -148,6 +151,9 @@ public class AesGcmKmsService implements KmsService {
     
     @Override
     public byte[] decrypt(EncryptedData encryptedData) {
+        if (encryptedData == null) {
+            throw new IllegalArgumentException("Encrypted data cannot be null");
+        }
         EncryptionKey key = getKey(encryptedData.keyId(), encryptedData.keyVersion());
         
         try {
@@ -170,6 +176,7 @@ public class AesGcmKmsService implements KmsService {
     
     @Override
     public EncryptionKey getKey(String keyId, int version) {
+        validateKeyId(keyId);
         EncryptionKey key = keyStore.get(keyVersionKey(keyId, version));
         if (key == null) {
             String message = String.format("Key not found: %s version: %d", keyId, version);
@@ -180,6 +187,7 @@ public class AesGcmKmsService implements KmsService {
     
     @Override
     public EncryptionKey getActiveKey(String keyId) {
+        validateKeyId(keyId);
         Integer version = keyVersions.get(keyId);
         if (version == null) {
             String message = String.format("Key not found: %s", keyId);
@@ -195,6 +203,7 @@ public class AesGcmKmsService implements KmsService {
     
     @Override
     public EncryptionKey compromiseKey(String keyId) {
+        validateKeyId(keyId);
         synchronized (lifecycleLock) {
             EncryptionKey activeKey = getActiveKey(keyId);
             
@@ -214,6 +223,7 @@ public class AesGcmKmsService implements KmsService {
 
     @Override
     public EncryptionKey retireKey(String keyId) {
+        validateKeyId(keyId);
         synchronized (lifecycleLock) {
             EncryptionKey activeKey = getActiveKey(keyId);
 
@@ -233,6 +243,12 @@ public class AesGcmKmsService implements KmsService {
     
     private String keyVersionKey(String keyId, int version) {
         return String.format(KEY_VERSION_FORMAT, keyId, version);
+    }
+
+    private void validateKeyId(String keyId) {
+        if (keyId == null || keyId.isBlank()) {
+            throw new IllegalArgumentException("keyId cannot be blank");
+        }
     }
     
     private byte[] extractAuthTag(byte[] ciphertext) {

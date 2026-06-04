@@ -134,4 +134,39 @@ class EncryptedDataTest {
         assertFalse(str.contains("nonce=["));
         assertFalse(str.contains("authTag=["));
     }
+
+    @Test
+    void testEncryptedDataDefensiveCopyOnConstruction() {
+        byte[] ciphertext = new byte[32];
+        byte[] nonce = new byte[12];
+        byte[] authTag = new byte[16];
+        ciphertext[0] = 1;
+        nonce[0] = 2;
+        authTag[0] = 3;
+
+        EncryptedData data = new EncryptedData(ciphertext, nonce, authTag, "key", 0);
+        ciphertext[0] = 9;
+        nonce[0] = 9;
+        authTag[0] = 9;
+
+        assertEquals(1, data.ciphertext()[0]);
+        assertEquals(2, data.nonce()[0]);
+        assertEquals(3, data.authTag()[0]);
+    }
+
+    @Test
+    void testEncryptedDataDefensiveCopyOnAccessor() {
+        EncryptedData data = new EncryptedData(new byte[32], new byte[12], new byte[16], "key", 0);
+
+        byte[] ciphertext = data.ciphertext();
+        byte[] nonce = data.nonce();
+        byte[] authTag = data.authTag();
+        ciphertext[0] = 1;
+        nonce[0] = 1;
+        authTag[0] = 1;
+
+        assertEquals(0, data.ciphertext()[0]);
+        assertEquals(0, data.nonce()[0]);
+        assertEquals(0, data.authTag()[0]);
+    }
 }

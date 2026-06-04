@@ -44,6 +44,16 @@ class AesGcmKmsServiceTest {
             kmsService.generateKey(TEST_KEY_ID);
         });
     }
+
+    @Test
+    void testGenerateKeyNullId() {
+        assertThrows(IllegalArgumentException.class, () -> kmsService.generateKey(null));
+    }
+
+    @Test
+    void testGenerateKeyBlankId() {
+        assertThrows(IllegalArgumentException.class, () -> kmsService.generateKey("   "));
+    }
     
     @Test
     void testEncrypt() {
@@ -95,6 +105,11 @@ class AesGcmKmsServiceTest {
         byte[] decrypted = kmsService.decrypt(encrypted);
         
         assertArrayEquals(TEST_PLAINTEXT, decrypted);
+    }
+
+    @Test
+    void testDecryptNullEncryptedData() {
+        assertThrows(IllegalArgumentException.class, () -> kmsService.decrypt(null));
     }
     
     @Test

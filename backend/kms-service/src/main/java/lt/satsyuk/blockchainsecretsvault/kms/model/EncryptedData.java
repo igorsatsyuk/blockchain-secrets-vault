@@ -26,6 +26,25 @@ public record EncryptedData(
         if (keyVersion < 0) {
             throw new IllegalArgumentException("keyVersion cannot be negative");
         }
+
+        ciphertext = ciphertext.clone();
+        nonce = nonce.clone();
+        authTag = authTag.clone();
+    }
+
+    @Override
+    public byte[] ciphertext() {
+        return ciphertext.clone();
+    }
+
+    @Override
+    public byte[] nonce() {
+        return nonce.clone();
+    }
+
+    @Override
+    public byte[] authTag() {
+        return authTag.clone();
     }
 
     @Override

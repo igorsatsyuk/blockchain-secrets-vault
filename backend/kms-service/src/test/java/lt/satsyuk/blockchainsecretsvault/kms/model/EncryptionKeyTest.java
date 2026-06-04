@@ -119,4 +119,26 @@ class EncryptionKeyTest {
         assertTrue(str.contains("keyMaterialLength=32"));
         assertFalse(str.contains("keyMaterial=["));
     }
+
+    @Test
+    void testEncryptionKeyDefensiveCopyOnConstruction() {
+        byte[] keyMaterial = new byte[32];
+        keyMaterial[0] = 1;
+
+        EncryptionKey key = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, Instant.now(), null);
+        keyMaterial[0] = 9;
+
+        assertEquals(1, key.keyMaterial()[0]);
+    }
+
+    @Test
+    void testEncryptionKeyDefensiveCopyOnAccessor() {
+        byte[] keyMaterial = new byte[32];
+        EncryptionKey key = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, Instant.now(), null);
+
+        byte[] accessorValue = key.keyMaterial();
+        accessorValue[0] = 7;
+
+        assertEquals(0, key.keyMaterial()[0]);
+    }
 }

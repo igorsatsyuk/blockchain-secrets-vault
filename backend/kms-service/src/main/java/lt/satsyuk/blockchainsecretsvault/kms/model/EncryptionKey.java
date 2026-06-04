@@ -28,6 +28,13 @@ public record EncryptionKey(
         if (createdAt == null) {
             throw new IllegalArgumentException("createdAt cannot be null");
         }
+
+        keyMaterial = keyMaterial.clone();
+    }
+
+    @Override
+    public byte[] keyMaterial() {
+        return keyMaterial.clone();
     }
 
     @Override
