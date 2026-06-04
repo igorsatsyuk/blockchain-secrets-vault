@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ public class SecretsController {
     public SecretsController(SecretsService secretsService) {
         this.secretsService = secretsService;
     }
+
 
     @PostMapping
     public Mono<ResponseEntity<SecretResponse>> create(@Valid @RequestBody CreateSecretRequest request) {
@@ -59,5 +61,44 @@ public class SecretsController {
     public Mono<ResponseEntity<Void>> delete(@PathVariable("id") UUID id) {
         return secretsService.delete(id).thenReturn(ResponseEntity.noContent().build());
     }
-}
 
+    @PutMapping("/{id}/acl/{account}")
+    public Mono<ResponseEntity<AclTransactionResponse>> grantAccess(
+            @PathVariable("id") UUID id,
+            @PathVariable("account") String account,
+            @Valid @RequestBody GrantAccessRequest request
+    ) {
+        return secretsService.grantAccess(id, account, request.canRead(), request.canWrite())
+                .map(transaction -> ResponseEntity
+                        .status(HttpStatus.ACCEPTED)
+                        .body(new AclTransactionResponse(
+                                id,
+                                transaction.account(),
+                                transaction.transactionHash()
+                        )));
+    }
+
+    @DeleteMapping("/{id}/acl/{account}")
+    public Mono<ResponseEntity<AclTransactionResponse>> revokeAccess(
+            @PathVariable("id") UUID id,
+            @PathVariable("account") String account
+    ) {
+        return secretsService.revokeAccess(id, account)
+                .map(transaction -> ResponseEntity
+                        .status(HttpStatus.ACCEPTED)
+                        .body(new AclTransactionResponse(
+                                id,
+                                transaction.account(),
+                                transaction.transactionHash()
+                        )));
+    }
+
+    @GetMapping("/{id}/acl/{account}")
+    public Mono<AccessGrantResponse> checkAccess(
+            @PathVariable("id") UUID id,
+            @PathVariable("account") String account
+    ) {
+        return secretsService.checkAccess(id, account)
+                .map(grant -> AccessGrantResponse.from(id, grant));
+    }
+}

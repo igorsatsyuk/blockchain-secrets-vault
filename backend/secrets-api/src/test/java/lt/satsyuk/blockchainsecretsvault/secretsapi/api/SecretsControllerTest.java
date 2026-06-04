@@ -1,7 +1,9 @@
 package lt.satsyuk.blockchainsecretsvault.secretsapi.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
+import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclClient;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.repository.SecretRepository;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -22,10 +25,14 @@ class SecretsControllerTest {
     @Autowired
     private SecretRepository secretRepository;
 
+    @MockitoBean
+    private BlockchainAclClient blockchainAclClient;
+
     @BeforeEach
     void clearRepository() {
         secretRepository.deleteAll();
     }
+
 
     @Test
     void createsListsGetsUpdatesAndDeletesSecret() {
@@ -196,6 +203,72 @@ class SecretsControllerTest {
                 .expectStatus().isBadRequest();
     }
 
+    @Test
+    void grantsRevokesAndChecksAcl() {
+        SecretResponse created = create("alpha");
+        String account = "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd";
+        String mixedCaseAccount = "0x" + account.substring(2).toUpperCase();
+
+        when(blockchainAclClient.grantAccess(created.id(), account, true, false)).thenReturn("0xgrant");
+        when(blockchainAclClient.revokeAccess(created.id(), account)).thenReturn("0xrevoke");
+        when(blockchainAclClient.canRead(created.id(), account)).thenReturn(true);
+        when(blockchainAclClient.canWrite(created.id(), account)).thenReturn(false);
+
+        webTestClient.put()
+                .uri("/api/v1/secrets/{id}/acl/{account}", created.id(), mixedCaseAccount)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("canRead", true, "canWrite", false))
+                .exchange()
+                .expectStatus().isAccepted()
+                .expectBody(AclTransactionResponse.class)
+                .value(response -> {
+                    assertThat(response.account()).isEqualTo(account);
+                    assertThat(response.transactionHash()).isEqualTo("0xgrant");
+                });
+
+        webTestClient.get()
+                .uri("/api/v1/secrets/{id}/acl/{account}", created.id(), account)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(AccessGrantResponse.class)
+                .value(response -> {
+                    assertThat(response.canRead()).isTrue();
+                    assertThat(response.canWrite()).isFalse();
+                    assertThat(response.account()).isEqualTo(account);
+                });
+
+        webTestClient.delete()
+                .uri("/api/v1/secrets/{id}/acl/{account}", created.id(), mixedCaseAccount)
+                .exchange()
+                .expectStatus().isAccepted()
+                .expectBody(AclTransactionResponse.class)
+                .value(response -> {
+                    assertThat(response.account()).isEqualTo(account);
+                    assertThat(response.transactionHash()).isEqualTo("0xrevoke");
+                });
+    }
+
+    @Test
+    void returnsBadRequestForInvalidAclAddressAndRequestBody() {
+        SecretResponse created = create("alpha");
+
+        webTestClient.get()
+                .uri("/api/v1/secrets/{id}/acl/not-an-address", created.id())
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody(ErrorResponse.class)
+                .value(error -> assertThat(error.message()).contains("Invalid blockchain account"));
+
+        webTestClient.put()
+                .uri("/api/v1/secrets/{id}/acl/{account}", created.id(), "0x1111111111111111111111111111111111111111")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("canRead", true))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody(ErrorResponse.class)
+                .value(error -> assertThat(error.details()).containsKey("canWrite"));
+    }
+
     private SecretResponse create(String name) {
         return webTestClient.post()
                 .uri("/api/v1/secrets")
@@ -208,4 +281,3 @@ class SecretsControllerTest {
                 .getResponseBody();
     }
 }
-

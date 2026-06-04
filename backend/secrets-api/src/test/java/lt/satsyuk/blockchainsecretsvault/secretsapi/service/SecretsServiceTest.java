@@ -3,6 +3,7 @@ package lt.satsyuk.blockchainsecretsvault.secretsapi.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -10,6 +11,7 @@ import lt.satsyuk.blockchainsecretsvault.kms.model.EncryptedData;
 import lt.satsyuk.blockchainsecretsvault.kms.service.KmsService;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.CreateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.UpdateSecretRequest;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclClient;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.model.SecretRecord;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.repository.InMemorySecretRepository;
 import java.time.Clock;
@@ -26,7 +28,8 @@ class SecretsServiceTest {
     private final InMemorySecretRepository repository = new InMemorySecretRepository();
     private final Clock clock = Clock.fixed(Instant.parse("2026-06-01T12:00:00Z"), ZoneOffset.UTC);
     private final KmsService kmsService = createMockKmsService();
-    private final SecretsService service = new SecretsService(repository, kmsService, clock);
+    private final BlockchainAclClient blockchainAclClient = mock(BlockchainAclClient.class);
+    private final SecretsService service = new SecretsService(repository, kmsService, blockchainAclClient, clock);
 
     private static KmsService createMockKmsService() {
         KmsService mock = mock(KmsService.class);
@@ -216,6 +219,76 @@ class SecretsServiceTest {
         assertThat(new UpdateSecretRequest(null, "description", null, null).isEmpty()).isFalse();
         assertThat(new UpdateSecretRequest(null, null, "payload", null).isEmpty()).isFalse();
         assertThat(new UpdateSecretRequest(null, null, null, Set.of("tag")).isEmpty()).isFalse();
+    }
+
+    @Test
+    void grantsRevokesAndChecksBlockchainAcl() {
+        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
+        String account = "0x1111111111111111111111111111111111111111";
+
+        when(blockchainAclClient.grantAccess(created.id(), account, true, false)).thenReturn("0xgrant");
+        when(blockchainAclClient.revokeAccess(created.id(), account)).thenReturn("0xrevoke");
+        when(blockchainAclClient.canRead(created.id(), account)).thenReturn(true);
+        when(blockchainAclClient.canWrite(created.id(), account)).thenReturn(false);
+
+        StepVerifier.create(service.grantAccess(created.id(), account, true, false))
+                .assertNext(transaction -> {
+                    assertThat(transaction.account()).isEqualTo(account);
+                    assertThat(transaction.transactionHash()).isEqualTo("0xgrant");
+                })
+                .verifyComplete();
+
+        StepVerifier.create(service.checkAccess(created.id(), account))
+                .assertNext(grant -> {
+                    assertThat(grant.account()).isEqualTo(account);
+                    assertThat(grant.canRead()).isTrue();
+                    assertThat(grant.canWrite()).isFalse();
+                })
+                .verifyComplete();
+
+        StepVerifier.create(service.revokeAccess(created.id(), account))
+                .assertNext(transaction -> {
+                    assertThat(transaction.account()).isEqualTo(account);
+                    assertThat(transaction.transactionHash()).isEqualTo("0xrevoke");
+                })
+                .verifyComplete();
+
+        verify(blockchainAclClient).grantAccess(created.id(), account, true, false);
+        verify(blockchainAclClient).revokeAccess(created.id(), account);
+    }
+
+    @Test
+    void blockchainAclOperationsValidateSecretAndAccount() {
+        UUID missing = UUID.randomUUID();
+
+        StepVerifier.create(service.grantAccess(missing, "0x1111111111111111111111111111111111111111", true, true))
+                .expectError(SecretNotFoundException.class)
+                .verify();
+
+        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
+
+        StepVerifier.create(service.checkAccess(created.id(), "not-an-address"))
+                .expectError(InvalidBlockchainAccountException.class)
+                .verify();
+    }
+
+    @Test
+    void checksBlockchainPermissionsWithCombinedResult() {
+        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
+        String account = "0x1111111111111111111111111111111111111111";
+
+        when(blockchainAclClient.canRead(created.id(), account)).thenReturn(true);
+        when(blockchainAclClient.canWrite(created.id(), account)).thenReturn(false);
+
+        StepVerifier.create(service.checkAccess(created.id(), account))
+                .assertNext(grant -> {
+                    assertThat(grant.canRead()).isTrue();
+                    assertThat(grant.canWrite()).isFalse();
+                })
+                .verifyComplete();
+
+        verify(blockchainAclClient).canRead(created.id(), account);
+        verify(blockchainAclClient).canWrite(created.id(), account);
     }
 }
 

@@ -5,6 +5,9 @@ import lt.satsyuk.blockchainsecretsvault.kms.service.KmsService;
 import lt.satsyuk.blockchainsecretsvault.kms.service.KeyNotFoundException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.CreateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.UpdateSecretRequest;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AclTransaction;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AccessGrant;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclClient;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.model.SecretRecord;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.repository.SecretRepository;
 import java.nio.ByteBuffer;
@@ -18,20 +21,29 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
+import org.web3j.crypto.WalletUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 public class SecretsService {
 
     private final SecretRepository secretRepository;
     private final KmsService kmsService;
+    private final BlockchainAclClient blockchainAclClient;
     private final Clock clock;
     private static final String DEFAULT_KEY_ID = "default-secret-key";
 
-    public SecretsService(SecretRepository secretRepository, KmsService kmsService, Clock clock) {
+    public SecretsService(
+            SecretRepository secretRepository,
+            KmsService kmsService,
+            BlockchainAclClient blockchainAclClient,
+            Clock clock
+    ) {
         this.secretRepository = secretRepository;
         this.kmsService = kmsService;
+        this.blockchainAclClient = blockchainAclClient;
         this.clock = clock;
         initializeDefaultKey();
     }
@@ -134,6 +146,47 @@ public class SecretsService {
         });
     }
 
+    public Mono<AclTransaction> grantAccess(UUID id, String account, boolean canRead, boolean canWrite) {
+        return Mono.fromSupplier(() -> {
+            requireExistingSecret(id);
+            String normalizedAccount = normalizeAccount(account);
+            String transactionHash = blockchainAclClient.grantAccess(id, normalizedAccount, canRead, canWrite);
+            return new AclTransaction(normalizedAccount, transactionHash);
+        }).subscribeOn(Schedulers.boundedElastic());
+    }
+
+    public Mono<AclTransaction> revokeAccess(UUID id, String account) {
+        return Mono.fromSupplier(() -> {
+            requireExistingSecret(id);
+            String normalizedAccount = normalizeAccount(account);
+            String transactionHash = blockchainAclClient.revokeAccess(id, normalizedAccount);
+            return new AclTransaction(normalizedAccount, transactionHash);
+        }).subscribeOn(Schedulers.boundedElastic());
+    }
+
+    public Mono<AccessGrant> checkAccess(UUID id, String account) {
+        return Mono.fromSupplier(() -> {
+            requireExistingSecret(id);
+            return normalizeAccount(account);
+        }).flatMap(normalizedAccount -> {
+            Mono<Boolean> canRead = Mono.fromSupplier(() -> blockchainAclClient.canRead(id, normalizedAccount))
+                    .subscribeOn(Schedulers.boundedElastic());
+            Mono<Boolean> canWrite = Mono.fromSupplier(() -> blockchainAclClient.canWrite(id, normalizedAccount))
+                    .subscribeOn(Schedulers.boundedElastic());
+            return Mono.zip(canRead, canWrite)
+                    .map(permissions -> new AccessGrant(
+                            normalizedAccount,
+                            permissions.getT1(),
+                            permissions.getT2()
+                    ));
+        }).subscribeOn(Schedulers.boundedElastic());
+    }
+
+    private SecretRecord requireExistingSecret(UUID id) {
+        return secretRepository.findById(id)
+                .orElseThrow(() -> new SecretNotFoundException(id));
+    }
+
     private static String chooseString(String candidate, String fallback) {
         if (candidate == null) {
             return fallback;
@@ -169,6 +222,13 @@ public class SecretsService {
             }
         }
         return Set.copyOf(normalized);
+    }
+
+    private static String normalizeAccount(String account) {
+        if (account == null || !WalletUtils.isValidAddress(account)) {
+            throw new InvalidBlockchainAccountException(String.valueOf(account));
+        }
+        return account.toLowerCase(Locale.ROOT);
     }
 }
 

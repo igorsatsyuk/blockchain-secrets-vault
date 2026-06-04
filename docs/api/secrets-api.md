@@ -1,8 +1,8 @@
 # Secrets API
 
 Issue #7 introduces the MVP CRUD contract for off-chain secret metadata and
-payload handling. Encryption, KMS key lifecycle and blockchain ACL checks are
-owned by follow-up issues #8 and #9.
+payload handling. Issue #8 adds KMS-backed encryption, and issue #9 adds
+blockchain ACL grant, revoke and access-check operations.
 
 Base path: `/api/v1/secrets`
 
@@ -71,10 +71,75 @@ Returns `200 OK` with the updated secret summary.
 
 Returns `204 No Content` when deleted or `404 Not Found` when the id is unknown.
 
+## Grant Secret Access
+
+`PUT /api/v1/secrets/{id}/acl/{account}`
+
+`account` must be an Ethereum address. The secret id is encoded as the
+contract `bytes32` identifier by writing the UUID bytes first and zero-padding
+the remaining 16 bytes.
+
+```json
+{
+  "canRead": true,
+  "canWrite": false
+}
+```
+
+Returns `202 Accepted` with the submitted transaction hash.
+
+```json
+{
+  "secretId": "21f51f8a-e0a4-457b-93ae-6ba78d8be5cc",
+  "account": "0x1111111111111111111111111111111111111111",
+  "transactionHash": "0xabc123"
+}
+```
+
+## Check Secret Access
+
+`GET /api/v1/secrets/{id}/acl/{account}`
+
+Returns `200 OK` with read/write permissions resolved from the ACL contract.
+
+```json
+{
+  "secretId": "21f51f8a-e0a4-457b-93ae-6ba78d8be5cc",
+  "account": "0x1111111111111111111111111111111111111111",
+  "canRead": true,
+  "canWrite": false
+}
+```
+
+## Revoke Secret Access
+
+`DELETE /api/v1/secrets/{id}/acl/{account}`
+
+Returns `202 Accepted` with the submitted transaction hash.
+
+```json
+{
+  "secretId": "21f51f8a-e0a4-457b-93ae-6ba78d8be5cc",
+  "account": "0x1111111111111111111111111111111111111111",
+  "transactionHash": "0xabc123"
+}
+```
+
+## Blockchain ACL Configuration
+
+The ACL adapter is disabled until both `blockchain.acl.contract-address` and
+`blockchain.acl.private-key` are configured. Optional settings:
+
+- `blockchain.acl.rpc-url`, default `http://localhost:8545`
+- `blockchain.acl.gas-price`, default `20000000000`
+- `blockchain.acl.gas-limit`, default `300000`
+- `blockchain.acl.chain-id`, default `31337`
+
 ## Errors
 
-Validation failures return `400 Bad Request`. Duplicate names return
-`409 Conflict`.
+Validation failures return `400 Bad Request`. Unknown secret ids return
+`404 Not Found`. Duplicate names return `409 Conflict`. Blockchain adapter
+failures return `502 Bad Gateway`.
 
 ```json
 {
