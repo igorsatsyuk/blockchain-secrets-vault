@@ -2,7 +2,9 @@ package lt.satsyuk.blockchainsecretsvault.secretsapi.api;
 
 import lt.satsyuk.blockchainsecretsvault.secretsapi.service.DuplicateSecretNameException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.service.EmptySecretUpdateException;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.service.InvalidBlockchainAccountException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.service.SecretNotFoundException;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclException;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -36,6 +38,18 @@ public class SecretsApiExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleEmptyUpdate(EmptySecretUpdateException exception) {
         return ErrorResponse.of(BAD_REQUEST.value(), BAD_REQUEST.getReasonPhrase(), exception.getMessage());
+    }
+
+    @ExceptionHandler(InvalidBlockchainAccountException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleInvalidBlockchainAccount(InvalidBlockchainAccountException exception) {
+        return ErrorResponse.of(BAD_REQUEST.value(), BAD_REQUEST.getReasonPhrase(), exception.getMessage());
+    }
+
+    @ExceptionHandler(BlockchainAclException.class)
+    @ResponseStatus(HttpStatus.BAD_GATEWAY)
+    public ErrorResponse handleBlockchainAcl(BlockchainAclException exception) {
+        return ErrorResponse.of(502, "Bad Gateway", exception.getMessage());
     }
 
     @ExceptionHandler(WebExchangeBindException.class)

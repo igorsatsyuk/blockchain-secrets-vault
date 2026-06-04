@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ApiPortsConfiguration {
     /*
-     * Issue #7 owns the CRUD API contract. KMS encryption and blockchain ACL
-     * adapters are introduced by follow-up issues #8 and #9.
+     * Issue #7 owns the CRUD API contract. KMS encryption is introduced by
+     * issue #8; blockchain ACL adapters are configured by issue #9.
      */
 
     @Bean

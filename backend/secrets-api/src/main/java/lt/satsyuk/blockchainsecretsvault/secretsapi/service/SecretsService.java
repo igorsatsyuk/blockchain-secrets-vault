@@ -5,6 +5,8 @@ import lt.satsyuk.blockchainsecretsvault.kms.service.KmsService;
 import lt.satsyuk.blockchainsecretsvault.kms.service.KeyNotFoundException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.CreateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.UpdateSecretRequest;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AccessGrant;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclClient;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.model.SecretRecord;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.repository.SecretRepository;
 import java.nio.ByteBuffer;
@@ -18,6 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
+import org.web3j.crypto.WalletUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -26,12 +29,19 @@ public class SecretsService {
 
     private final SecretRepository secretRepository;
     private final KmsService kmsService;
+    private final BlockchainAclClient blockchainAclClient;
     private final Clock clock;
     private static final String DEFAULT_KEY_ID = "default-secret-key";
 
-    public SecretsService(SecretRepository secretRepository, KmsService kmsService, Clock clock) {
+    public SecretsService(
+            SecretRepository secretRepository,
+            KmsService kmsService,
+            BlockchainAclClient blockchainAclClient,
+            Clock clock
+    ) {
         this.secretRepository = secretRepository;
         this.kmsService = kmsService;
+        this.blockchainAclClient = blockchainAclClient;
         this.clock = clock;
         initializeDefaultKey();
     }
@@ -134,6 +144,39 @@ public class SecretsService {
         });
     }
 
+    public Mono<String> grantAccess(UUID id, String account, boolean canRead, boolean canWrite) {
+        return Mono.fromSupplier(() -> {
+            requireExistingSecret(id);
+            String normalizedAccount = normalizeAccount(account);
+            return blockchainAclClient.grantAccess(id, normalizedAccount, canRead, canWrite);
+        });
+    }
+
+    public Mono<String> revokeAccess(UUID id, String account) {
+        return Mono.fromSupplier(() -> {
+            requireExistingSecret(id);
+            String normalizedAccount = normalizeAccount(account);
+            return blockchainAclClient.revokeAccess(id, normalizedAccount);
+        });
+    }
+
+    public Mono<AccessGrant> checkAccess(UUID id, String account) {
+        return Mono.fromSupplier(() -> {
+            requireExistingSecret(id);
+            String normalizedAccount = normalizeAccount(account);
+            return new AccessGrant(
+                    normalizedAccount,
+                    blockchainAclClient.canRead(id, normalizedAccount),
+                    blockchainAclClient.canWrite(id, normalizedAccount)
+            );
+        });
+    }
+
+    private SecretRecord requireExistingSecret(UUID id) {
+        return secretRepository.findById(id)
+                .orElseThrow(() -> new SecretNotFoundException(id));
+    }
+
     private static String chooseString(String candidate, String fallback) {
         if (candidate == null) {
             return fallback;
@@ -169,6 +212,13 @@ public class SecretsService {
             }
         }
         return Set.copyOf(normalized);
+    }
+
+    private static String normalizeAccount(String account) {
+        if (account == null || !WalletUtils.isValidAddress(account)) {
+            throw new InvalidBlockchainAccountException(String.valueOf(account));
+        }
+        return account.toLowerCase(Locale.ROOT);
     }
 }
 
