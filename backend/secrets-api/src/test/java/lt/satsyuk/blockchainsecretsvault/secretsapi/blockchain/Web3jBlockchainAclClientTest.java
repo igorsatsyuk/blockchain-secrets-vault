@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedConstruction;
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.datatypes.Bool;
 import org.web3j.crypto.Credentials;
@@ -43,7 +42,7 @@ class Web3jBlockchainAclClientTest {
         Web3j web3j = mock(Web3j.class);
         AtomicReference<List<?>> constructorArguments = new AtomicReference<>();
 
-        try (MockedConstruction<RawTransactionManager> _ = mockConstruction(
+        try (var _ = mockConstruction(
                 RawTransactionManager.class,
                 (_, context) -> constructorArguments.set(context.arguments())
         )) {
