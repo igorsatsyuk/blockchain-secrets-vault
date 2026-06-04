@@ -117,6 +117,14 @@ Returns `200 OK` with read/write permissions resolved from the ACL contract.
 
 Returns `202 Accepted` with the submitted transaction hash.
 
+```json
+{
+  "secretId": "21f51f8a-e0a4-457b-93ae-6ba78d8be5cc",
+  "account": "0x1111111111111111111111111111111111111111",
+  "transactionHash": "0xabc123"
+}
+```
+
 ## Blockchain ACL Configuration
 
 The ACL adapter is disabled until both `blockchain.acl.contract-address` and
