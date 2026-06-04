@@ -1,0 +1,1249 @@
+Backend (Spring Boot)	Set up job	я╗┐2026-06-04T08:22:59.5840000Z Current runner version: '2.334.0'
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5880142Z ##[group]Runner Image Provisioner
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5881532Z Hosted Compute Agent
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5882641Z Version: 20260520.533
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5883771Z Commit: 189110e25284a9812c124fd27b339e2fb4f2f9db
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5884925Z Build Date: 2026-05-20T17:44:04Z
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5886133Z Worker ID: {b8d834f9-c979-482a-9e08-1701f956d3b2}
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5887381Z Azure Region: eastus
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5888281Z ##[endgroup]
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5890632Z ##[group]Operating System
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5891668Z Ubuntu
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5892769Z 24.04.4
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5893674Z LTS
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5894485Z ##[endgroup]
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5895503Z ##[group]Runner Image
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5896507Z Image: ubuntu-24.04
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5897545Z Version: 20260525.161.1
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5899310Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260525.161/images/ubuntu/Ubuntu2404-Readme.md
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5902154Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260525.161
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5904089Z ##[endgroup]
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5905841Z ##[group]GITHUB_TOKEN Permissions
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5908738Z Contents: read
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5909827Z Metadata: read
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5910713Z ##[endgroup]
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5914691Z Secret source: Actions
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.5916136Z Prepare workflow directory
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.6473479Z Prepare all required actions
+Backend (Spring Boot)	Set up job	2026-06-04T08:22:59.6526310Z Getting action download info
+Backend (Spring Boot)	Set up job	2026-06-04T08:23:00.0967420Z Download action repository 'actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd' (SHA:de0fac2e4500dabe0009e67214ff5f5447ce83dd)
+Backend (Spring Boot)	Set up job	2026-06-04T08:23:00.2190493Z Download action repository 'actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654' (SHA:be666c2fcd27ec809703dec50e508c2fdc7f6654)
+Backend (Spring Boot)	Set up job	2026-06-04T08:23:00.5028511Z Download action repository 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a' (SHA:043fb46d1a93c77aae656e7c1c64a875d1fc6a0a)
+Backend (Spring Boot)	Set up job	2026-06-04T08:23:00.6926568Z Complete job name: Backend (Spring Boot)
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	я╗┐2026-06-04T08:23:00.7668527Z ##[group]Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7669765Z with:
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7670351Z   repository: igorsatsyuk/blockchain-secrets-vault
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7676004Z   token: ***
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7676527Z   ssh-strict: true
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7677043Z   ssh-user: git
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7677551Z   persist-credentials: true
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7678112Z   clean: true
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7678619Z   sparse-checkout-cone-mode: true
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7679205Z   fetch-depth: 1
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7679693Z   fetch-tags: false
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7680203Z   show-progress: true
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7680714Z   lfs: false
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7681184Z   submodules: false
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7681703Z   set-safe-directory: true
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7682718Z env:
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7683321Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7684010Z ##[endgroup]
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.8854478Z Syncing repository: igorsatsyuk/blockchain-secrets-vault
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.8858548Z ##[group]Getting Git version info
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.8865048Z Working directory is '/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault'
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.8883597Z [command]/usr/bin/git version
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.8936195Z git version 2.54.0
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.8995504Z ##[endgroup]
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9019356Z Temporarily overriding HOME='/home/runner/work/_temp/f6aecbde-ce88-49e6-a6fc-bf09eec9c43f' before making global git config changes
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9023880Z Adding repository directory to the temporary git global config as a safe directory
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9030728Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9082774Z Deleting the contents of '/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault'
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9086764Z ##[group]Initializing the repository
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9089934Z [command]/usr/bin/git init /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9181249Z hint: Using 'master' as the name for the initial branch. This default branch name
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9185031Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9187558Z hint: to use in all of your new repositories, which will suppress this warning,
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9190149Z hint: call:
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9191763Z hint:
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9194139Z hint: 	git config --global init.defaultBranch <name>
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9196271Z hint:
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9198489Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9200919Z hint: 'development'. The just-created branch can be renamed via this command:
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9204129Z hint:
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9207689Z hint: 	git branch -m <name>
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9208982Z hint:
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9210238Z hint: Disable this message with "git config set advice.defaultBranchName false"
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9212753Z Initialized empty Git repository in /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9216569Z [command]/usr/bin/git remote add origin https://github.com/igorsatsyuk/blockchain-secrets-vault
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9268033Z ##[endgroup]
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9271771Z ##[group]Disabling automatic garbage collection
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9278825Z [command]/usr/bin/git config --local gc.auto 0
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9299271Z ##[endgroup]
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9300864Z ##[group]Setting up auth
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9301954Z Removing SSH command configuration
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9319234Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9355231Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9696989Z Removing HTTP extra header
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9713916Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.9746575Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.0017714Z Removing includeIf entries pointing to credentials config files
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.0024446Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.0052258Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.0311877Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-44c7cac4-204f-4b8b-beaf-c283b29b7c28.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.0358497Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git.path /home/runner/work/_temp/git-credentials-44c7cac4-204f-4b8b-beaf-c283b29b7c28.config
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.0397070Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-44c7cac4-204f-4b8b-beaf-c283b29b7c28.config
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.0438324Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-44c7cac4-204f-4b8b-beaf-c283b29b7c28.config
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.0480323Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-44c7cac4-204f-4b8b-beaf-c283b29b7c28.config
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.0564581Z ##[endgroup]
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.0566146Z ##[group]Fetching the repository
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.0569076Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +6a0c4a2f137fb44e6dd9c17ca185c0116b368b95:refs/remotes/pull/33/merge
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.3839756Z From https://github.com/igorsatsyuk/blockchain-secrets-vault
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.3864152Z  * [new ref]         6a0c4a2f137fb44e6dd9c17ca185c0116b368b95 -> pull/33/merge
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.3894504Z ##[endgroup]
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.3896956Z ##[group]Determining the checkout info
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.3899577Z ##[endgroup]
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.3902734Z [command]/usr/bin/git sparse-checkout disable
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.3952932Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.3993768Z ##[group]Checking out the ref
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.3995350Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/33/merge
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4105298Z Note: switching to 'refs/remotes/pull/33/merge'.
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4106875Z 
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4108137Z You are in 'detached HEAD' state. You can look around, make experimental
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4117799Z changes and commit them, and you can discard any commits you make in this
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4120681Z state without impacting any branches by switching back to a branch.
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4122332Z 
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4123460Z If you want to create a new branch to retain commits you create, you may
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4125051Z do so (now or later) by using -c with the switch command. Example:
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4126057Z 
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4126905Z   git switch -c <new-branch-name>
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4127751Z 
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4134122Z Or undo this operation with:
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4135371Z 
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4136388Z   git switch -
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4137253Z 
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4138595Z Turn off this advice by setting config variable advice.detachedHead to false
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4140100Z 
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4141755Z HEAD is now at 6a0c4a2 Merge bc0dede578976d5cf53dfa1bd90db9867bbc8be5 into f4a0c85a0ef3d6554094be6cc1b7f9cba1cb9d30
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4148104Z ##[endgroup]
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4173779Z [command]/usr/bin/git log -1 --format=%H
+Backend (Spring Boot)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:01.4206674Z 6a0c4a2f137fb44e6dd9c17ca185c0116b368b95
+Backend (Spring Boot)	Use Java 25	я╗┐2026-06-04T08:23:01.4746098Z ##[group]Run actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.4747278Z with:
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.4748036Z   distribution: temurin
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.4748838Z   java-version: 25
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.4749609Z   cache: maven
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.4750367Z   java-package: jdk
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.4751152Z   check-latest: false
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.4751958Z   server-id: github
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.4753089Z   server-username: GITHUB_ACTOR
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.4753973Z   server-password: GITHUB_TOKEN
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.4754847Z   overwrite-settings: true
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.4755685Z   job-status: success
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.4761125Z   token: ***
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.4761885Z env:
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.4762778Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.4763726Z ##[endgroup]
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.6561022Z ##[group]Installed distributions
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.8140382Z Resolved Java 25.0.3+9 from tool-cache
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.8141914Z Setting Java 25.0.3+9 as the default
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.8143865Z Creating toolchains.xml for JDK version 25 from temurin
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.8145461Z Writing to /home/runner/.m2/toolchains.xml
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.8146336Z 
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.8146874Z Java configuration:
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.8147979Z   Distribution: temurin
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.8149139Z   Version: 25.0.3+9
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.8150514Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.3-9/x64
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.8151603Z 
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.8162017Z ##[endgroup]
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.8196650Z Creating settings.xml with server-id: github
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.8198513Z Writing to /home/runner/.m2/settings.xml
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:01.9396977Z Cache hit for: setup-java-Linux-x64-maven-cd178ca5ff2fcd98f6cf779a68505b5b31584536d9b885044a0216edb2356fe4
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:02.4864678Z Received 54391091 of 54391091 (100.0%), 107.6 MBs/sec
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:02.4867547Z Cache Size: ~52 MB (54391091 B)
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:02.4900566Z [command]/usr/bin/tar -xf /home/runner/work/_temp/491fb052-dde2-4f4c-89e6-64efdc46df66/cache.tzst -P -C /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault --use-compress-program unzstd
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:02.6648841Z Cache restored successfully
+Backend (Spring Boot)	Use Java 25	2026-06-04T08:23:02.6695010Z Cache restored from key: setup-java-Linux-x64-maven-cd178ca5ff2fcd98f6cf779a68505b5b31584536d9b885044a0216edb2356fe4
+Backend (Spring Boot)	Verify backend	я╗┐2026-06-04T08:23:02.6974000Z ##[group]Run mvn -B -ntp verify
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:02.6975218Z [36;1mmvn -B -ntp verify[0m
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:02.7012286Z shell: /usr/bin/bash -e {0}
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:02.7013506Z env:
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:02.7014375Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:02.7015998Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.3-9/x64
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:02.7018044Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.3-9/x64
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:02.7019710Z ##[endgroup]
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:08.8575211Z [INFO] Scanning for projects...
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.3054046Z [INFO] ------------------------------------------------------------------------
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.3084045Z [INFO] Reactor Build Order:
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.3085154Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.3089806Z [INFO] backend                                                            [pom]
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.3090895Z [INFO] KMS Service                                                        [jar]
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.3091783Z [INFO] Secrets API                                                        [jar]
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.3277827Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.3282983Z [INFO] -------------< lt.satsyuk.blockchainsecretsvault:backend >--------------
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.3293611Z [INFO] Building backend 0.1.0-SNAPSHOT                                    [1/3]
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.3295054Z [INFO]   from pom.xml
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.3310990Z [INFO] --------------------------------[ pom ]---------------------------------
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.3343236Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.3344245Z [INFO] -----------< lt.satsyuk.blockchainsecretsvault:kms-service >------------
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.3372791Z [INFO] Building KMS Service 0.1.0-SNAPSHOT                                [2/3]
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.3413423Z [INFO]   from kms-service/pom.xml
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.3414493Z [INFO] --------------------------------[ jar ]---------------------------------
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.6763794Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.6812788Z [INFO] --- jacoco:0.8.13:prepare-agent (prepare-agent) @ kms-service ---
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.8775038Z [INFO] argLine set to -javaagent:/home/runner/.m2/repository/org/jacoco/org.jacoco.agent/0.8.13/org.jacoco.agent-0.8.13-runtime.jar=destfile=/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/backend/kms-service/target/jacoco.exec
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.8793360Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.8833625Z [INFO] --- jacoco:0.8.13:prepare-agent (default) @ kms-service ---
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.8854518Z [INFO] argLine set to -javaagent:/home/runner/.m2/repository/org/jacoco/org.jacoco.agent/0.8.13/org.jacoco.agent-0.8.13-runtime.jar=destfile=/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/backend/kms-service/target/jacoco.exec
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.8873177Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.8913599Z [INFO] --- resources:3.4.0:resources (default-resources) @ kms-service ---
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.9974560Z [INFO] skip non existing resourceDirectory /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/backend/kms-service/src/main/resources
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.9993480Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:09.9994447Z [INFO] --- compiler:3.14.0:compile (default-compile) @ kms-service ---
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:10.2279723Z [INFO] Recompiling the module because of changed source code.
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:10.2495467Z [INFO] Compiling 8 source files with javac [debug parameters release 25] to target/classes
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:12.3333780Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:12.3353774Z [INFO] --- resources:3.4.0:testResources (default-testResources) @ kms-service ---
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:12.3404360Z [INFO] skip non existing resourceDirectory /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/backend/kms-service/src/test/resources
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:12.3443361Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:12.3463454Z [INFO] --- compiler:3.14.0:testCompile (default-testCompile) @ kms-service ---
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:12.3523393Z [INFO] Recompiling the module because of changed dependency.
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:12.3533789Z [INFO] Compiling 3 source files with javac [debug parameters release 25] to target/test-classes
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:12.7973625Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:12.7974653Z [INFO] --- surefire:3.5.3:test (default-test) @ kms-service ---
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:13.0744077Z [INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:13.1246215Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:13.1247130Z [INFO] -------------------------------------------------------
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:13.1247840Z [INFO]  T E S T S
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:13.1248430Z [INFO] -------------------------------------------------------
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:16.0784155Z [INFO] Running lt.satsyuk.blockchainsecretsvault.kms.service.AesGcmKmsServiceTest
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:16.6297431Z [INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.434 s -- in lt.satsyuk.blockchainsecretsvault.kms.service.AesGcmKmsServiceTest
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:16.6302960Z [INFO] Running lt.satsyuk.blockchainsecretsvault.kms.model.EncryptedDataTest
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:16.6429002Z [INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.054 s -- in lt.satsyuk.blockchainsecretsvault.kms.model.EncryptedDataTest
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:16.6443876Z [INFO] Running lt.satsyuk.blockchainsecretsvault.kms.model.EncryptionKeyTest
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:16.6509510Z [INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.029 s -- in lt.satsyuk.blockchainsecretsvault.kms.model.EncryptionKeyTest
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:16.6947487Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:16.6967196Z [INFO] Results:
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:16.6983421Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:16.7003476Z [INFO] Tests run: 45, Failures: 0, Errors: 0, Skipped: 0
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:16.7023520Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:16.7024246Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:16.7043395Z [INFO] --- jacoco:0.8.13:report (report) @ kms-service ---
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:16.7099105Z [INFO] Loading execution data file /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/backend/kms-service/target/jacoco.exec
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:16.7959103Z [INFO] Analyzed bundle 'KMS Service' with 7 classes
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:16.8863701Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:16.8883759Z [INFO] --- jar:3.5.0:jar (default-jar) @ kms-service ---
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.1884581Z [INFO] Building jar: /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/backend/kms-service/target/kms-service-0.1.0-SNAPSHOT.jar
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2413957Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2433593Z [INFO] --- jacoco:0.8.13:check (check) @ kms-service ---
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2474202Z [INFO] Loading execution data file /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/backend/kms-service/target/jacoco.exec
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2573746Z [INFO] Analyzed bundle 'kms-service' with 7 classes
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2594034Z [WARNING] Rule violated for bundle kms-service: branches covered ratio is 0.72, but expected minimum is 0.80
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2613721Z [INFO] ------------------------------------------------------------------------
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2627440Z [INFO] Reactor Summary for backend 0.1.0-SNAPSHOT:
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2635804Z [INFO] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2683886Z [INFO] backend ............................................ SUCCESS [  0.004 s]
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2684768Z [INFO] KMS Service ........................................ FAILURE [  7.924 s]
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2685907Z [INFO] Secrets API ........................................ SKIPPED
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2686412Z [INFO] ------------------------------------------------------------------------
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2687235Z [INFO] BUILD FAILURE
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2687579Z [INFO] ------------------------------------------------------------------------
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2687959Z [INFO] Total time:  8.449 s
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2688235Z [INFO] Finished at: 2026-06-04T08:23:17Z
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2688606Z [INFO] ------------------------------------------------------------------------
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2689438Z [ERROR] Failed to execute goal org.jacoco:jacoco-maven-plugin:0.8.13:check (check) on project kms-service: Coverage checks have not been met. See log for details. -> [Help 1]
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2691018Z [ERROR] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2693592Z [ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2694290Z [ERROR] Re-run Maven using the -X switch to enable full debug logging.
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2694680Z [ERROR] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2695122Z [ERROR] For more information about the errors and possible solutions, please read the following articles:
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2696174Z [ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2696653Z [ERROR] 
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2697004Z [ERROR] After correcting the problems, you can resume the build with the command
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2697440Z [ERROR]   mvn <args> -rf :kms-service
+Backend (Spring Boot)	Verify backend	2026-06-04T08:23:17.2853475Z ##[error]Process completed with exit code 1.
+Backend (Spring Boot)	Upload backend coverage report	я╗┐2026-06-04T08:23:17.2947222Z ##[group]Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.2947684Z with:
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.2947917Z   name: backend-coverage
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.2948410Z   path: backend/secrets-api/target/site/jacoco/jacoco.xml
+Backend (Spring Boot)	Upload backend coverage report	backend/kms-service/target/site/jacoco/jacoco.xml
+Backend (Spring Boot)	Upload backend coverage report	
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.2948939Z   if-no-files-found: warn
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.2949197Z   retention-days: 7
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.2949446Z   compression-level: 6
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.2949688Z   overwrite: false
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.2949933Z   include-hidden-files: false
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.2950220Z   archive: true
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.2950444Z env:
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.2950684Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.2951096Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.3-9/x64
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.2951597Z   JAVA_HOME_25_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/25.0.3-9/x64
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.2951993Z ##[endgroup]
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.4592094Z Multiple search paths detected. Calculating the least common ancestor of all paths
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.4595460Z The least common ancestor is /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/backend. This will be the root directory of the artifact
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.4597025Z With the provided path, there will be 1 file uploaded
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.4600351Z Artifact name is valid!
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.4601059Z Root directory input is valid!
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.5856571Z Uploading artifact: backend-coverage.zip
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.5883283Z Beginning upload of artifact content to blob storage
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.6771304Z Uploaded bytes 2326
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.6947100Z Finished uploading artifact content to blob storage!
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.6965544Z SHA256 digest of uploaded artifact is b117381f9eb50d187c6a913dc365bf5fec88c19b86926007a1356b6b14c3f2f5
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.6979314Z Finalizing artifact upload
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.9254396Z Artifact backend-coverage successfully finalized. Artifact ID 7406525775
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.9255388Z Artifact backend-coverage has been successfully uploaded! Final size is 2326 bytes. Artifact ID is 7406525775
+Backend (Spring Boot)	Upload backend coverage report	2026-06-04T08:23:17.9274000Z Artifact download URL: https://github.com/igorsatsyuk/blockchain-secrets-vault/actions/runs/26940004773/artifacts/7406525775
+Backend (Spring Boot)	Post Use Java 25	я╗┐2026-06-04T08:23:17.9449346Z Post job cleanup.
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	я╗┐2026-06-04T08:23:18.0933102Z Post job cleanup.
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.2100299Z [command]/usr/bin/git version
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.2161421Z git version 2.54.0
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.2230759Z Temporarily overriding HOME='/home/runner/work/_temp/0aeced50-822e-4139-b24b-56afd0c120c0' before making global git config changes
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.2235016Z Adding repository directory to the temporary git global config as a safe directory
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.2236519Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.2320945Z Removing SSH command configuration
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.2329762Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.2375433Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.2773689Z Removing HTTP extra header
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.2777183Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.2863991Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3233384Z Removing includeIf entries pointing to credentials config files
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3234526Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3241957Z includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git.path
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3243790Z includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/worktrees/*.path
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3245159Z includeif.gitdir:/github/workspace/.git.path
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3245976Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3253882Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git.path
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3283357Z /home/runner/work/_temp/git-credentials-44c7cac4-204f-4b8b-beaf-c283b29b7c28.config
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3296156Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git.path /home/runner/work/_temp/git-credentials-44c7cac4-204f-4b8b-beaf-c283b29b7c28.config
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3356493Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/worktrees/*.path
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3385413Z /home/runner/work/_temp/git-credentials-44c7cac4-204f-4b8b-beaf-c283b29b7c28.config
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3396847Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-44c7cac4-204f-4b8b-beaf-c283b29b7c28.config
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3439385Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3465901Z /github/runner_temp/git-credentials-44c7cac4-204f-4b8b-beaf-c283b29b7c28.config
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3476633Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-44c7cac4-204f-4b8b-beaf-c283b29b7c28.config
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3512866Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3536902Z /github/runner_temp/git-credentials-44c7cac4-204f-4b8b-beaf-c283b29b7c28.config
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3557456Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-44c7cac4-204f-4b8b-beaf-c283b29b7c28.config
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3589199Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Backend (Spring Boot)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:18.3835810Z Removing credentials config '/home/runner/work/_temp/git-credentials-44c7cac4-204f-4b8b-beaf-c283b29b7c28.config'
+Backend (Spring Boot)	Complete job	я╗┐2026-06-04T08:23:18.3995165Z Cleaning up orphan processes
+Blockchain (Hardhat)	Set up job	я╗┐2026-06-04T08:22:59.1289256Z Current runner version: '2.334.0'
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1372658Z ##[group]Runner Image Provisioner
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1374099Z Hosted Compute Agent
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1375074Z Version: 20260520.533
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1376199Z Commit: 189110e25284a9812c124fd27b339e2fb4f2f9db
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1377436Z Build Date: 2026-05-20T17:44:04Z
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1399364Z Worker ID: {4d310a8b-7d95-4efa-8b51-7752077734e8}
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1400590Z Azure Region: eastus
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1401494Z ##[endgroup]
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1403966Z ##[group]Operating System
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1405011Z Ubuntu
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1406097Z 24.04.4
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1406918Z LTS
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1407913Z ##[endgroup]
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1408974Z ##[group]Runner Image
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1409959Z Image: ubuntu-24.04
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1410932Z Version: 20260525.161.1
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1412773Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260525.161/images/ubuntu/Ubuntu2404-Readme.md
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1414912Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260525.161
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1415938Z ##[endgroup]
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1417226Z ##[group]GITHUB_TOKEN Permissions
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1420765Z Contents: read
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1421853Z Metadata: read
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1422725Z ##[endgroup]
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1426203Z Secret source: Actions
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1427738Z Prepare workflow directory
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.1973499Z Prepare all required actions
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.2026346Z Getting action download info
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.6493194Z Download action repository 'actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd' (SHA:de0fac2e4500dabe0009e67214ff5f5447ce83dd)
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.7918455Z Download action repository 'actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e' (SHA:48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e)
+Blockchain (Hardhat)	Set up job	2026-06-04T08:22:59.9467008Z Download action repository 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a' (SHA:043fb46d1a93c77aae656e7c1c64a875d1fc6a0a)
+Blockchain (Hardhat)	Set up job	2026-06-04T08:23:00.1646106Z Complete job name: Blockchain (Hardhat)
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	я╗┐2026-06-04T08:23:00.2369996Z ##[group]Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.2371113Z with:
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.2371680Z   repository: igorsatsyuk/blockchain-secrets-vault
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.2376904Z   token: ***
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.2377410Z   ssh-strict: true
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.2378090Z   ssh-user: git
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.2378606Z   persist-credentials: true
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.2379179Z   clean: true
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.2379695Z   sparse-checkout-cone-mode: true
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.2380286Z   fetch-depth: 1
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.2380782Z   fetch-tags: false
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.2381302Z   show-progress: true
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.2381814Z   lfs: false
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.2382287Z   submodules: false
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.2382802Z   set-safe-directory: true
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.2383542Z env:
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.2384040Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.2384688Z ##[endgroup]
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3489076Z Syncing repository: igorsatsyuk/blockchain-secrets-vault
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3491769Z ##[group]Getting Git version info
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3493056Z Working directory is '/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault'
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3503498Z [command]/usr/bin/git version
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3532399Z git version 2.54.0
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3586165Z ##[endgroup]
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3595179Z Temporarily overriding HOME='/home/runner/work/_temp/2e91c5cc-c294-4367-a74a-ed0b7bfeb9a1' before making global git config changes
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3598897Z Adding repository directory to the temporary git global config as a safe directory
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3602409Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3654751Z Deleting the contents of '/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault'
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3661867Z ##[group]Initializing the repository
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3665870Z [command]/usr/bin/git init /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3750304Z hint: Using 'master' as the name for the initial branch. This default branch name
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3752882Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3755474Z hint: to use in all of your new repositories, which will suppress this warning,
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3757320Z hint: call:
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3759130Z hint:
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3762018Z hint: 	git config --global init.defaultBranch <name>
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3765508Z hint:
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3767158Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3771221Z hint: 'development'. The just-created branch can be renamed via this command:
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3773177Z hint:
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3774617Z hint: 	git branch -m <name>
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3775910Z hint:
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3777901Z hint: Disable this message with "git config set advice.defaultBranchName false"
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3782222Z Initialized empty Git repository in /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3785751Z [command]/usr/bin/git remote add origin https://github.com/igorsatsyuk/blockchain-secrets-vault
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3827870Z ##[endgroup]
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3831274Z ##[group]Disabling automatic garbage collection
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3835919Z [command]/usr/bin/git config --local gc.auto 0
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3855980Z ##[endgroup]
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3858254Z ##[group]Setting up auth
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3860393Z Removing SSH command configuration
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3865315Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.3902865Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.4223579Z Removing HTTP extra header
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.4225714Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.4258913Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.4501617Z Removing includeIf entries pointing to credentials config files
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.4507111Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.4543306Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.4791244Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-8d93efa2-e53c-4ded-9ef8-9816f588688b.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.4830419Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git.path /home/runner/work/_temp/git-credentials-8d93efa2-e53c-4ded-9ef8-9816f588688b.config
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.4865725Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-8d93efa2-e53c-4ded-9ef8-9816f588688b.config
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.4905805Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-8d93efa2-e53c-4ded-9ef8-9816f588688b.config
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.4938663Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-8d93efa2-e53c-4ded-9ef8-9816f588688b.config
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.4970317Z ##[endgroup]
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.4972027Z ##[group]Fetching the repository
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.4978970Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +6a0c4a2f137fb44e6dd9c17ca185c0116b368b95:refs/remotes/pull/33/merge
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7531942Z From https://github.com/igorsatsyuk/blockchain-secrets-vault
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7534066Z  * [new ref]         6a0c4a2f137fb44e6dd9c17ca185c0116b368b95 -> pull/33/merge
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7567995Z ##[endgroup]
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7569836Z ##[group]Determining the checkout info
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7572001Z ##[endgroup]
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7575547Z [command]/usr/bin/git sparse-checkout disable
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7624859Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7663912Z ##[group]Checking out the ref
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7665455Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/33/merge
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7769734Z Note: switching to 'refs/remotes/pull/33/merge'.
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7775939Z 
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7778875Z You are in 'detached HEAD' state. You can look around, make experimental
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7780823Z changes and commit them, and you can discard any commits you make in this
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7782567Z state without impacting any branches by switching back to a branch.
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7783618Z 
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7784377Z If you want to create a new branch to retain commits you create, you may
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7787368Z do so (now or later) by using -c with the switch command. Example:
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7788743Z 
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7789254Z   git switch -c <new-branch-name>
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7789970Z 
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7790469Z Or undo this operation with:
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7791118Z 
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7791636Z   git switch -
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7792397Z 
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7793233Z Turn off this advice by setting config variable advice.detachedHead to false
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7794300Z 
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7795402Z HEAD is now at 6a0c4a2 Merge bc0dede578976d5cf53dfa1bd90db9867bbc8be5 into f4a0c85a0ef3d6554094be6cc1b7f9cba1cb9d30
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7799406Z ##[endgroup]
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7828620Z [command]/usr/bin/git log -1 --format=%H
+Blockchain (Hardhat)	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:00.7856469Z 6a0c4a2f137fb44e6dd9c17ca185c0116b368b95
+Blockchain (Hardhat)	Use Node 20	я╗┐2026-06-04T08:23:00.8226609Z ##[group]Run actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:00.8227598Z with:
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:00.8228078Z   node-version: 20
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:00.8228581Z   cache: npm
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:00.8229153Z   cache-dependency-path: blockchain/package-lock.json
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:00.8229847Z   check-latest: false
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:00.8234711Z   token: ***
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:00.8235243Z   package-manager-cache: true
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:00.8235817Z env:
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:00.8236309Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:00.8236925Z ##[endgroup]
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:00.9849744Z Attempting to download 20...
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:01.4443993Z Acquiring 20.20.2 - x64 from https://github.com/actions/node-versions/releases/download/20.20.2-23521894959/node-20.20.2-linux-x64.tar.gz
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:01.9159621Z Extracting ...
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:01.9202840Z [command]/usr/bin/tar xz --strip 1 --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/b7356875-7bc7-4155-98b6-b445eb737d84 -f /home/runner/work/_temp/d95bc4b0-cef8-4288-91a8-0646f075c59f
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:03.9508115Z Adding to the cache ...
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:06.1806982Z ##[group]Environment details
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:06.4559812Z node: v20.20.2
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:06.4560722Z npm: 10.8.2
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:06.4561606Z yarn: 1.22.22
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:06.4564450Z ##[endgroup]
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:06.4581952Z [command]/opt/hostedtoolcache/node/20.20.2/x64/bin/npm config get cache
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:06.5709835Z /home/runner/.npm
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:06.6726950Z Cache hit for: node-cache-Linux-x64-npm-763126b74a20790686fc636a05805d83e3469550ad12d97c292c901b0b7259c6
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:07.5524314Z Received 139300462 of 139300462 (100.0%), 166.9 MBs/sec
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:07.5525408Z Cache Size: ~133 MB (139300462 B)
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:07.5558509Z [command]/usr/bin/tar -xf /home/runner/work/_temp/2f7917c5-663e-4e7b-81e6-2e92b2deb3f0/cache.tzst -P -C /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault --use-compress-program unzstd
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:07.9344427Z Cache restored successfully
+Blockchain (Hardhat)	Use Node 20	2026-06-04T08:23:07.9432000Z Cache restored from key: node-cache-Linux-x64-npm-763126b74a20790686fc636a05805d83e3469550ad12d97c292c901b0b7259c6
+Blockchain (Hardhat)	Install dependencies	я╗┐2026-06-04T08:23:07.9711142Z ##[group]Run npm ci
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:07.9711681Z [36;1mnpm ci[0m
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:07.9759874Z shell: /usr/bin/bash -e {0}
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:07.9760570Z env:
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:07.9761000Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:07.9761486Z ##[endgroup]
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:11.8653627Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:11.9902444Z npm warn deprecated lodash.isequal@4.5.0: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:12.1069463Z npm warn deprecated glob@8.1.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:12.1220642Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:12.1255629Z npm warn deprecated glob@5.0.15: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:12.1284373Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:12.1469519Z npm warn deprecated glob@7.1.7: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:12.8840422Z npm warn deprecated uuid@8.3.2: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:12.9822651Z npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:14.9326680Z 
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:14.9328064Z added 639 packages, and audited 640 packages in 7s
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:14.9328930Z 
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:14.9348577Z 126 packages are looking for funding
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:14.9368451Z   run `npm fund` for details
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:15.0086236Z 
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:15.0099248Z 44 vulnerabilities (18 low, 22 moderate, 4 high)
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:15.0101884Z 
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:15.0102335Z To address issues that do not require attention, run:
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:15.0102923Z   npm audit fix
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:15.0103151Z 
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:15.0103522Z To address all issues (including breaking changes), run:
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:15.0104108Z   npm audit fix --force
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:15.0104358Z 
+Blockchain (Hardhat)	Install dependencies	2026-06-04T08:23:15.0104556Z Run `npm audit` for details.
+Blockchain (Hardhat)	Compile contracts	я╗┐2026-06-04T08:23:15.0667191Z ##[group]Run npm run compile
+Blockchain (Hardhat)	Compile contracts	2026-06-04T08:23:15.0668066Z [36;1mnpm run compile[0m
+Blockchain (Hardhat)	Compile contracts	2026-06-04T08:23:15.0695984Z shell: /usr/bin/bash -e {0}
+Blockchain (Hardhat)	Compile contracts	2026-06-04T08:23:15.0696271Z env:
+Blockchain (Hardhat)	Compile contracts	2026-06-04T08:23:15.0696517Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+Blockchain (Hardhat)	Compile contracts	2026-06-04T08:23:15.0696832Z ##[endgroup]
+Blockchain (Hardhat)	Compile contracts	2026-06-04T08:23:15.1863302Z 
+Blockchain (Hardhat)	Compile contracts	2026-06-04T08:23:15.1864565Z > blockchain-secrets-vault-contracts@0.1.0 compile
+Blockchain (Hardhat)	Compile contracts	2026-06-04T08:23:15.1866054Z > hardhat compile
+Blockchain (Hardhat)	Compile contracts	2026-06-04T08:23:15.1866670Z 
+Blockchain (Hardhat)	Compile contracts	2026-06-04T08:23:15.6350569Z Downloading compiler 0.8.24
+Blockchain (Hardhat)	Compile contracts	2026-06-04T08:23:16.2054958Z Compiled 1 Solidity file successfully (evm target: paris).
+Blockchain (Hardhat)	Run Hardhat coverage	я╗┐2026-06-04T08:23:16.2236753Z ##[group]Run npm run coverage
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:16.2237089Z [36;1mnpm run coverage[0m
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:16.2266070Z shell: /usr/bin/bash -e {0}
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:16.2266365Z env:
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:16.2266609Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:16.2266920Z ##[endgroup]
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:16.3464843Z 
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:16.3465618Z > blockchain-secrets-vault-contracts@0.1.0 coverage
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:16.3466306Z > hardhat coverage
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:16.3466542Z 
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:17.0427929Z 
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:17.0428532Z Version
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:17.0429200Z =======
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:17.0429879Z > solidity-coverage: v0.8.17
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:17.0448271Z 
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:17.0448796Z Instrumenting for coverage...
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:17.0449538Z =============================
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:17.0450048Z 
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:17.0450513Z > SecretsAcl.sol
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:17.8078315Z 
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:17.8079491Z Compilation:
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:17.8081008Z ============
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:17.8081614Z 
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:17.9481138Z Compiled 1 Solidity file successfully (evm target: paris).
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.5225806Z 
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.5226894Z Network Info
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.5227852Z ============
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.5228506Z > HardhatEVM: v2.28.6
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.5229160Z > network:    hardhat
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.5229607Z 
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.5818092Z 
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.5827630Z 
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.5828590Z   SecretsAcl - scaffolding and data model (#1)
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.5829611Z     deployment
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.6335515Z       тЬФ sets the initial admin (50ms)
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.6437195Z       тЬФ emits AdminTransferred from the zero address on construction
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.6539047Z       тЬФ reverts when the initial admin is the zero address
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.6564481Z       тЬФ starts with no registered secrets
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.6582370Z     transferAdmin
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.6685243Z       тЬФ transfers admin and emits AdminTransferred
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.6817747Z       тЬФ reverts when called by a non-admin account
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.6852690Z       тЬФ reverts when the new admin is the zero address
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.6856138Z     read-only accessors
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.6891237Z       тЬФ reports that an unknown secret does not exist
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.6940198Z       тЬФ reverts getSecret for an unknown secret
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.6975283Z       тЬФ reverts secretIdAt when the index is out of bounds
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.7027117Z       тЬФ returns a zero-initialised access grant when none exists
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.7028326Z     registerSecret (#2)
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.7211361Z       тЬФ registers a secret owned by the caller
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.7414259Z       тЬФ emits SecretRegistered with the owner and data hash
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.7707681Z       тЬФ tracks multiple registered secrets in the enumeration
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.7740365Z       тЬФ reverts when the secret id is zero
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.7825196Z       тЬФ reverts when the secret id is already registered
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.7839599Z     grantAccess (#3)
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.8253290Z       тЬФ lets the owner grant read and write access (40ms)
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.8368214Z       тЬФ lets the admin grant access even when not the owner
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.8487757Z       тЬФ overwrites an existing grant on a subsequent call
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.8559216Z       тЬФ reverts when the account is the zero address
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.8609016Z       тЬФ reverts when the secret does not exist
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.8673585Z       тЬФ reverts when the caller is neither owner nor admin
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.8674967Z     revokeAccess (#4)
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.9037713Z       тЬФ lets the owner revoke previously granted access
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.9099763Z       тЬФ lets the admin revoke access even when not the owner
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.9221295Z       тЬФ is idempotent when access does not exist
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.9258566Z       тЬФ reverts when the account is the zero address
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.9287887Z       тЬФ reverts when the secret id is zero
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.9331930Z       тЬФ reverts when the secret does not exist
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.9380730Z       тЬФ reverts when the caller is neither owner nor admin
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.9381714Z     canRead / canWrite (#5)
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.9763003Z       тЬФ returns true for both checks for the secret owner
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.9852764Z       тЬФ returns true for both checks for the contract admin
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:18.9942661Z       тЬФ returns ACL grant flags for non-owner, non-admin accounts
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.0004414Z       тЬФ returns false for an account without a grant
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.0099610Z       тЬФ returns false after access is revoked
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.0147899Z       тЬФ reverts for a zero secret id
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.0207416Z       тЬФ reverts for a zero account
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.0308055Z       тЬФ reverts when the secret does not exist
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.0348808Z     auditEvent (#6)
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.0696372Z       тЬФ lets the admin publish an audit record
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.0740181Z       тЬФ reverts when called by a non-admin account
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.0775052Z       тЬФ reverts when the secret id is zero
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.0812002Z       тЬФ reverts when the account is zero
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.0860555Z       тЬФ reverts when the secret does not exist
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.0926943Z       тЬФ reverts when the audit action is outside the enum range
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.0929617Z 
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.0931733Z 
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.0931999Z   43 passing (511ms)
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.0932293Z 
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.1507942Z -----------------|----------|----------|----------|----------|----------------|
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.1509996Z File             |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.1518687Z -----------------|----------|----------|----------|----------|----------------|
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.1533048Z  contracts/      |      100 |      100 |      100 |      100 |                |
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.1555486Z   SecretsAcl.sol |      100 |      100 |      100 |      100 |                |
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.1557131Z -----------------|----------|----------|----------|----------|----------------|
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.1558570Z All files        |      100 |      100 |      100 |      100 |                |
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.1559878Z -----------------|----------|----------|----------|----------|----------------|
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.1560527Z 
+Blockchain (Hardhat)	Run Hardhat coverage	2026-06-04T08:23:19.1561382Z > Istanbul reports written to ./coverage/ and ./coverage.json
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	я╗┐2026-06-04T08:23:19.1897028Z ##[group]Run npm run coverage:js
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.1903171Z [36;1mnpm run coverage:js[0m
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.1969486Z shell: /usr/bin/bash -e {0}
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.1969874Z env:
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.1970192Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.1970595Z ##[endgroup]
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.3319412Z 
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.3319933Z > blockchain-secrets-vault-contracts@0.1.0 coverage:js
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.3321025Z > c8 --reports-dir coverage-js --reporter lcov --reporter text mocha "test-js/**/*.test.js"
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.3321662Z 
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.6672980Z 
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.6673015Z 
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.6675969Z   deploy script
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.6702052Z     тЬФ deploySecretsAcl deploys SecretsAcl with the requested admin and returns address
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.6708874Z     тЬФ deploySecretsAcl uses the default signer address when admin is omitted
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.6709860Z 
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.6713613Z 
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.6716791Z   2 passing (7ms)
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:19.6718265Z 
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:20.0690479Z ---------------------|---------|----------|---------|---------|-------------------
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:20.0702055Z File                 | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:20.0703296Z ---------------------|---------|----------|---------|---------|-------------------
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:20.0704630Z All files            |     100 |      100 |     100 |     100 |                   
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:20.0705688Z  deploySecretsAcl.js |     100 |      100 |     100 |     100 |                   
+Blockchain (Hardhat)	Run JavaScript coverage for deploy scripts	2026-06-04T08:23:20.0707030Z ---------------------|---------|----------|---------|---------|-------------------
+Blockchain (Hardhat)	Upload blockchain coverage report	я╗┐2026-06-04T08:23:20.0867146Z ##[group]Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.0867865Z with:
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.0868098Z   name: blockchain-coverage
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.0868473Z   path: blockchain/coverage/lcov.info
+Blockchain (Hardhat)	Upload blockchain coverage report	blockchain/coverage-js/lcov.info
+Blockchain (Hardhat)	Upload blockchain coverage report	
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.0868874Z   if-no-files-found: warn
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.0869164Z   retention-days: 7
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.0869404Z   compression-level: 6
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.0869649Z   overwrite: false
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.0869898Z   include-hidden-files: false
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.0870167Z   archive: true
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.0870394Z env:
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.0870623Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.0870915Z ##[endgroup]
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.2419210Z Multiple search paths detected. Calculating the least common ancestor of all paths
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.2421496Z The least common ancestor is /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/blockchain. This will be the root directory of the artifact
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.2423163Z With the provided path, there will be 2 files uploaded
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.2424766Z Artifact name is valid!
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.2429513Z Root directory input is valid!
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.3670892Z Uploading artifact: blockchain-coverage.zip
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.3671926Z Beginning upload of artifact content to blob storage
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.4335925Z Uploaded bytes 1210
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.4545356Z Finished uploading artifact content to blob storage!
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.4548558Z SHA256 digest of uploaded artifact is 800c1749c912d609b5314406d23173b08f201394cc6543ca309d439160795e48
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.4550149Z Finalizing artifact upload
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.6848250Z Artifact blockchain-coverage successfully finalized. Artifact ID 7406526634
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.6850053Z Artifact blockchain-coverage has been successfully uploaded! Final size is 1210 bytes. Artifact ID is 7406526634
+Blockchain (Hardhat)	Upload blockchain coverage report	2026-06-04T08:23:20.6851779Z Artifact download URL: https://github.com/igorsatsyuk/blockchain-secrets-vault/actions/runs/26940004773/artifacts/7406526634
+Blockchain (Hardhat)	Post Use Node 20	я╗┐2026-06-04T08:23:20.7030942Z Post job cleanup.
+Blockchain (Hardhat)	Post Use Node 20	2026-06-04T08:23:20.8551752Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-763126b74a20790686fc636a05805d83e3469550ad12d97c292c901b0b7259c6, not saving cache.
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	я╗┐2026-06-04T08:23:20.8621009Z Post job cleanup.
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:20.9530270Z [command]/usr/bin/git version
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:20.9573166Z git version 2.54.0
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:20.9615990Z Temporarily overriding HOME='/home/runner/work/_temp/c4e1676e-8d70-4f8c-9a30-7944fdf827cc' before making global git config changes
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:20.9618143Z Adding repository directory to the temporary git global config as a safe directory
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:20.9631855Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:20.9656871Z Removing SSH command configuration
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:20.9664143Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:20.9703921Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:20.9958778Z Removing HTTP extra header
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:20.9960077Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0001864Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0248765Z Removing includeIf entries pointing to credentials config files
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0258864Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0291070Z includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git.path
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0292827Z includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/worktrees/*.path
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0294241Z includeif.gitdir:/github/workspace/.git.path
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0295624Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0303539Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git.path
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0326609Z /home/runner/work/_temp/git-credentials-8d93efa2-e53c-4ded-9ef8-9816f588688b.config
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0344572Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git.path /home/runner/work/_temp/git-credentials-8d93efa2-e53c-4ded-9ef8-9816f588688b.config
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0380981Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/worktrees/*.path
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0407348Z /home/runner/work/_temp/git-credentials-8d93efa2-e53c-4ded-9ef8-9816f588688b.config
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0418617Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-8d93efa2-e53c-4ded-9ef8-9816f588688b.config
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0452503Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0477956Z /github/runner_temp/git-credentials-8d93efa2-e53c-4ded-9ef8-9816f588688b.config
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0486275Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-8d93efa2-e53c-4ded-9ef8-9816f588688b.config
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0520064Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0544779Z /github/runner_temp/git-credentials-8d93efa2-e53c-4ded-9ef8-9816f588688b.config
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0555409Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-8d93efa2-e53c-4ded-9ef8-9816f588688b.config
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0647090Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Blockchain (Hardhat)	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:21.0980220Z Removing credentials config '/home/runner/work/_temp/git-credentials-8d93efa2-e53c-4ded-9ef8-9816f588688b.config'
+Blockchain (Hardhat)	Complete job	я╗┐2026-06-04T08:23:21.1162398Z Cleaning up orphan processes
+SonarQube - blockchain	Set up job	я╗┐2026-06-04T08:23:25.6344759Z Current runner version: '2.334.0'
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6394523Z ##[group]Runner Image Provisioner
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6395748Z Hosted Compute Agent
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6396524Z Version: 20260520.533
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6397262Z Commit: 189110e25284a9812c124fd27b339e2fb4f2f9db
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6398237Z Build Date: 2026-05-20T17:44:04Z
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6399063Z Worker ID: {d661ef14-4409-44eb-9ddc-8513a9e6fe95}
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6399982Z Azure Region: northcentralus
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6400796Z ##[endgroup]
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6402543Z ##[group]Operating System
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6403747Z Ubuntu
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6404419Z 24.04.4
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6405121Z LTS
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6405807Z ##[endgroup]
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6406461Z ##[group]Runner Image
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6407299Z Image: ubuntu-24.04
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6408060Z Version: 20260525.161.1
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6409484Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260525.161/images/ubuntu/Ubuntu2404-Readme.md
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6411699Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260525.161
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6413023Z ##[endgroup]
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6414613Z ##[group]GITHUB_TOKEN Permissions
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6417077Z Contents: read
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6417807Z Metadata: read
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6418554Z ##[endgroup]
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6420961Z Secret source: Actions
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.6422003Z Prepare workflow directory
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.8689603Z Prepare all required actions
+SonarQube - blockchain	Set up job	2026-06-04T08:23:25.8732240Z Getting action download info
+SonarQube - blockchain	Set up job	2026-06-04T08:23:26.3409242Z Download action repository 'actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd' (SHA:de0fac2e4500dabe0009e67214ff5f5447ce83dd)
+SonarQube - blockchain	Set up job	2026-06-04T08:23:27.0288944Z Download action repository 'actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c' (SHA:3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c)
+SonarQube - blockchain	Set up job	2026-06-04T08:23:28.1003484Z Download action repository 'SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995' (SHA:7006c4492b2e0ee0f816d36501671557c97f5995)
+SonarQube - blockchain	Set up job	2026-06-04T08:23:28.5889167Z Complete job name: SonarQube - blockchain
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	я╗┐2026-06-04T08:23:28.6378136Z ##[group]Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6378761Z with:
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6378978Z   fetch-depth: 0
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6379245Z   repository: igorsatsyuk/blockchain-secrets-vault
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6381563Z   token: ***
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6381787Z   ssh-strict: true
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6382017Z   ssh-user: git
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6382242Z   persist-credentials: true
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6382494Z   clean: true
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6382717Z   sparse-checkout-cone-mode: true
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6382974Z   fetch-tags: false
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6383198Z   show-progress: true
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6383581Z   lfs: false
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6383781Z   submodules: false
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6384019Z   set-safe-directory: true
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6384417Z env:
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6384637Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6384995Z   SONAR_TOKEN: ***
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6385233Z   SONAR_HOST_URL: https://sonarcloud.io
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6385568Z   SONAR_ORGANIZATION: igorsatsyuk
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.6385818Z ##[endgroup]
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7270460Z Syncing repository: igorsatsyuk/blockchain-secrets-vault
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7272367Z ##[group]Getting Git version info
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7273132Z Working directory is '/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault'
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7274584Z [command]/usr/bin/git version
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7290651Z git version 2.54.0
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7308944Z ##[endgroup]
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7321652Z Temporarily overriding HOME='/home/runner/work/_temp/1f5ab833-18b3-47ff-a968-4f8dff7fe64e' before making global git config changes
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7324244Z Adding repository directory to the temporary git global config as a safe directory
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7326680Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7360115Z Deleting the contents of '/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault'
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7365651Z ##[group]Initializing the repository
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7370186Z [command]/usr/bin/git init /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7461377Z hint: Using 'master' as the name for the initial branch. This default branch name
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7462561Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7463826Z hint: to use in all of your new repositories, which will suppress this warning,
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7464751Z hint: call:
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7465336Z hint:
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7465901Z hint: 	git config --global init.defaultBranch <name>
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7466527Z hint:
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7467121Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7468136Z hint: 'development'. The just-created branch can be renamed via this command:
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7469155Z hint:
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7469704Z hint: 	git branch -m <name>
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7470255Z hint:
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7470975Z hint: Disable this message with "git config set advice.defaultBranchName false"
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7472387Z Initialized empty Git repository in /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7474668Z [command]/usr/bin/git remote add origin https://github.com/igorsatsyuk/blockchain-secrets-vault
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7500081Z ##[endgroup]
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7500869Z ##[group]Disabling automatic garbage collection
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7503158Z [command]/usr/bin/git config --local gc.auto 0
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7530064Z ##[endgroup]
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7530957Z ##[group]Setting up auth
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7531785Z Removing SSH command configuration
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7536803Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7563840Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7818286Z Removing HTTP extra header
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7824011Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.7853827Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.8047809Z Removing includeIf entries pointing to credentials config files
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.8051324Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.8079512Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.8282688Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-39393768-41cc-404a-a29d-c520048c2991.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.8317984Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git.path /home/runner/work/_temp/git-credentials-39393768-41cc-404a-a29d-c520048c2991.config
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.8353137Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-39393768-41cc-404a-a29d-c520048c2991.config
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.8375896Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-39393768-41cc-404a-a29d-c520048c2991.config
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.8420046Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-39393768-41cc-404a-a29d-c520048c2991.config
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.8459274Z ##[endgroup]
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.8460171Z ##[group]Fetching the repository
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:28.8467306Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +6a0c4a2f137fb44e6dd9c17ca185c0116b368b95:refs/remotes/pull/33/merge
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4015040Z From https://github.com/igorsatsyuk/blockchain-secrets-vault
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4021963Z  * [new branch]      feat/issue-7-secrets-api-mvp             -> origin/feat/issue-7-secrets-api-mvp
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4024124Z  * [new branch]      feat/kms-service-aes-gcm                 -> origin/feat/kms-service-aes-gcm
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4025256Z  * [new branch]      fix/sonar-bad-request-constant           -> origin/fix/sonar-bad-request-constant
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4026172Z  * [new branch]      main                                     -> origin/main
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4026947Z  * [new ref]         6a0c4a2f137fb44e6dd9c17ca185c0116b368b95 -> pull/33/merge
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4093126Z ##[endgroup]
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4113592Z ##[group]Determining the checkout info
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4124118Z ##[endgroup]
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4133023Z [command]/usr/bin/git sparse-checkout disable
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4182156Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4184500Z ##[group]Checking out the ref
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4185199Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/33/merge
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4295863Z Note: switching to 'refs/remotes/pull/33/merge'.
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4319557Z 
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4344108Z You are in 'detached HEAD' state. You can look around, make experimental
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4345076Z changes and commit them, and you can discard any commits you make in this
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4364283Z state without impacting any branches by switching back to a branch.
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4385768Z 
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4407715Z If you want to create a new branch to retain commits you create, you may
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4411567Z do so (now or later) by using -c with the switch command. Example:
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4415608Z 
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4416068Z   git switch -c <new-branch-name>
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4416548Z 
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4416840Z Or undo this operation with:
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4417221Z 
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4417495Z   git switch -
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4417788Z 
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4418216Z Turn off this advice by setting config variable advice.detachedHead to false
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4418781Z 
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4419407Z HEAD is now at 6a0c4a2 Merge bc0dede578976d5cf53dfa1bd90db9867bbc8be5 into f4a0c85a0ef3d6554094be6cc1b7f9cba1cb9d30
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4521016Z ##[endgroup]
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4521864Z [command]/usr/bin/git log -1 --format=%H
+SonarQube - blockchain	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:29.4522232Z 6a0c4a2f137fb44e6dd9c17ca185c0116b368b95
+SonarQube - blockchain	Check Sonar configuration	я╗┐2026-06-04T08:23:29.4620770Z ##[group]Run if [ -z "$SONAR_TOKEN" ]; then
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4621142Z [36;1mif [ -z "$SONAR_TOKEN" ]; then[0m
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4621426Z [36;1m  echo "sonar_skipped=true" >> $GITHUB_OUTPUT[0m
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4621743Z [36;1m  echo "SONAR_TOKEN not set; skipping blockchain analysis"[0m
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4622032Z [36;1m  exit 0[0m
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4622201Z [36;1mfi[0m
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4622446Z [36;1mhost_url="${SONAR_HOST_URL:-https://sonarcloud.io}"[0m
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4622723Z [36;1mhost_url="${host_url%/}"[0m
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4623044Z [36;1mif [ "$host_url" = "https://sonarcloud.io" ] && [ -z "$SONAR_ORGANIZATION" ]; then[0m
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4623678Z [36;1m  echo "sonar_skipped=true" >> $GITHUB_OUTPUT[0m
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4624057Z [36;1m  echo "SONAR_ORGANIZATION not set for SonarCloud; skipping blockchain analysis"[0m
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4624396Z [36;1m  exit 0[0m
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4624562Z [36;1mfi[0m
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4624760Z [36;1mecho "sonar_skipped=false" >> $GITHUB_OUTPUT[0m
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4625234Z [36;1mecho "sonar_enabled=true" >> $GITHUB_OUTPUT[0m
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4649503Z shell: /usr/bin/bash -e {0}
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4649745Z env:
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4649939Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4650310Z   SONAR_TOKEN: ***
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4650521Z   SONAR_HOST_URL: https://sonarcloud.io
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4650759Z   SONAR_ORGANIZATION: igorsatsyuk
+SonarQube - blockchain	Check Sonar configuration	2026-06-04T08:23:29.4650962Z ##[endgroup]
+SonarQube - blockchain	Download blockchain coverage report	я╗┐2026-06-04T08:23:29.4802534Z ##[group]Run actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.4802905Z with:
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.4803088Z   name: blockchain-coverage
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.4803474Z   path: .
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.4803652Z   merge-multiple: false
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.4803878Z   repository: igorsatsyuk/blockchain-secrets-vault
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.4804127Z   run-id: 26940004773
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.4804316Z   skip-decompress: false
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.4804506Z   digest-mismatch: error
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.4804696Z env:
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.4804875Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.4805237Z   SONAR_TOKEN: ***
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.4805440Z   SONAR_HOST_URL: https://sonarcloud.io
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.4805678Z   SONAR_ORGANIZATION: igorsatsyuk
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.4805893Z ##[endgroup]
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.6049613Z Downloading single artifact
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.7825139Z Preparing to download the following artifacts:
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.7826145Z - blockchain-coverage (ID: 7406526634, Size: 1210, Expected Digest: sha256:800c1749c912d609b5314406d23173b08f201394cc6543ca309d439160795e48)
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.9938565Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/9d0f2cef-8bff-4b08-93dd-8a98e0244a5e/workflow-job-run-3d455d18-829c-5f39-aea8-6af22bdbeda5/artifacts/713adb5bed1292f350a4fb08f191619d77fab9a134dca7f2b5d637a63d0bc7e0.zip
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:29.9940763Z Starting download of artifact to: /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:30.1114059Z (node:1972) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:30.1123770Z (Use `node --trace-deprecation ...` to show where the warning was created)
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:30.1154225Z SHA256 digest of downloaded artifact is 800c1749c912d609b5314406d23173b08f201394cc6543ca309d439160795e48
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:30.1155422Z Artifact download completed successfully.
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:30.1156239Z Total of 1 artifact(s) downloaded
+SonarQube - blockchain	Download blockchain coverage report	2026-06-04T08:23:30.1158838Z Download artifact has finished successfully
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	я╗┐2026-06-04T08:23:30.1254269Z ##[group]Run expected_sol="blockchain/coverage/lcov.info"
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1254683Z [36;1mexpected_sol="blockchain/coverage/lcov.info"[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1255048Z [36;1mfound_sol=$(find . -path "*/coverage/lcov.info" 2>/dev/null | head -1 || true)[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1255392Z [36;1mfound_sol=${found_sol#./}[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1255682Z [36;1mif [ -n "$found_sol" ] && [ "$found_sol" != "$expected_sol" ]; then[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1255998Z [36;1m  mkdir -p "$(dirname "$expected_sol")"[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1256256Z [36;1m  cp "$found_sol" "$expected_sol"[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1256549Z [36;1m  echo "Reorganized Solidity lcov: $found_sol -> $expected_sol"[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1256839Z [36;1mfi[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1257001Z [36;1m[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1257210Z [36;1mexpected_js="blockchain/coverage-js/lcov.info"[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1257573Z [36;1mfound_js=$(find . -path "*/coverage-js/lcov.info" 2>/dev/null | head -1 || true)[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1257912Z [36;1mfound_js=${found_js#./}[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1258236Z [36;1mif [ -n "$found_js" ] && [ "$found_js" != "$expected_js" ]; then[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1258556Z [36;1m  mkdir -p "$(dirname "$expected_js")"[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1258813Z [36;1m  cp "$found_js" "$expected_js"[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1259245Z [36;1m  echo "Reorganized JS lcov: $found_js -> $expected_js"[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1259517Z [36;1mfi[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1259681Z [36;1m[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1259897Z [36;1mif [ ! -f "$expected_sol" ] && [ ! -f "$expected_js" ]; then[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1260271Z [36;1m  echo "No lcov.info reports found; Sonar will run without coverage input"[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1260577Z [36;1mfi[0m
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1285419Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1285725Z env:
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1285934Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1286309Z   SONAR_TOKEN: ***
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1286526Z   SONAR_HOST_URL: https://sonarcloud.io
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1286791Z   SONAR_ORGANIZATION: igorsatsyuk
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1287005Z ##[endgroup]
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1396652Z Reorganized Solidity lcov: coverage/lcov.info -> blockchain/coverage/lcov.info
+SonarQube - blockchain	Normalize blockchain lcov path for Sonar	2026-06-04T08:23:30.1456781Z Reorganized JS lcov: coverage-js/lcov.info -> blockchain/coverage-js/lcov.info
+SonarQube - blockchain	Build blockchain Sonar args	я╗┐2026-06-04T08:23:30.1504767Z ##[group]Run args="-Dsonar.projectKey=blockchain-secrets-vault-blockchain"
+SonarQube - blockchain	Build blockchain Sonar args	2026-06-04T08:23:30.1505241Z [36;1margs="-Dsonar.projectKey=blockchain-secrets-vault-blockchain"[0m
+SonarQube - blockchain	Build blockchain Sonar args	2026-06-04T08:23:30.1505571Z [36;1mif [ -n "${SONAR_ORGANIZATION}" ]; then[0m
+SonarQube - blockchain	Build blockchain Sonar args	2026-06-04T08:23:30.1505874Z [36;1m  args="${args} -Dsonar.organization=${SONAR_ORGANIZATION}"[0m
+SonarQube - blockchain	Build blockchain Sonar args	2026-06-04T08:23:30.1506148Z [36;1mfi[0m
+SonarQube - blockchain	Build blockchain Sonar args	2026-06-04T08:23:30.1506352Z [36;1mecho "args=${args}" >> "$GITHUB_OUTPUT"[0m
+SonarQube - blockchain	Build blockchain Sonar args	2026-06-04T08:23:30.1527099Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+SonarQube - blockchain	Build blockchain Sonar args	2026-06-04T08:23:30.1527383Z env:
+SonarQube - blockchain	Build blockchain Sonar args	2026-06-04T08:23:30.1527577Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+SonarQube - blockchain	Build blockchain Sonar args	2026-06-04T08:23:30.1527926Z   SONAR_TOKEN: ***
+SonarQube - blockchain	Build blockchain Sonar args	2026-06-04T08:23:30.1528136Z   SONAR_HOST_URL: https://sonarcloud.io
+SonarQube - blockchain	Build blockchain Sonar args	2026-06-04T08:23:30.1528377Z   SONAR_ORGANIZATION: igorsatsyuk
+SonarQube - blockchain	Build blockchain Sonar args	2026-06-04T08:23:30.1528595Z ##[endgroup]
+SonarQube - blockchain	Run SonarQube analysis (blockchain)	я╗┐2026-06-04T08:23:30.1618929Z ##[group]Run SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995
+SonarQube - blockchain	Run SonarQube analysis (blockchain)	2026-06-04T08:23:30.1619312Z with:
+SonarQube - blockchain	Run SonarQube analysis (blockchain)	2026-06-04T08:23:30.1619503Z   projectBaseDir: blockchain
+SonarQube - blockchain	Run SonarQube analysis (blockchain)	2026-06-04T08:23:30.1619882Z   args: -Dsonar.projectKey=blockchain-secrets-vault-blockchain -Dsonar.organization=igorsatsyuk
+SonarQube - blockchain	Run SonarQube analysis (blockchain)	2026-06-04T08:23:30.1620261Z   scannerVersion: 8.1.0.6389
+SonarQube - blockchain	Run SonarQube analysis (blockchain)	2026-06-04T08:23:30.1620597Z   scannerBinariesUrl: https://binaries.sonarsource.com/Distribution/sonar-scanner-cli
+SonarQube - blockchain	Run SonarQube analysis (blockchain)	2026-06-04T08:23:30.1620949Z   skipSignatureVerification: false
+SonarQube - blockchain	Run SonarQube analysis (blockchain)	2026-06-04T08:23:30.1621171Z env:
+SonarQube - blockchain	Run SonarQube analysis (blockchain)	2026-06-04T08:23:30.1621348Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+SonarQube - blockchain	Run SonarQube analysis (blockchain)	2026-06-04T08:23:30.1621683Z   SONAR_TOKEN: ***
+SonarQube - blockchain	Run SonarQube analysis (blockchain)	2026-06-04T08:23:30.1621878Z   SONAR_HOST_URL: https://sonarcloud.io
+SonarQube - blockchain	Run SonarQube analysis (blockchain)	2026-06-04T08:23:30.1622124Z   SONAR_ORGANIZATION: igorsatsyuk
+SonarQube - blockchain	Run SonarQube analysis (blockchain)	2026-06-04T08:23:30.1622341Z ##[endgroup]
+SonarQube - blockchain	Run SonarQube analysis (blockchain)	2026-06-04T08:23:30.2394122Z Installing Sonar Scanner CLI 8.1.0.6389 for linux-x64...
+SonarQube - blockchain	Run SonarQube analysis (blockchain)	2026-06-04T08:23:30.2395573Z Downloading from: https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-8.1.0.6389-linux-x64.zip
+SonarQube - blockchain	Run SonarQube analysis (blockchain)	2026-06-04T08:23:30.2751629Z ##[error]Action failed: Unexpected HTTP response: 403
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	я╗┐2026-06-04T08:23:30.2892241Z Post job cleanup.
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.3602745Z [command]/usr/bin/git version
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.3637080Z git version 2.54.0
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.3701913Z Temporarily overriding HOME='/home/runner/work/_temp/e115f71f-7c8a-4fd9-9012-e78cd6f3c0f7' before making global git config changes
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.3703546Z Adding repository directory to the temporary git global config as a safe directory
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.3707379Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.3738595Z Removing SSH command configuration
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.3745224Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.3779400Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.3979264Z Removing HTTP extra header
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.3983940Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4016390Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4208417Z Removing includeIf entries pointing to credentials config files
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4213922Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4235901Z includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git.path
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4238137Z includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/worktrees/*.path
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4239281Z includeif.gitdir:/github/workspace/.git.path
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4240067Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4246839Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git.path
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4266192Z /home/runner/work/_temp/git-credentials-39393768-41cc-404a-a29d-c520048c2991.config
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4278585Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git.path /home/runner/work/_temp/git-credentials-39393768-41cc-404a-a29d-c520048c2991.config
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4311699Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/worktrees/*.path
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4338027Z /home/runner/work/_temp/git-credentials-39393768-41cc-404a-a29d-c520048c2991.config
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4344913Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-39393768-41cc-404a-a29d-c520048c2991.config
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4374433Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4391754Z /github/runner_temp/git-credentials-39393768-41cc-404a-a29d-c520048c2991.config
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4398915Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-39393768-41cc-404a-a29d-c520048c2991.config
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4427137Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4446876Z /github/runner_temp/git-credentials-39393768-41cc-404a-a29d-c520048c2991.config
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4455788Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-39393768-41cc-404a-a29d-c520048c2991.config
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4488698Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+SonarQube - blockchain	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:30.4794920Z Removing credentials config '/home/runner/work/_temp/git-credentials-39393768-41cc-404a-a29d-c520048c2991.config'
+SonarQube - blockchain	Complete job	я╗┐2026-06-04T08:23:30.4917383Z Evaluate and set job outputs
+SonarQube - blockchain	Complete job	2026-06-04T08:23:30.4921933Z Set output 'sonar_skipped'
+SonarQube - blockchain	Complete job	2026-06-04T08:23:30.4924250Z Cleaning up orphan processes
+Notify Telegram	Set up job	я╗┐2026-06-04T08:23:36.5461091Z Current runner version: '2.334.0'
+Notify Telegram	Set up job	2026-06-04T08:23:36.5525672Z ##[group]Runner Image Provisioner
+Notify Telegram	Set up job	2026-06-04T08:23:36.5527123Z Hosted Compute Agent
+Notify Telegram	Set up job	2026-06-04T08:23:36.5528135Z Version: 20260520.533
+Notify Telegram	Set up job	2026-06-04T08:23:36.5529384Z Commit: 189110e25284a9812c124fd27b339e2fb4f2f9db
+Notify Telegram	Set up job	2026-06-04T08:23:36.5530595Z Build Date: 2026-05-20T17:44:04Z
+Notify Telegram	Set up job	2026-06-04T08:23:36.5532034Z Worker ID: {d5483e09-2024-400c-9833-6de07091a8a0}
+Notify Telegram	Set up job	2026-06-04T08:23:36.5533354Z Azure Region: eastus
+Notify Telegram	Set up job	2026-06-04T08:23:36.5534244Z ##[endgroup]
+Notify Telegram	Set up job	2026-06-04T08:23:36.5537116Z ##[group]Operating System
+Notify Telegram	Set up job	2026-06-04T08:23:36.5538135Z Ubuntu
+Notify Telegram	Set up job	2026-06-04T08:23:36.5538925Z 24.04.4
+Notify Telegram	Set up job	2026-06-04T08:23:36.5539938Z LTS
+Notify Telegram	Set up job	2026-06-04T08:23:36.5540752Z ##[endgroup]
+Notify Telegram	Set up job	2026-06-04T08:23:36.5562215Z ##[group]Runner Image
+Notify Telegram	Set up job	2026-06-04T08:23:36.5563352Z Image: ubuntu-24.04
+Notify Telegram	Set up job	2026-06-04T08:23:36.5564299Z Version: 20260525.161.1
+Notify Telegram	Set up job	2026-06-04T08:23:36.5566243Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260525.161/images/ubuntu/Ubuntu2404-Readme.md
+Notify Telegram	Set up job	2026-06-04T08:23:36.5569220Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260525.161
+Notify Telegram	Set up job	2026-06-04T08:23:36.5570935Z ##[endgroup]
+Notify Telegram	Set up job	2026-06-04T08:23:36.5573102Z ##[group]GITHUB_TOKEN Permissions
+Notify Telegram	Set up job	2026-06-04T08:23:36.5576153Z Contents: read
+Notify Telegram	Set up job	2026-06-04T08:23:36.5577187Z Metadata: read
+Notify Telegram	Set up job	2026-06-04T08:23:36.5578109Z ##[endgroup]
+Notify Telegram	Set up job	2026-06-04T08:23:36.5581157Z Secret source: Actions
+Notify Telegram	Set up job	2026-06-04T08:23:36.5603441Z Prepare workflow directory
+Notify Telegram	Set up job	2026-06-04T08:23:36.6965243Z Prepare all required actions
+Notify Telegram	Set up job	2026-06-04T08:23:36.7076126Z Getting action download info
+Notify Telegram	Set up job	2026-06-04T08:23:37.3016622Z Download action repository 'actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd' (SHA:de0fac2e4500dabe0009e67214ff5f5447ce83dd)
+Notify Telegram	Set up job	2026-06-04T08:23:37.3973394Z Download action repository 'appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3' (SHA:221e6b684967abe813051ee4a37dd61770a83ad3)
+Notify Telegram	Set up job	2026-06-04T08:23:37.6382247Z Complete job name: Notify Telegram
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	я╗┐2026-06-04T08:23:37.6791987Z ##[group]Build container for action use: '/home/runner/work/_actions/appleboy/telegram-action/221e6b684967abe813051ee4a37dd61770a83ad3/Dockerfile'.
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:37.6837387Z ##[command]/usr/bin/docker build -t 304ee6:08b4d1ed7d8f4d7da71d5ee03cf62500 -f "/home/runner/work/_actions/appleboy/telegram-action/221e6b684967abe813051ee4a37dd61770a83ad3/Dockerfile" "/home/runner/work/_actions/appleboy/telegram-action/221e6b684967abe813051ee4a37dd61770a83ad3"
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.1350247Z #0 building with "default" instance using docker driver
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.1351875Z 
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.1352657Z #1 [internal] load build definition from Dockerfile
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.1354099Z #1 transferring dockerfile: 203B done
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.1355335Z #1 DONE 0.0s
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.1356022Z 
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.1356832Z #2 [internal] load metadata for ghcr.io/appleboy/drone-telegram:1.4.0
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.5343836Z #2 DONE 0.5s
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.6666651Z 
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.6667899Z #3 [internal] load .dockerignore
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.6679211Z #3 transferring context: 2B done
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.6680539Z #3 DONE 0.0s
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.6681115Z 
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.6681882Z #4 [internal] load build context
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.6683001Z #4 transferring context: 147B done
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.6684039Z #4 DONE 0.0s
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.6684755Z 
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.6686646Z #5 [1/4] FROM ghcr.io/appleboy/drone-telegram:1.4.0@sha256:c026c8f95b925c4771fb44fee1ead2235b5b8f84abc47d09465f599c16808557
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.6691138Z #5 resolve ghcr.io/appleboy/drone-telegram:1.4.0@sha256:c026c8f95b925c4771fb44fee1ead2235b5b8f84abc47d09465f599c16808557 done
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.6695275Z #5 sha256:8be43ff67865efd86fabb08c49b37877d091de12f98c8ee453b4017933dc5c88 864B / 864B done
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.6698799Z #5 sha256:57a9b9d8cafaa0d6f27ba8412b2cfe7ad2f10450adb0489aa4ec3f22b4b41414 3.09kB / 3.09kB done
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.6702575Z #5 sha256:b99da37831f37d3f77de0ac7a864f9b69f1dbb4461e5ddfe5a3c2b7e2a3586c5 0B / 3.39MB 0.1s
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.6706254Z #5 sha256:0b51510b818612d08cf8c189850a234c4eae133f1b2a6166eadcbdb2c7e0fb50 293.76kB / 293.76kB 0.1s done
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.6710187Z #5 sha256:fa7a23b525642b9c4b480077545252d446251f80dcc09c9326288b02d59b0afe 1.05MB / 3.54MB 0.1s
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.6713888Z #5 sha256:c026c8f95b925c4771fb44fee1ead2235b5b8f84abc47d09465f599c16808557 1.61kB / 1.61kB done
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.8174219Z #5 sha256:b99da37831f37d3f77de0ac7a864f9b69f1dbb4461e5ddfe5a3c2b7e2a3586c5 3.39MB / 3.39MB 0.2s done
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:38.8177745Z #5 sha256:fa7a23b525642b9c4b480077545252d446251f80dcc09c9326288b02d59b0afe 3.54MB / 3.54MB 0.1s done
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:39.2293009Z #5 extracting sha256:b99da37831f37d3f77de0ac7a864f9b69f1dbb4461e5ddfe5a3c2b7e2a3586c5 0.1s
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:39.2294448Z #5 extracting sha256:b99da37831f37d3f77de0ac7a864f9b69f1dbb4461e5ddfe5a3c2b7e2a3586c5 0.1s done
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:39.2297532Z #5 extracting sha256:0b51510b818612d08cf8c189850a234c4eae133f1b2a6166eadcbdb2c7e0fb50 0.0s done
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:40.8859425Z #5 extracting sha256:fa7a23b525642b9c4b480077545252d446251f80dcc09c9326288b02d59b0afe
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:40.9906678Z #5 extracting sha256:fa7a23b525642b9c4b480077545252d446251f80dcc09c9326288b02d59b0afe 0.1s done
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:40.9909077Z #5 DONE 2.4s
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:40.9909554Z 
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:40.9909984Z #6 [2/4] COPY entrypoint.sh /entrypoint.sh
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:40.9910696Z #6 DONE 0.0s
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:41.1434302Z 
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:41.1435459Z #7 [3/4] RUN chmod +x /entrypoint.sh
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:41.1664218Z #7 DONE 0.2s
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:41.3390027Z 
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:41.3396863Z #8 [4/4] WORKDIR /github/workspace
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:41.3399511Z #8 DONE 0.0s
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:41.3399744Z 
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:41.3399935Z #9 exporting to image
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:41.3400302Z #9 exporting layers
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:42.0116342Z #9 exporting layers 0.8s done
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:42.0310121Z #9 writing image sha256:b3a634c37c185f011f012ef9577eacfd1b034d85fc64552cd1a2c157f4a75ad3 done
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:42.0312183Z #9 naming to docker.io/library/304ee6:08b4d1ed7d8f4d7da71d5ee03cf62500 done
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:42.0334472Z #9 DONE 0.8s
+Notify Telegram	Build appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3	2026-06-04T08:23:42.0420701Z ##[endgroup]
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	я╗┐2026-06-04T08:23:42.0683609Z ##[group]Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0684284Z with:
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0684589Z   repository: igorsatsyuk/blockchain-secrets-vault
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0687865Z   token: ***
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0688100Z   ssh-strict: true
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0688386Z   ssh-user: git
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0688635Z   persist-credentials: true
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0688892Z   clean: true
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0689135Z   sparse-checkout-cone-mode: true
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0689455Z   fetch-depth: 1
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0689688Z   fetch-tags: false
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0689914Z   show-progress: true
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0690146Z   lfs: false
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0690357Z   submodules: false
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0690606Z   set-safe-directory: true
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0691033Z env:
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0691264Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0691836Z   TELEGRAM_TO: ***
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0692176Z   TELEGRAM_TOKEN: ***
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.0692404Z ##[endgroup]
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.1790682Z Syncing repository: igorsatsyuk/blockchain-secrets-vault
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.1793828Z ##[group]Getting Git version info
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.1794943Z Working directory is '/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault'
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.1797222Z [command]/usr/bin/git version
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.1797902Z git version 2.54.0
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.1853118Z ##[endgroup]
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.1869257Z Temporarily overriding HOME='/home/runner/work/_temp/58576034-29a8-4dc8-9b99-a2cc15d01f7f' before making global git config changes
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.1872797Z Adding repository directory to the temporary git global config as a safe directory
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.1876099Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.1926179Z Deleting the contents of '/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault'
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.1930678Z ##[group]Initializing the repository
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.1936389Z [command]/usr/bin/git init /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2017287Z hint: Using 'master' as the name for the initial branch. This default branch name
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2033834Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2035048Z hint: to use in all of your new repositories, which will suppress this warning,
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2035997Z hint: call:
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2036875Z hint:
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2037485Z hint: 	git config --global init.defaultBranch <name>
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2038283Z hint:
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2038912Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2039967Z hint: 'development'. The just-created branch can be renamed via this command:
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2040812Z hint:
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2041249Z hint: 	git branch -m <name>
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2042184Z hint:
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2042871Z hint: Disable this message with "git config set advice.defaultBranchName false"
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2044599Z Initialized empty Git repository in /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2046758Z [command]/usr/bin/git remote add origin https://github.com/igorsatsyuk/blockchain-secrets-vault
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2089762Z ##[endgroup]
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2097755Z ##[group]Disabling automatic garbage collection
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2102771Z [command]/usr/bin/git config --local gc.auto 0
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2127556Z ##[endgroup]
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2128974Z ##[group]Setting up auth
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2130174Z Removing SSH command configuration
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2135403Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2172457Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2494513Z Removing HTTP extra header
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2499118Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2543619Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2785946Z Removing includeIf entries pointing to credentials config files
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2793855Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.2829419Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.3083116Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-551954e4-229b-4732-b0c5-dfe93414cc8b.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.3125332Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git.path /home/runner/work/_temp/git-credentials-551954e4-229b-4732-b0c5-dfe93414cc8b.config
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.3160782Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-551954e4-229b-4732-b0c5-dfe93414cc8b.config
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.3198930Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-551954e4-229b-4732-b0c5-dfe93414cc8b.config
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.3230263Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-551954e4-229b-4732-b0c5-dfe93414cc8b.config
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.3267915Z ##[endgroup]
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.3269303Z ##[group]Fetching the repository
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.3275938Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +6a0c4a2f137fb44e6dd9c17ca185c0116b368b95:refs/remotes/pull/33/merge
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5426039Z From https://github.com/igorsatsyuk/blockchain-secrets-vault
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5442728Z  * [new ref]         6a0c4a2f137fb44e6dd9c17ca185c0116b368b95 -> pull/33/merge
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5502772Z ##[endgroup]
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5504710Z ##[group]Determining the checkout info
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5523035Z ##[endgroup]
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5526240Z [command]/usr/bin/git sparse-checkout disable
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5546763Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5604754Z ##[group]Checking out the ref
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5606046Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/33/merge
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5765006Z Note: switching to 'refs/remotes/pull/33/merge'.
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5772212Z 
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5774885Z You are in 'detached HEAD' state. You can look around, make experimental
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5789924Z changes and commit them, and you can discard any commits you make in this
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5791165Z state without impacting any branches by switching back to a branch.
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5792243Z 
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5888824Z If you want to create a new branch to retain commits you create, you may
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5910914Z do so (now or later) by using -c with the switch command. Example:
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5911236Z 
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5911374Z   git switch -c <new-branch-name>
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5911779Z 
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5911962Z Or undo this operation with:
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5912263Z 
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5912414Z   git switch -
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5912679Z 
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5913081Z Turn off this advice by setting config variable advice.detachedHead to false
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5913665Z 
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5914366Z HEAD is now at 6a0c4a2 Merge bc0dede578976d5cf53dfa1bd90db9867bbc8be5 into f4a0c85a0ef3d6554094be6cc1b7f9cba1cb9d30
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5916726Z ##[endgroup]
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5917787Z [command]/usr/bin/git log -1 --format=%H
+Notify Telegram	Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:42.5918354Z 6a0c4a2f137fb44e6dd9c17ca185c0116b368b95
+Notify Telegram	Compose Telegram message	я╗┐2026-06-04T08:23:42.6086809Z ##[group]Run python3 .github/scripts/compose_telegram_message.py
+Notify Telegram	Compose Telegram message	2026-06-04T08:23:42.6087379Z [36;1mpython3 .github/scripts/compose_telegram_message.py[0m
+Notify Telegram	Compose Telegram message	2026-06-04T08:23:42.6119072Z shell: /usr/bin/bash -e {0}
+Notify Telegram	Compose Telegram message	2026-06-04T08:23:42.6119360Z env:
+Notify Telegram	Compose Telegram message	2026-06-04T08:23:42.6119603Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+Notify Telegram	Compose Telegram message	2026-06-04T08:23:42.6120016Z   TELEGRAM_TO: ***
+Notify Telegram	Compose Telegram message	2026-06-04T08:23:42.6120350Z   TELEGRAM_TOKEN: ***
+Notify Telegram	Compose Telegram message	2026-06-04T08:23:42.6120588Z   BLOCKCHAIN_RESULT: success
+Notify Telegram	Compose Telegram message	2026-06-04T08:23:42.6120862Z   BACKEND_RESULT: failure
+Notify Telegram	Compose Telegram message	2026-06-04T08:23:42.6121119Z   SONAR_BLOCKCHAIN_RESULT: failure
+Notify Telegram	Compose Telegram message	2026-06-04T08:23:42.6121400Z   SONAR_BACKEND_RESULT: skipped
+Notify Telegram	Compose Telegram message	2026-06-04T08:23:42.6122013Z   SONAR_BLOCKCHAIN_SKIPPED: false
+Notify Telegram	Compose Telegram message	2026-06-04T08:23:42.6122295Z   SONAR_BACKEND_SKIPPED: 
+Notify Telegram	Compose Telegram message	2026-06-04T08:23:42.6122542Z ##[endgroup]
+Notify Telegram	Notify Telegram	я╗┐2026-06-04T08:23:42.6596294Z ##[group]Run appleboy/telegram-action@221e6b684967abe813051ee4a37dd61770a83ad3
+Notify Telegram	Notify Telegram	2026-06-04T08:23:42.6596739Z with:
+Notify Telegram	Notify Telegram	2026-06-04T08:23:42.6597019Z   to: ***
+Notify Telegram	Notify Telegram	2026-06-04T08:23:42.6597329Z   token: ***
+Notify Telegram	Notify Telegram	2026-06-04T08:23:42.6598906Z   message: blockchain-secrets-vault CI finished
+Notify Telegram	Notify Telegram	
+Notify Telegram	Notify Telegram	тЭМ <b>Status:</b> failure
+Notify Telegram	Notify Telegram	<b>Branch:</b> feat/kms-service-aes-gcm
+Notify Telegram	Notify Telegram	<b>Commit:</b> 6a0c4a2f137fb44e6dd9c17ca185c0116b368b95
+Notify Telegram	Notify Telegram	<b>Actor:</b> igorsatsyuk
+Notify Telegram	Notify Telegram	<b>Workflow:</b> CI
+Notify Telegram	Notify Telegram	
+Notify Telegram	Notify Telegram	<b>Job results</b>
+Notify Telegram	Notify Telegram	- тЬЕ blockchain: success
+Notify Telegram	Notify Telegram	- тЭМ backend: failure
+Notify Telegram	Notify Telegram	- тЭМ sonarqube-blockchain: failure
+Notify Telegram	Notify Telegram	- тПня╕П sonarqube-backend: skipped
+Notify Telegram	Notify Telegram	
+Notify Telegram	Notify Telegram	Link: https://github.com/igorsatsyuk/blockchain-secrets-vault/actions/runs/26940004773
+Notify Telegram	Notify Telegram	2026-06-04T08:23:42.6600465Z   format: html
+Notify Telegram	Notify Telegram	2026-06-04T08:23:42.6600680Z env:
+Notify Telegram	Notify Telegram	2026-06-04T08:23:42.6600906Z   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+Notify Telegram	Notify Telegram	2026-06-04T08:23:42.6601410Z   TELEGRAM_TO: ***
+Notify Telegram	Notify Telegram	2026-06-04T08:23:42.6601900Z   TELEGRAM_TOKEN: ***
+Notify Telegram	Notify Telegram	2026-06-04T08:23:42.6602133Z ##[endgroup]
+Notify Telegram	Notify Telegram	2026-06-04T08:23:42.6697706Z ##[command]/usr/bin/docker run --name ee608b4d1ed7d8f4d7da71d5ee03cf62500_46ee23 --label 304ee6 --workdir /github/workspace --rm -e "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24" -e "TELEGRAM_TO" -e "TELEGRAM_TOKEN" -e "INPUT_TO" -e "INPUT_TOKEN" -e "INPUT_MESSAGE" -e "INPUT_FORMAT" -e "INPUT_MESSAGE_FILE" -e "INPUT_SOCKS5" -e "INPUT_PHOTO" -e "INPUT_DOCUMENT" -e "INPUT_STICKER" -e "INPUT_AUDIO" -e "INPUT_VOICE" -e "INPUT_LOCATION" -e "INPUT_VENUE" -e "INPUT_VIDEO" -e "INPUT_DEBUG" -e "INPUT_DISABLE_WEB_PAGE_PREVIEW" -e "INPUT_DISABLE_NOTIFICATION" -e "HOME" -e "GITHUB_JOB" -e "GITHUB_REF" -e "GITHUB_SHA" -e "GITHUB_REPOSITORY" -e "GITHUB_REPOSITORY_OWNER" -e "GITHUB_REPOSITORY_OWNER_ID" -e "GITHUB_RUN_ID" -e "GITHUB_RUN_NUMBER" -e "GITHUB_RETENTION_DAYS" -e "GITHUB_RUN_ATTEMPT" -e "GITHUB_ACTOR_ID" -e "GITHUB_ACTOR" -e "GITHUB_WORKFLOW" -e "GITHUB_HEAD_REF" -e "GITHUB_BASE_REF" -e "GITHUB_EVENT_NAME" -e "GITHUB_SERVER_URL" -e "GITHUB_API_URL" -e "GITHUB_GRAPHQL_URL" -e "GITHUB_REF_NAME" -e "GITHUB_REF_PROTECTED" -e "GITHUB_REF_TYPE" -e "GITHUB_WORKFLOW_REF" -e "GITHUB_WORKFLOW_SHA" -e "GITHUB_REPOSITORY_ID" -e "GITHUB_TRIGGERING_ACTOR" -e "GITHUB_WORKSPACE" -e "GITHUB_ACTION" -e "GITHUB_EVENT_PATH" -e "GITHUB_ACTION_REPOSITORY" -e "GITHUB_ACTION_REF" -e "GITHUB_PATH" -e "GITHUB_ENV" -e "GITHUB_STEP_SUMMARY" -e "GITHUB_STATE" -e "GITHUB_OUTPUT" -e "RUNNER_OS" -e "RUNNER_ARCH" -e "RUNNER_NAME" -e "RUNNER_ENVIRONMENT" -e "RUNNER_TOOL_CACHE" -e "RUNNER_TEMP" -e "RUNNER_WORKSPACE" -e "ACTIONS_RUNTIME_URL" -e "ACTIONS_RUNTIME_TOKEN" -e "ACTIONS_CACHE_URL" -e "ACTIONS_RESULTS_URL" -e "ACTIONS_ORCHESTRATION_ID" -e GITHUB_ACTIONS=true -e CI=true -v "/var/run/docker.sock":"/var/run/docker.sock" -v "/home/runner/work/_temp":"/github/runner_temp" -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" -v "/home/runner/work/_temp/_runner_file_commands":"/github/file_commands" -v "/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault":"/github/workspace" 304ee6:08b4d1ed7d8f4d7da71d5ee03cf62500
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	я╗┐2026-06-04T08:23:43.4814889Z Post job cleanup.
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.5748705Z [command]/usr/bin/git version
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.5790119Z git version 2.54.0
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.5834027Z Temporarily overriding HOME='/home/runner/work/_temp/8483d728-a11a-48b4-9c3d-a03de725cdce' before making global git config changes
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.5835551Z Adding repository directory to the temporary git global config as a safe directory
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.5838532Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.5882012Z Removing SSH command configuration
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.5882630Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.5926044Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6216062Z Removing HTTP extra header
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6217094Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6257569Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6505470Z Removing includeIf entries pointing to credentials config files
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6512082Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6541559Z includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git.path
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6551188Z includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/worktrees/*.path
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6557309Z includeif.gitdir:/github/workspace/.git.path
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6558118Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6564958Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git.path
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6580695Z /home/runner/work/_temp/git-credentials-551954e4-229b-4732-b0c5-dfe93414cc8b.config
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6595130Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git.path /home/runner/work/_temp/git-credentials-551954e4-229b-4732-b0c5-dfe93414cc8b.config
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6635053Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/worktrees/*.path
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6659981Z /home/runner/work/_temp/git-credentials-551954e4-229b-4732-b0c5-dfe93414cc8b.config
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6674003Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/blockchain-secrets-vault/blockchain-secrets-vault/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-551954e4-229b-4732-b0c5-dfe93414cc8b.config
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6708962Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6734730Z /github/runner_temp/git-credentials-551954e4-229b-4732-b0c5-dfe93414cc8b.config
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6750845Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-551954e4-229b-4732-b0c5-dfe93414cc8b.config
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6778592Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6803311Z /github/runner_temp/git-credentials-551954e4-229b-4732-b0c5-dfe93414cc8b.config
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6814580Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-551954e4-229b-4732-b0c5-dfe93414cc8b.config
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.6850506Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Notify Telegram	Post Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd	2026-06-04T08:23:43.7096234Z Removing credentials config '/home/runner/work/_temp/git-credentials-551954e4-229b-4732-b0c5-dfe93414cc8b.config'
+Notify Telegram	Complete job	я╗┐2026-06-04T08:23:43.7253891Z Cleaning up orphan processes

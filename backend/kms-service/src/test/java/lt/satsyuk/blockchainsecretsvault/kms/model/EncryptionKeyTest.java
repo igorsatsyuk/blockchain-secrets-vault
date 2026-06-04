@@ -25,55 +25,46 @@ class EncryptionKeyTest {
     
     @Test
     void testEncryptionKeyBlankKeyId() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptionKey("", new byte[32], 0, KeyStatus.ACTIVE, Instant.now(), null);
-        });
-        
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptionKey("   ", new byte[32], 0, KeyStatus.ACTIVE, Instant.now(), null);
-        });
+        assertThrows(IllegalArgumentException.class,
+            () -> new EncryptionKey("", new byte[32], 0, KeyStatus.ACTIVE, Instant.now(), null));
+        assertThrows(IllegalArgumentException.class,
+            () -> new EncryptionKey("   ", new byte[32], 0, KeyStatus.ACTIVE, Instant.now(), null));
     }
     
     @Test
     void testEncryptionKeyNullKeyId() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptionKey(null, new byte[32], 0, KeyStatus.ACTIVE, Instant.now(), null);
-        });
+        assertThrows(IllegalArgumentException.class,
+            () -> new EncryptionKey(null, new byte[32], 0, KeyStatus.ACTIVE, Instant.now(), null));
     }
     
     @Test
     void testEncryptionKeyNullKeyMaterial() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptionKey("key-id", null, 0, KeyStatus.ACTIVE, Instant.now(), null);
-        });
+        assertThrows(IllegalArgumentException.class,
+            () -> new EncryptionKey("key-id", null, 0, KeyStatus.ACTIVE, Instant.now(), null));
     }
     
     @Test
     void testEncryptionKeyEmptyKeyMaterial() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptionKey("key-id", new byte[0], 0, KeyStatus.ACTIVE, Instant.now(), null);
-        });
+        assertThrows(IllegalArgumentException.class,
+            () -> new EncryptionKey("key-id", new byte[0], 0, KeyStatus.ACTIVE, Instant.now(), null));
     }
     
     @Test
     void testEncryptionKeyNegativeVersion() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptionKey("key-id", new byte[32], -1, KeyStatus.ACTIVE, Instant.now(), null);
-        });
+        assertThrows(IllegalArgumentException.class,
+            () -> new EncryptionKey("key-id", new byte[32], -1, KeyStatus.ACTIVE, Instant.now(), null));
     }
     
     @Test
     void testEncryptionKeyNullStatus() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptionKey("key-id", new byte[32], 0, null, Instant.now(), null);
-        });
+        assertThrows(IllegalArgumentException.class,
+            () -> new EncryptionKey("key-id", new byte[32], 0, null, Instant.now(), null));
     }
     
     @Test
     void testEncryptionKeyNullCreatedAt() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptionKey("key-id", new byte[32], 0, KeyStatus.ACTIVE, null, null);
-        });
+        assertThrows(IllegalArgumentException.class,
+            () -> new EncryptionKey("key-id", new byte[32], 0, KeyStatus.ACTIVE, null, null));
     }
     
     @Test

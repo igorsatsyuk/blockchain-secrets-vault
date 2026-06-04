@@ -32,8 +32,8 @@ public record EncryptionKey(
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof EncryptionKey that)) return false;
-        return version == that.version &&
+        return o instanceof EncryptionKey that &&
+                version == that.version &&
                 Objects.equals(keyId, that.keyId) &&
                 Arrays.equals(keyMaterial, that.keyMaterial) &&
                 status == that.status &&

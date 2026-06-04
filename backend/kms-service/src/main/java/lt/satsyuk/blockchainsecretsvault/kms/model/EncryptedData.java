@@ -30,8 +30,8 @@ public record EncryptedData(
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof EncryptedData that)) return false;
-        return keyVersion == that.keyVersion &&
+        return o instanceof EncryptedData that &&
+               keyVersion == that.keyVersion &&
                Arrays.equals(ciphertext, that.ciphertext) &&
                Arrays.equals(nonce, that.nonce) &&
                Arrays.equals(authTag, that.authTag) &&
