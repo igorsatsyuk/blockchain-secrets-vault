@@ -141,6 +141,13 @@ jobs:
           name: blockchain-coverage
           path: .
 
+      - name: Use Java 21 for Sonar scanner
+        if: steps['sonar-check'].outputs.sonar_enabled == 'true'
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        with:
+          distribution: temurin
+          java-version: 21
+
       - name: Normalize blockchain lcov path for Sonar
         if: steps['sonar-check'].outputs.sonar_enabled == 'true'
         shell: bash
@@ -172,14 +179,26 @@ jobs:
         id: sonar-args
         shell: bash
         run: |
-          args="-Dsonar.projectKey=${{ github.event.repository.name }}-blockchain"
+          args="-Dsonar.projectKey=${{ github.event.repository.name }}-blockchain -Dsonar.scanner.skipJreProvisioning=true"
           if [ -n "${SONAR_ORGANIZATION}" ]; then
             args="${args} -Dsonar.organization=${SONAR_ORGANIZATION}"
           fi
           echo "args=${args}" >> "$GITHUB_OUTPUT"
 
       - name: Run SonarQube analysis (blockchain)
+        id: blockchain-sonar-scan
         if: steps['sonar-check'].outputs.sonar_enabled == 'true'
+        continue-on-error: true
+        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8
+        env:
+          SONAR_HOST_URL: ${{ vars.SONAR_URL || 'https://sonarcloud.io' }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: blockchain
+          args: ${{ steps['sonar-args'].outputs.args }}
+
+      - name: Retry SonarQube analysis (blockchain)
+        if: steps['sonar-check'].outputs.sonar_enabled == 'true' && steps['blockchain-sonar-scan'].outcome == 'failure'
         uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8
         env:
           SONAR_HOST_URL: ${{ vars.SONAR_URL || 'https://sonarcloud.io' }}
@@ -277,8 +296,19 @@ jobs:
           name: backend-coverage
           path: backend-coverage
 
-      - name: Run SonarQube analysis (backend)
+      - name: Compile backend for Sonar
         if: steps['sonar-check'].outputs.sonar_enabled == 'true'
+        shell: bash
+        run: |
+          mvn -B -ntp \
+            -f backend/pom.xml \
+            -Djacoco.skip=true \
+            -DskipTests \
+            verify
+
+      - name: Build backend Sonar args
+        if: steps['sonar-check'].outputs.sonar_enabled == 'true'
+        id: backend-sonar-args
         shell: bash
         env:
           REPO_NAME: ${{ github.event.repository.name }}
@@ -286,45 +316,60 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_HEAD_REF: ${{ github.head_ref }}
           PR_BASE_REF: ${{ github.base_ref }}
-          SONAR_HOST_URL: ${{ vars.SONAR_URL || 'https://sonarcloud.io' }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
         run: |
-          host_url="${SONAR_HOST_URL:-https://sonarcloud.io}"
           report_paths=""
           if [ -d "backend-coverage" ]; then
             report_paths=$(find "$(pwd)/backend-coverage" -type f -name "jacoco.xml" -print 2>/dev/null | paste -sd, - || true)
           fi
 
-          cmd=(
-            mvn -B -ntp
-            -f backend/pom.xml
-            -Djacoco.skip=true
-            -DskipTests
-            verify
-            sonar:sonar
-            "-Dsonar.host.url=${host_url}"
-            "-Dsonar.projectKey=${REPO_NAME}-backend"
-            "-Dsonar.projectName=${REPO_NAME}-backend"
-            "-Dsonar.token=${SONAR_TOKEN}"
-          )
+          args="-Dsonar.projectKey=${REPO_NAME}-backend"
+          args="${args} -Dsonar.projectName=${REPO_NAME}-backend"
+          args="${args} -Dsonar.scanner.skipJreProvisioning=true"
+          args="${args} -Dsonar.sources=kms-service/src/main/java,secrets-api/src/main/java"
+          args="${args} -Dsonar.tests=kms-service/src/test/java,secrets-api/src/test/java"
+          args="${args} -Dsonar.java.binaries=kms-service/target/classes,secrets-api/target/classes"
+          args="${args} -Dsonar.java.test.binaries=kms-service/target/test-classes,secrets-api/target/test-classes"
 
           if [ -n "${report_paths}" ]; then
-            cmd+=("-Dsonar.coverage.jacoco.xmlReportPaths=${report_paths}")
+            args="${args} -Dsonar.coverage.jacoco.xmlReportPaths=${report_paths}"
           else
             echo "JaCoCo XML report not found; Sonar will run without coverage input"
           fi
 
           if [ -n "${SONAR_ORGANIZATION}" ]; then
-            cmd+=("-Dsonar.organization=${SONAR_ORGANIZATION}")
+            args="${args} -Dsonar.organization=${SONAR_ORGANIZATION}"
           fi
 
           if [ "${EVENT_NAME}" = "pull_request" ] && [ -n "${PR_NUMBER}" ] && [ -n "${PR_HEAD_REF}" ] && [ -n "${PR_BASE_REF}" ]; then
-            cmd+=("-Dsonar.pullrequest.key=${PR_NUMBER}")
-            cmd+=("-Dsonar.pullrequest.branch=${PR_HEAD_REF}")
-            cmd+=("-Dsonar.pullrequest.base=${PR_BASE_REF}")
+            args="${args} -Dsonar.pullrequest.key=${PR_NUMBER}"
+            args="${args} -Dsonar.pullrequest.branch=${PR_HEAD_REF}"
+            args="${args} -Dsonar.pullrequest.base=${PR_BASE_REF}"
           fi
 
-          "${cmd[@]}"
+          echo "args=${args}" >> "$GITHUB_OUTPUT"
+
+      - name: Run SonarQube analysis (backend)
+        id: backend-sonar-scan
+        if: steps['sonar-check'].outputs.sonar_enabled == 'true'
+        continue-on-error: true
+        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8
+        env:
+          SONAR_HOST_URL: ${{ vars.SONAR_URL || 'https://sonarcloud.io' }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: backend
+          args: ${{ steps['backend-sonar-args'].outputs.args }}
+
+      - name: Retry SonarQube analysis (backend)
+        if: steps['sonar-check'].outputs.sonar_enabled == 'true' && steps['backend-sonar-scan'].outcome == 'failure'
+        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8
+        env:
+          SONAR_HOST_URL: ${{ vars.SONAR_URL || 'https://sonarcloud.io' }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: backend
+          args: ${{ steps['backend-sonar-args'].outputs.args }}
 
       - name: Locate backend Sonar report-task
         if: steps['sonar-check'].outputs.sonar_enabled == 'true'

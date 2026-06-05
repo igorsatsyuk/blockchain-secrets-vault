@@ -7,6 +7,7 @@ import lt.satsyuk.blockchainsecretsvault.secretsapi.api.CreateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.UpdateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AclTransaction;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AccessGrant;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AccessAuditAction;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclClient;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.model.SecretRecord;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.repository.SecretRepository;
@@ -20,6 +21,8 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.WalletUtils;
 import reactor.core.publisher.Flux;
@@ -29,9 +32,11 @@ import reactor.core.scheduler.Schedulers;
 @Service
 public class SecretsService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecretsService.class);
     private final SecretRepository secretRepository;
     private final KmsService kmsService;
     private final BlockchainAclClient blockchainAclClient;
+    private final AuditWriter auditWriter;
     private final Clock clock;
     private static final String DEFAULT_KEY_ID = "default-secret-key";
 
@@ -39,11 +44,13 @@ public class SecretsService {
             SecretRepository secretRepository,
             KmsService kmsService,
             BlockchainAclClient blockchainAclClient,
+            AuditWriter auditWriter,
             Clock clock
     ) {
         this.secretRepository = secretRepository;
         this.kmsService = kmsService;
         this.blockchainAclClient = blockchainAclClient;
+        this.auditWriter = auditWriter;
         this.clock = clock;
         initializeDefaultKey();
     }
@@ -151,6 +158,13 @@ public class SecretsService {
             requireExistingSecret(id);
             String normalizedAccount = normalizeAccount(account);
             String transactionHash = blockchainAclClient.grantAccess(id, normalizedAccount, canRead, canWrite);
+            publishAuditEvent(
+                    id,
+                    normalizedAccount,
+                    AccessAuditAction.GRANT,
+                    "canRead=%s;canWrite=%s".formatted(canRead, canWrite),
+                    transactionHash
+            );
             return new AclTransaction(normalizedAccount, transactionHash);
         }).subscribeOn(Schedulers.boundedElastic());
     }
@@ -160,8 +174,30 @@ public class SecretsService {
             requireExistingSecret(id);
             String normalizedAccount = normalizeAccount(account);
             String transactionHash = blockchainAclClient.revokeAccess(id, normalizedAccount);
+            publishAuditEvent(id, normalizedAccount, AccessAuditAction.REVOKE, "", transactionHash);
             return new AclTransaction(normalizedAccount, transactionHash);
         }).subscribeOn(Schedulers.boundedElastic());
+    }
+
+    private void publishAuditEvent(
+            UUID id,
+            String account,
+            AccessAuditAction action,
+            String details,
+            String aclTransactionHash
+    ) {
+        try {
+            auditWriter.publish(id, account, action, details);
+        } catch (RuntimeException exception) {
+            LOGGER.warn(
+                    "ACL {} transaction {} was submitted, but audit publish failed for secret {} and account {}",
+                    action,
+                    aclTransactionHash,
+                    id,
+                    account,
+                    exception
+            );
+        }
     }
 
     public Mono<AccessGrant> checkAccess(UUID id, String account) {

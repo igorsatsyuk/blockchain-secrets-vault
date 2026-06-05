@@ -17,6 +17,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.datatypes.Bool;
+import org.web3j.abi.datatypes.Address;
+import org.web3j.abi.datatypes.Function;
+import org.web3j.abi.datatypes.generated.Bytes32;
+import org.web3j.abi.datatypes.generated.Uint8;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.Request;
@@ -61,6 +65,54 @@ class Web3jBlockchainAclClientTest {
 
         assertThat(client.grantAccess(SECRET_ID, ACCOUNT, true, false)).isEqualTo("0xtransaction");
         assertThat(client.revokeAccess(SECRET_ID, ACCOUNT)).isEqualTo("0xtransaction");
+    }
+
+    @Test
+    void submitsAuditEventTransactionWithContractActionCodeAndDetailsHash() {
+        String detailsHash = "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        String expectedData = FunctionEncoder.encode(new Function(
+                "auditEvent",
+                List.of(
+                        new Bytes32(SecretIdCodec.toBytes32(SECRET_ID)),
+                        new Address(ACCOUNT),
+                        new Uint8(AccessAuditAction.WRITE.contractCode()),
+                        new Bytes32(org.web3j.utils.Numeric.hexStringToByteArray(detailsHash))
+                ),
+                List.of()
+        ));
+        Web3jBlockchainAclClient client = clientWithTransactionSender((gasPrice, gasLimit, to, data, value) -> {
+            assertThat(gasPrice).isEqualTo(GAS_PRICE);
+            assertThat(gasLimit).isEqualTo(GAS_LIMIT);
+            assertThat(to).isEqualTo(CONTRACT);
+            assertThat(data).isEqualTo(expectedData);
+            assertThat(value).isEqualTo(BigInteger.ZERO);
+            return successfulTransactionSender().sendTransaction(gasPrice, gasLimit, to, data, value);
+        });
+
+        assertThat(client.auditEvent(SECRET_ID, ACCOUNT, AccessAuditAction.WRITE, detailsHash))
+                .isEqualTo("0xtransaction");
+    }
+
+    @Test
+    void rejectsAuditDetailsHashesThatAreNotBytes32() {
+        Web3jBlockchainAclClient client = clientWithTransactionSender(successfulTransactionSender());
+
+        assertThatThrownBy(() -> client.auditEvent(SECRET_ID, ACCOUNT, AccessAuditAction.READ, "0x1234"))
+                .isInstanceOf(BlockchainAclException.class)
+                .hasMessage("ACL audit details hash must be 32 bytes");
+
+        assertThatThrownBy(() -> client.auditEvent(SECRET_ID, ACCOUNT, AccessAuditAction.READ, null))
+                .isInstanceOf(BlockchainAclException.class)
+                .hasMessage("ACL audit details hash must be 32 bytes");
+    }
+
+    @Test
+    void rejectsMalformedAuditDetailsHashesWithAclException() {
+        Web3jBlockchainAclClient client = clientWithTransactionSender(successfulTransactionSender());
+
+        assertThatThrownBy(() -> client.auditEvent(SECRET_ID, ACCOUNT, AccessAuditAction.READ, "0xzz"))
+                .isInstanceOf(BlockchainAclException.class)
+                .hasMessage("ACL audit details hash must be valid hex");
     }
 
     @Test

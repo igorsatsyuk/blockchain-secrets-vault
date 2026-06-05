@@ -1,8 +1,11 @@
 package lt.satsyuk.blockchainsecretsvault.secretsapi.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AccessAuditAction;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclClient;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.repository.SecretRepository;
 import java.util.Map;
@@ -211,6 +214,10 @@ class SecretsControllerTest {
 
         when(blockchainAclClient.grantAccess(created.id(), account, true, false)).thenReturn("0xgrant");
         when(blockchainAclClient.revokeAccess(created.id(), account)).thenReturn("0xrevoke");
+        when(blockchainAclClient.auditEvent(eq(created.id()), eq(account), eq(AccessAuditAction.GRANT), anyString()))
+                .thenReturn("0xauditgrant");
+        when(blockchainAclClient.auditEvent(eq(created.id()), eq(account), eq(AccessAuditAction.REVOKE), anyString()))
+                .thenReturn("0xauditrevoke");
         when(blockchainAclClient.canRead(created.id(), account)).thenReturn(true);
         when(blockchainAclClient.canWrite(created.id(), account)).thenReturn(false);
 

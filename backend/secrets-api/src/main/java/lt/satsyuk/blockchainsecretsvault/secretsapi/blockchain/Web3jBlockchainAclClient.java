@@ -11,6 +11,7 @@ import org.web3j.abi.datatypes.Address;
 import org.web3j.abi.datatypes.Bool;
 import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.Type;
+import org.web3j.abi.datatypes.generated.Uint8;
 import org.web3j.abi.datatypes.generated.Bytes32;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
@@ -19,6 +20,7 @@ import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.core.methods.response.EthCall;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.tx.RawTransactionManager;
+import org.web3j.utils.Numeric;
 
 public class Web3jBlockchainAclClient implements BlockchainAclClient {
 
@@ -78,6 +80,15 @@ public class Web3jBlockchainAclClient implements BlockchainAclClient {
         return send(function(
                 "revokeAccess",
                 List.of(secretId(secretId), new Address(account)),
+                List.of()
+        ));
+    }
+
+    @Override
+    public String auditEvent(UUID secretId, String account, AccessAuditAction action, String detailsHash) {
+        return send(function(
+                "auditEvent",
+                List.of(secretId(secretId), new Address(account), new Uint8(action.contractCode()), bytes32(detailsHash)),
                 List.of()
         ));
     }
@@ -168,6 +179,25 @@ public class Web3jBlockchainAclClient implements BlockchainAclClient {
 
     private static Bytes32 secretId(UUID secretId) {
         return new Bytes32(SecretIdCodec.toBytes32(secretId));
+    }
+
+    private static Bytes32 bytes32(String value) {
+        if (!hasText(value)) {
+            throw new BlockchainAclException("ACL audit details hash must be 32 bytes");
+        }
+        if (!value.matches("0[xX][0-9a-fA-F]+")) {
+            throw new BlockchainAclException("ACL audit details hash must be valid hex");
+        }
+        byte[] bytes;
+        try {
+            bytes = Numeric.hexStringToByteArray(value);
+        } catch (RuntimeException exception) {
+            throw new BlockchainAclException("ACL audit details hash must be valid hex", exception);
+        }
+        if (bytes.length != 32) {
+            throw new BlockchainAclException("ACL audit details hash must be 32 bytes");
+        }
+        return new Bytes32(bytes);
     }
 
     private static boolean hasText(String value) {

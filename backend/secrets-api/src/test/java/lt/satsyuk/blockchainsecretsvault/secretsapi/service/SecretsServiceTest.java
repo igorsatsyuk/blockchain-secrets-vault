@@ -11,7 +11,9 @@ import lt.satsyuk.blockchainsecretsvault.kms.model.EncryptedData;
 import lt.satsyuk.blockchainsecretsvault.kms.service.KmsService;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.CreateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.UpdateSecretRequest;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AccessAuditAction;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclClient;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.model.SecretRecord;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.repository.InMemorySecretRepository;
 import java.time.Clock;
@@ -29,7 +31,14 @@ class SecretsServiceTest {
     private final Clock clock = Clock.fixed(Instant.parse("2026-06-01T12:00:00Z"), ZoneOffset.UTC);
     private final KmsService kmsService = createMockKmsService();
     private final BlockchainAclClient blockchainAclClient = mock(BlockchainAclClient.class);
-    private final SecretsService service = new SecretsService(repository, kmsService, blockchainAclClient, clock);
+    private final AuditWriter auditWriter = new AuditWriter(blockchainAclClient, new AuditEventHasher(), clock);
+    private final SecretsService service = new SecretsService(
+            repository,
+            kmsService,
+            blockchainAclClient,
+            auditWriter,
+            clock
+    );
 
     private static KmsService createMockKmsService() {
         KmsService mock = mock(KmsService.class);
@@ -228,6 +237,7 @@ class SecretsServiceTest {
 
         when(blockchainAclClient.grantAccess(created.id(), account, true, false)).thenReturn("0xgrant");
         when(blockchainAclClient.revokeAccess(created.id(), account)).thenReturn("0xrevoke");
+        when(blockchainAclClient.auditEvent(any(), anyString(), any(), anyString())).thenReturn("0xaudit");
         when(blockchainAclClient.canRead(created.id(), account)).thenReturn(true);
         when(blockchainAclClient.canWrite(created.id(), account)).thenReturn(false);
 
@@ -254,6 +264,81 @@ class SecretsServiceTest {
                 .verifyComplete();
 
         verify(blockchainAclClient).grantAccess(created.id(), account, true, false);
+        verify(blockchainAclClient).auditEvent(
+                created.id(),
+                account,
+                AccessAuditAction.GRANT,
+                new AuditEventHasher().hash(
+                        created.id(),
+                        account,
+                        AccessAuditAction.GRANT,
+                        clock.instant(),
+                        "canRead=true;canWrite=false"
+                )
+        );
+        verify(blockchainAclClient).revokeAccess(created.id(), account);
+        verify(blockchainAclClient).auditEvent(
+                created.id(),
+                account,
+                AccessAuditAction.REVOKE,
+                new AuditEventHasher().hash(created.id(), account, AccessAuditAction.REVOKE, clock.instant(), "")
+        );
+    }
+
+    @Test
+    void grantAccessReturnsAclTransactionWhenAuditPublishFails() {
+        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
+        String account = "0x1111111111111111111111111111111111111111";
+
+        when(blockchainAclClient.grantAccess(created.id(), account, true, false)).thenReturn("0xgrant");
+        when(blockchainAclClient.auditEvent(any(), anyString(), any(), anyString()))
+                .thenThrow(new BlockchainAclException("audit unavailable"));
+
+        StepVerifier.create(service.grantAccess(created.id(), account, true, false))
+                .assertNext(transaction -> {
+                    assertThat(transaction.account()).isEqualTo(account);
+                    assertThat(transaction.transactionHash()).isEqualTo("0xgrant");
+                })
+                .verifyComplete();
+
+        verify(blockchainAclClient).grantAccess(created.id(), account, true, false);
+    }
+
+    @Test
+    void grantAccessReturnsAclTransactionWhenAuditPublishFailsUnexpectedly() {
+        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
+        String account = "0x1111111111111111111111111111111111111111";
+
+        when(blockchainAclClient.grantAccess(created.id(), account, true, false)).thenReturn("0xgrant");
+        when(blockchainAclClient.auditEvent(any(), anyString(), any(), anyString()))
+                .thenThrow(new IllegalStateException("hashing unavailable"));
+
+        StepVerifier.create(service.grantAccess(created.id(), account, true, false))
+                .assertNext(transaction -> {
+                    assertThat(transaction.account()).isEqualTo(account);
+                    assertThat(transaction.transactionHash()).isEqualTo("0xgrant");
+                })
+                .verifyComplete();
+
+        verify(blockchainAclClient).grantAccess(created.id(), account, true, false);
+    }
+
+    @Test
+    void revokeAccessReturnsAclTransactionWhenAuditPublishFails() {
+        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
+        String account = "0x1111111111111111111111111111111111111111";
+
+        when(blockchainAclClient.revokeAccess(created.id(), account)).thenReturn("0xrevoke");
+        when(blockchainAclClient.auditEvent(any(), anyString(), any(), anyString()))
+                .thenThrow(new BlockchainAclException("audit unavailable"));
+
+        StepVerifier.create(service.revokeAccess(created.id(), account))
+                .assertNext(transaction -> {
+                    assertThat(transaction.account()).isEqualTo(account);
+                    assertThat(transaction.transactionHash()).isEqualTo("0xrevoke");
+                })
+                .verifyComplete();
+
         verify(blockchainAclClient).revokeAccess(created.id(), account);
     }
 
@@ -290,5 +375,6 @@ class SecretsServiceTest {
         verify(blockchainAclClient).canRead(created.id(), account);
         verify(blockchainAclClient).canWrite(created.id(), account);
     }
+
 }
 

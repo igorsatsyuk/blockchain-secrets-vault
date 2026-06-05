@@ -17,6 +17,11 @@ public class DisabledBlockchainAclClient implements BlockchainAclClient {
     }
 
     @Override
+    public String auditEvent(UUID secretId, String account, AccessAuditAction action, String detailsHash) {
+        throw new BlockchainAclException(MESSAGE);
+    }
+
+    @Override
     public boolean canRead(UUID secretId, String account) {
         throw new BlockchainAclException(MESSAGE);
     }

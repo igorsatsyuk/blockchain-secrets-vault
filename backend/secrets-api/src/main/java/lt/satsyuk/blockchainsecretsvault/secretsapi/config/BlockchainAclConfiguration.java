@@ -3,6 +3,9 @@ package lt.satsyuk.blockchainsecretsvault.secretsapi.config;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclClient;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.DisabledBlockchainAclClient;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.Web3jBlockchainAclClient;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.service.AuditEventHasher;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.service.AuditWriter;
+import java.time.Clock;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.properties.bind.Binder;
@@ -41,6 +44,16 @@ public class BlockchainAclConfiguration {
                 properties.gasLimit(),
                 properties.chainId()
         );
+    }
+
+    @Bean
+    AuditEventHasher auditEventHasher() {
+        return new AuditEventHasher();
+    }
+
+    @Bean
+    AuditWriter auditWriter(BlockchainAclClient blockchainAclClient, AuditEventHasher auditEventHasher, Clock clock) {
+        return new AuditWriter(blockchainAclClient, auditEventHasher, clock);
     }
 
     static final class BlockchainAclEnabledCondition implements Condition {
