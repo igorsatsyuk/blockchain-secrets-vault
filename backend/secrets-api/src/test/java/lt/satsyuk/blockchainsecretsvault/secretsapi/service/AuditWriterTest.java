@@ -1,6 +1,5 @@
 package lt.satsyuk.blockchainsecretsvault.secretsapi.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,14 +26,9 @@ class AuditWriterTest {
         when(blockchainAclClient.auditEvent(secretId, account, AccessAuditAction.WRITE, expectedHash))
                 .thenReturn("0xtransaction");
 
-        AuditEventTransaction transaction = new AuditWriter(blockchainAclClient, hasher, clock)
+        new AuditWriter(blockchainAclClient, hasher, clock)
                 .publish(secretId, account, AccessAuditAction.WRITE, "updated");
 
-        assertThat(transaction.account()).isEqualTo(account);
-        assertThat(transaction.action()).isEqualTo(AccessAuditAction.WRITE);
-        assertThat(transaction.occurredAt()).isEqualTo(clock.instant());
-        assertThat(transaction.detailsHash()).isEqualTo(expectedHash);
-        assertThat(transaction.transactionHash()).isEqualTo("0xtransaction");
         verify(blockchainAclClient).auditEvent(secretId, account, AccessAuditAction.WRITE, expectedHash);
     }
 }

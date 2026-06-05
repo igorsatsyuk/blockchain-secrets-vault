@@ -18,10 +18,9 @@ public class AuditWriter {
         this.clock = clock;
     }
 
-    public AuditEventTransaction publish(UUID secretId, String account, AccessAuditAction action, String details) {
+    public void publish(UUID secretId, String account, AccessAuditAction action, String details) {
         Instant occurredAt = Instant.now(clock);
         String detailsHash = auditEventHasher.hash(secretId, account, action, occurredAt, details);
-        String transactionHash = blockchainAclClient.auditEvent(secretId, account, action, detailsHash);
-        return new AuditEventTransaction(account, action, occurredAt, detailsHash, transactionHash);
+        blockchainAclClient.auditEvent(secretId, account, action, detailsHash);
     }
 }
