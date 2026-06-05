@@ -477,7 +477,7 @@ function buildAclResultMarkup(result) {
 
 function buildAuditMarkup(auditState) {
   const filters = auditState.filters ?? {};
-  const actionOptions = ["", "READ", "WRITE", "GRANT", "REVOKE"].map((action) => {
+  const actionOptions = ["", "REGISTER", "READ", "WRITE", "GRANT", "REVOKE"].map((action) => {
     const label = action || "All actions";
     const selected = action === (filters.action ?? "") ? "selected" : "";
     return `<option value="${action}" ${selected}>${label}</option>`;

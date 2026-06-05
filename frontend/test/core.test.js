@@ -93,6 +93,10 @@ test("audit helpers normalize and filter history events", () => {
     action: "GRANT",
     account: "0xabc"
   });
+  assert.deepEqual(normalizeAuditFilters({ action: " register ", account: "" }), {
+    action: "REGISTER",
+    account: ""
+  });
   assert.deepEqual(normalizeAuditFilters({ action: "bad", account: null }), {
     action: "",
     account: ""
@@ -279,10 +283,73 @@ test("store loads, selects, creates, updates, removes, and reports load errors",
   assert.equal(failingAuditStore.getState().audit.events.length, 0);
 });
 
+test("store ignores stale audit responses for older filters on the same secret", async () => {
+  const grantRequest = createDeferred();
+  const readRequest = createDeferred();
+  const store = createSecretsStore({
+    list: async () => [secretA],
+    create: async () => secretA,
+    update: async () => secretA,
+    remove: async () => null,
+    grantAccess: async () => ({ transactionHash: "0xabc" }),
+    getAccess: async () => ({ canRead: true, canWrite: false }),
+    revokeAccess: async () => ({ transactionHash: "0xdef" }),
+    listAudit: async (_, filters) => filters.action === "GRANT" ? grantRequest.promise : readRequest.promise
+  });
+
+  const staleLoad = store.loadAudit(secretA.id, { action: "GRANT" });
+  const currentLoad = store.loadAudit(secretA.id, { action: "READ" });
+
+  readRequest.resolve([auditEvents[1]]);
+  await currentLoad;
+  assert.equal(store.getState().audit.filters.action, "READ");
+  assert.equal(store.getState().audit.events[0].action, "READ");
+
+  grantRequest.resolve([auditEvents[0]]);
+  await staleLoad;
+  assert.equal(store.getState().audit.filters.action, "READ");
+  assert.equal(store.getState().audit.events[0].action, "READ");
+
+  const staleErrorRequest = createDeferred();
+  const latestRequest = createDeferred();
+  let requestIndex = 0;
+  const errorStore = createSecretsStore({
+    list: async () => [secretA],
+    create: async () => secretA,
+    update: async () => secretA,
+    remove: async () => null,
+    grantAccess: async () => ({ transactionHash: "0xabc" }),
+    getAccess: async () => ({ canRead: true, canWrite: false }),
+    revokeAccess: async () => ({ transactionHash: "0xdef" }),
+    listAudit: async () => {
+      requestIndex += 1;
+      return requestIndex === 1 ? staleErrorRequest.promise : latestRequest.promise;
+    }
+  });
+  const staleErrorLoad = errorStore.loadAudit(secretA.id, { action: "GRANT" });
+  const latestLoad = errorStore.loadAudit(secretA.id, { action: "READ" });
+
+  latestRequest.resolve([auditEvents[1]]);
+  await latestLoad;
+  staleErrorRequest.reject(new Error("stale audit failed"));
+  await staleErrorLoad;
+  assert.equal(errorStore.getState().audit.error, "");
+  assert.equal(errorStore.getState().audit.filters.action, "READ");
+});
+
 function response(body, options = {}) {
   return {
     ok: options.ok ?? true,
     status: options.status ?? 200,
     json: async () => body
   };
+}
+
+function createDeferred() {
+  const deferred = {};
+  deferred.promise = new Promise((resolve, reject) => {
+    deferred.resolve = resolve;
+    deferred.reject = reject;
+  });
+  return deferred;
 }

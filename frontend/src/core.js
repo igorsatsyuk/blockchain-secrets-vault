@@ -257,7 +257,7 @@ export function createSecretsStore(api) {
       });
       try {
         const events = await api.listAudit(id, normalizedFilters);
-        if (state.audit.secretId !== id) {
+        if (!isCurrentAuditRequest(state.audit, id, normalizedFilters)) {
           return;
         }
         setState({
@@ -270,7 +270,7 @@ export function createSecretsStore(api) {
           }
         });
       } catch (error) {
-        if (state.audit.secretId !== id) {
+        if (!isCurrentAuditRequest(state.audit, id, normalizedFilters)) {
           return;
         }
         setState({
@@ -367,7 +367,13 @@ export function normalizeAuditFilters(filters = {}) {
 
 function normalizeAuditAction(action) {
   const normalized = String(action ?? "").trim().toUpperCase();
-  return ["READ", "WRITE", "GRANT", "REVOKE"].includes(normalized) ? normalized : "";
+  return ["REGISTER", "READ", "WRITE", "GRANT", "REVOKE"].includes(normalized) ? normalized : "";
+}
+
+function isCurrentAuditRequest(auditState, secretId, filters) {
+  return auditState.secretId === secretId
+    && auditState.filters.action === filters.action
+    && auditState.filters.account === filters.account;
 }
 
 function buildAuditQuery(filters = {}) {

@@ -284,7 +284,7 @@ public class SecretsService {
         }
         try {
             return Optional.of(AccessAuditAction.valueOf(action.trim().toUpperCase(Locale.ROOT)));
-        } catch (IllegalArgumentException exception) {
+        } catch (IllegalArgumentException _) {
             throw new InvalidAuditActionException(action);
         }
     }

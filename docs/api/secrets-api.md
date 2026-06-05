@@ -124,7 +124,7 @@ Returns `200 OK` with read/write permissions resolved from the ACL contract.
 
 Optional query parameters:
 
-- `action`: one of `READ`, `WRITE`, `GRANT`, `REVOKE`
+- `action`: one of `REGISTER`, `READ`, `WRITE`, `GRANT`, `REVOKE`
 - `account`: substring filter for the blockchain account address
 
 Returns `200 OK` with audit events published for the secret.
