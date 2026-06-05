@@ -141,9 +141,15 @@ export function createApp(options = {}) {
     renderDetail();
     try {
       const access = await store.checkAccess(secretId, account);
+      if (aclState.secretId !== secretId) {
+        return;
+      }
       aclState = { ...aclState, pendingAction: "", result: access };
       renderDetail();
     } catch (error) {
+      if (aclState.secretId !== secretId) {
+        return;
+      }
       aclState = { ...aclState, pendingAction: "", error: error.message, feedback: "", result: null };
       renderDetail();
     }
@@ -176,6 +182,9 @@ export function createApp(options = {}) {
     renderDetail();
     try {
       const response = await store.grantAccess(secretId, account, { canRead, canWrite });
+      if (aclState.secretId !== secretId) {
+        return;
+      }
       aclState = {
         ...aclState,
         pendingAction: "",
@@ -185,6 +194,9 @@ export function createApp(options = {}) {
       showToast(elements.toast, "Grant transaction submitted.");
       renderDetail();
     } catch (error) {
+      if (aclState.secretId !== secretId) {
+        return;
+      }
       aclState = { ...aclState, pendingAction: "", error: error.message, feedback: "", result: null };
       renderDetail();
     }
@@ -207,6 +219,9 @@ export function createApp(options = {}) {
     renderDetail();
     try {
       const response = await store.revokeAccess(secretId, account);
+      if (aclState.secretId !== secretId) {
+        return;
+      }
       aclState = {
         ...aclState,
         pendingAction: "",
@@ -218,6 +233,9 @@ export function createApp(options = {}) {
       showToast(elements.toast, "Revoke transaction submitted.");
       renderDetail();
     } catch (error) {
+      if (aclState.secretId !== secretId) {
+        return;
+      }
       aclState = { ...aclState, pendingAction: "", error: error.message, feedback: "", result: null };
       renderDetail();
     }

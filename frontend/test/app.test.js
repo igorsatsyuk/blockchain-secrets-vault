@@ -199,6 +199,11 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     createdAt: "2026-06-01T12:00:00Z",
     updatedAt: "2026-06-01T12:00:00Z"
   };
+  const otherSecret = {
+    ...secret,
+    id: "secret-race",
+    name: "beta"
+  };
 
   let state = {
     loading: false,
@@ -373,6 +378,58 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     await app.handleAclRevoke(secret.id);
     assert.equal(store.revokes, 1);
 
+    const switchToSecret = (selected) => {
+      state = { ...state, secrets: [secret, otherSecret], selectedId: selected.id, selected };
+      subscriber(state);
+    };
+
+    switchToSecret(secret);
+    let deferred = createDeferred();
+    store.checkAccess = async () => deferred.promise;
+    const staleCheck = app.handleAclCheck(secret.id);
+    switchToSecret(otherSecret);
+    deferred.resolve({ canRead: true, canWrite: true });
+    await staleCheck;
+    assert.match(detailPanel.innerHTML, /beta/);
+    assert.doesNotMatch(detailPanel.innerHTML, /Read: <strong>Yes<\/strong>/);
+
+    switchToSecret(secret);
+    deferred = createDeferred();
+    store.grantAccess = async () => deferred.promise;
+    const staleGrant = app.handleAclGrant(
+      {
+        preventDefault() {},
+        currentTarget: aclForm
+      },
+      secret.id
+    );
+    switchToSecret(otherSecret);
+    deferred.resolve({ transactionHash: "0xstalegrant" });
+    await staleGrant;
+    assert.match(detailPanel.innerHTML, /beta/);
+    assert.doesNotMatch(detailPanel.innerHTML, /0xstalegrant/);
+
+    switchToSecret(secret);
+    deferred = createDeferred();
+    store.revokeAccess = async () => deferred.promise;
+    const staleRevoke = app.handleAclRevoke(secret.id);
+    switchToSecret(otherSecret);
+    deferred.resolve({ transactionHash: "0xstalerevoke" });
+    await staleRevoke;
+    assert.match(detailPanel.innerHTML, /beta/);
+    assert.doesNotMatch(detailPanel.innerHTML, /0xstalerevoke/);
+
+    switchToSecret(secret);
+    deferred = createDeferred();
+    store.checkAccess = async () => deferred.promise;
+    const staleCheckError = app.handleAclCheck(secret.id);
+    switchToSecret(otherSecret);
+    deferred.reject(new Error("stale check failed"));
+    await staleCheckError;
+    assert.match(detailPanel.innerHTML, /beta/);
+    assert.doesNotMatch(detailPanel.innerHTML, /stale check failed/);
+
+    switchToSecret(secret);
     store.checkAccess = async () => {
       throw new Error("check failed");
     };
@@ -483,3 +540,12 @@ test("module auto-bootstraps when document exists", async () => {
     globalThis.fetch = originalFetch;
   }
 });
+
+function createDeferred() {
+  const deferred = {};
+  deferred.promise = new Promise((resolve, reject) => {
+    deferred.resolve = resolve;
+    deferred.reject = reject;
+  });
+  return deferred;
+}
