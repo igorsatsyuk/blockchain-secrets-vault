@@ -7,6 +7,8 @@ import {
   parseTags,
   toCreateSecretPayload,
   toUpdateSecretPayload,
+  validateAclAccount,
+  validateAclPermissions,
   validateSecretDraft
 } from "../src/core.js";
 
@@ -53,6 +55,16 @@ test("validateSecretDraft enforces API limits", () => {
   assert.equal(validateSecretDraft({ name: "valid", payload: "secret" }, { requirePayload: true }).valid, true);
 });
 
+test("ACL validators enforce account format and permissions", () => {
+  assert.equal(validateAclAccount("0x1111111111111111111111111111111111111111").valid, true);
+  assert.equal(validateAclAccount("0x123").valid, false);
+  assert.match(validateAclAccount("bad").error, /ethereum address/i);
+
+  assert.equal(validateAclPermissions({ canRead: true, canWrite: false }).valid, true);
+  assert.equal(validateAclPermissions({ canRead: false, canWrite: true }).valid, true);
+  assert.equal(validateAclPermissions({ canRead: false, canWrite: false }).valid, false);
+});
+
 test("payload mappers normalize create and update requests", () => {
   assert.deepEqual(toCreateSecretPayload({
     name: " payment-api ",
@@ -85,6 +97,28 @@ test("API client sends expected HTTP requests and decodes responses", async () =
     if (!options.method && url === "/secrets") {
       return response([secretA]);
     }
+    if (!options.method && url === "/secrets/id-1/acl/0x1111111111111111111111111111111111111111") {
+      return response({
+        secretId: "id-1",
+        account: "0x1111111111111111111111111111111111111111",
+        canRead: true,
+        canWrite: false
+      });
+    }
+    if (options.method === "PUT" && url === "/secrets/id-1/acl/0x1111111111111111111111111111111111111111") {
+      return response({
+        secretId: "id-1",
+        account: "0x1111111111111111111111111111111111111111",
+        transactionHash: "0xabc"
+      }, { status: 202 });
+    }
+    if (options.method === "DELETE" && url === "/secrets/id-1/acl/0x1111111111111111111111111111111111111111") {
+      return response({
+        secretId: "id-1",
+        account: "0x1111111111111111111111111111111111111111",
+        transactionHash: "0xdef"
+      }, { status: 202 });
+    }
     if (options.method === "DELETE") {
       return response(null, { status: 204 });
     }
@@ -97,12 +131,19 @@ test("API client sends expected HTTP requests and decodes responses", async () =
   await api.create({ name: "x" });
   await api.update("id-1", { name: "y" });
   assert.equal(await api.remove("id-1"), null);
+  assert.equal((await api.grantAccess("id-1", "0x1111111111111111111111111111111111111111", { canRead: true, canWrite: false })).transactionHash, "0xabc");
+  assert.equal((await api.getAccess("id-1", "0x1111111111111111111111111111111111111111")).canRead, true);
+  assert.equal((await api.revokeAccess("id-1", "0x1111111111111111111111111111111111111111")).transactionHash, "0xdef");
 
   assert.equal(calls[1].url, "/secrets/abc%2F123");
   assert.equal(calls[2].options.method, "POST");
   assert.equal(calls[2].options.headers["Content-Type"], "application/json");
   assert.equal(calls[3].options.method, "PUT");
   assert.equal(calls[4].options.method, "DELETE");
+  assert.equal(calls[5].options.method, "PUT");
+  assert.equal(calls[5].url, "/secrets/id-1/acl/0x1111111111111111111111111111111111111111");
+  assert.equal(calls[6].url, "/secrets/id-1/acl/0x1111111111111111111111111111111111111111");
+  assert.equal(calls[7].options.method, "DELETE");
 });
 
 test("API client surfaces validation details and fallback errors", async () => {
@@ -125,7 +166,10 @@ test("store loads, selects, creates, updates, removes, and reports load errors",
     list: async () => [secretA, secretB],
     create: async (secret) => ({ ...secretA, ...secret, id: "33333333-3333-4333-8333-333333333333" }),
     update: async (id, secret) => ({ ...secretB, ...secret, id }),
-    remove: async () => null
+    remove: async () => null,
+    grantAccess: async () => ({ transactionHash: "0xabc" }),
+    getAccess: async () => ({ canRead: true, canWrite: false }),
+    revokeAccess: async () => ({ transactionHash: "0xdef" })
   };
   const store = createSecretsStore(api);
   const unsubscribe = store.subscribe((state) => events.push(state));
@@ -145,6 +189,9 @@ test("store loads, selects, creates, updates, removes, and reports load errors",
 
   await store.remove(created.id);
   assert.notEqual(store.getState().selectedId, created.id);
+  assert.equal((await store.grantAccess(secretB.id, "0x1111111111111111111111111111111111111111", { canRead: true, canWrite: false })).transactionHash, "0xabc");
+  assert.equal((await store.checkAccess(secretB.id, "0x1111111111111111111111111111111111111111")).canRead, true);
+  assert.equal((await store.revokeAccess(secretB.id, "0x1111111111111111111111111111111111111111")).transactionHash, "0xdef");
   assert.ok(events.length >= 7);
   unsubscribe();
 

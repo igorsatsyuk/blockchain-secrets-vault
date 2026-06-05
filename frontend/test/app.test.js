@@ -129,6 +129,15 @@ test("createApp handles create, update, delete and rendering flows", async () =>
   const detailUpdateForm = createElement();
   detailUpdateForm.updateErrorElement = createElement();
   const detailDeleteButton = createElement();
+  const aclForm = createElement();
+  const aclAccount = createElement();
+  aclAccount.value = "0x1111111111111111111111111111111111111111";
+  const aclRead = createElement();
+  aclRead.checked = true;
+  const aclWrite = createElement();
+  aclWrite.checked = false;
+  const aclCheckButton = createElement();
+  const aclRevokeButton = createElement();
   const detailPanel = createElement();
   detailPanel.querySelector = (selector) => {
     if (selector === "[data-update-form]") {
@@ -136,6 +145,24 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     }
     if (selector === "[data-delete-secret]") {
       return detailDeleteButton;
+    }
+    if (selector === "[data-acl-form]") {
+      return aclForm;
+    }
+    if (selector === "[data-acl-account]") {
+      return aclAccount;
+    }
+    if (selector === "[data-acl-read]") {
+      return aclRead;
+    }
+    if (selector === "[data-acl-write]") {
+      return aclWrite;
+    }
+    if (selector === "[data-acl-check]") {
+      return aclCheckButton;
+    }
+    if (selector === "[data-acl-revoke]") {
+      return aclRevokeButton;
     }
     return createElement();
   };
@@ -187,6 +214,9 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     creates: 0,
     updates: 0,
     deletes: 0,
+    grants: 0,
+    checks: 0,
+    revokes: 0,
     getState() {
       return state;
     },
@@ -227,6 +257,18 @@ test("createApp handles create, update, delete and rendering flows", async () =>
       state = { ...state, secrets: state.secrets.filter((item) => item.id !== id), selectedId: null, selected: null };
       subscriber(state);
       return null;
+    },
+    async grantAccess() {
+      this.grants += 1;
+      return { transactionHash: "0xgrant" };
+    },
+    async checkAccess() {
+      this.checks += 1;
+      return { canRead: true, canWrite: false };
+    },
+    async revokeAccess() {
+      this.revokes += 1;
+      return { transactionHash: "0xrevoke" };
     }
   };
 
@@ -309,6 +351,40 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     };
     await app.handleDelete(secret.id);
     assert.equal(elements["[data-toast]"].textContent, "delete failed");
+
+    state = { ...state, secrets: [secret], selectedId: secret.id, selected: secret };
+    subscriber(state);
+
+    await app.handleAclCheck(secret.id);
+    assert.equal(store.checks, 1);
+
+    await app.handleAclGrant(
+      {
+        preventDefault() {},
+        currentTarget: aclForm
+      },
+      secret.id
+    );
+    assert.equal(store.grants, 1);
+
+    await app.handleAclRevoke(secret.id);
+    assert.equal(store.revokes, 1);
+
+    aclAccount.value = "bad-account";
+    await app.handleAclCheck(secret.id);
+    assert.match(detailPanel.innerHTML, /valid Ethereum address/i);
+
+    aclAccount.value = "0x1111111111111111111111111111111111111111";
+    aclRead.checked = false;
+    aclWrite.checked = false;
+    await app.handleAclGrant(
+      {
+        preventDefault() {},
+        currentTarget: aclForm
+      },
+      secret.id
+    );
+    assert.match(detailPanel.innerHTML, /Select at least one permission/i);
   } finally {
     globalThis.FormData = originalFormData;
     globalThis.setTimeout = originalSetTimeout;
