@@ -288,8 +288,10 @@ jobs:
           PR_BASE_REF: ${{ github.base_ref }}
           SONAR_HOST_URL: ${{ vars.SONAR_URL || 'https://sonarcloud.io' }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
         run: |
           host_url="${SONAR_HOST_URL:-https://sonarcloud.io}"
+          host_url="${host_url%/}"
           report_paths=""
           if [ -d "backend-coverage" ]; then
             report_paths=$(find "$(pwd)/backend-coverage" -type f -name "jacoco.xml" -print 2>/dev/null | paste -sd, - || true)
@@ -306,6 +308,7 @@ jobs:
             "-Dsonar.projectKey=${REPO_NAME}-backend"
             "-Dsonar.projectName=${REPO_NAME}-backend"
             "-Dsonar.token=${SONAR_TOKEN}"
+            "-Dsonar.login=${SONAR_TOKEN}"
           )
 
           if [ -n "${report_paths}" ]; then
