@@ -129,6 +129,16 @@ test("createApp handles create, update, delete and rendering flows", async () =>
   const detailUpdateForm = createElement();
   detailUpdateForm.updateErrorElement = createElement();
   const detailDeleteButton = createElement();
+  const aclForm = createElement();
+  const aclAccount = createElement();
+  aclAccount.value = "0x1111111111111111111111111111111111111111";
+  const aclRead = createElement();
+  aclRead.checked = true;
+  const aclWrite = createElement();
+  aclWrite.checked = false;
+  const aclCheckButton = createElement();
+  const aclGrantButton = createElement();
+  const aclRevokeButton = createElement();
   const detailPanel = createElement();
   detailPanel.querySelector = (selector) => {
     if (selector === "[data-update-form]") {
@@ -136,6 +146,27 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     }
     if (selector === "[data-delete-secret]") {
       return detailDeleteButton;
+    }
+    if (selector === "[data-acl-form]") {
+      return aclForm;
+    }
+    if (selector === "[data-acl-account]") {
+      return aclAccount;
+    }
+    if (selector === "[data-acl-read]") {
+      return aclRead;
+    }
+    if (selector === "[data-acl-write]") {
+      return aclWrite;
+    }
+    if (selector === "[data-acl-check]") {
+      return aclCheckButton;
+    }
+    if (selector === "[data-acl-grant]") {
+      return aclGrantButton;
+    }
+    if (selector === "[data-acl-revoke]") {
+      return aclRevokeButton;
     }
     return createElement();
   };
@@ -172,6 +203,11 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     createdAt: "2026-06-01T12:00:00Z",
     updatedAt: "2026-06-01T12:00:00Z"
   };
+  const otherSecret = {
+    ...secret,
+    id: "secret-race",
+    name: "beta"
+  };
 
   let state = {
     loading: false,
@@ -187,6 +223,9 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     creates: 0,
     updates: 0,
     deletes: 0,
+    grants: 0,
+    checks: 0,
+    revokes: 0,
     getState() {
       return state;
     },
@@ -227,6 +266,18 @@ test("createApp handles create, update, delete and rendering flows", async () =>
       state = { ...state, secrets: state.secrets.filter((item) => item.id !== id), selectedId: null, selected: null };
       subscriber(state);
       return null;
+    },
+    async grantAccess() {
+      this.grants += 1;
+      return { transactionHash: "0xgrant" };
+    },
+    async checkAccess() {
+      this.checks += 1;
+      return { canRead: true, canWrite: false };
+    },
+    async revokeAccess() {
+      this.revokes += 1;
+      return { transactionHash: "0xrevoke" };
     }
   };
 
@@ -239,6 +290,7 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     state = { ...state, secrets: [secret], selectedId: secret.id, selected: secret };
     subscriber(state);
     assert.match(detailPanel.innerHTML, /Save changes/);
+    assert.match(detailPanel.innerHTML, /data-acl-grant type="button"/);
 
     await app.handleCreate({
       preventDefault() {},
@@ -309,6 +361,141 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     };
     await app.handleDelete(secret.id);
     assert.equal(elements["[data-toast]"].textContent, "delete failed");
+
+    state = { ...state, secrets: [secret], selectedId: secret.id, selected: secret };
+    subscriber(state);
+
+    let aclSubmitPrevented = false;
+    aclForm.trigger("submit", {
+      preventDefault() {
+        aclSubmitPrevented = true;
+      }
+    });
+    assert.equal(aclSubmitPrevented, true);
+    assert.equal(store.grants, 0);
+
+    await app.handleAclCheck(secret.id);
+    assert.equal(store.checks, 1);
+    assert.match(detailPanel.innerHTML, /Read: <strong>Yes<\/strong>/);
+
+    await app.handleAclGrant(
+      {
+        preventDefault() {},
+        currentTarget: aclForm
+      },
+      secret.id
+    );
+    assert.equal(store.grants, 1);
+    assert.match(detailPanel.innerHTML, /Grant transaction submitted: 0xgrant/);
+    assert.match(detailPanel.innerHTML, /No access check performed yet\./);
+
+    await app.handleAclRevoke(secret.id);
+    assert.equal(store.revokes, 1);
+
+    const switchToSecret = (selected) => {
+      state = { ...state, secrets: [secret, otherSecret], selectedId: selected.id, selected };
+      subscriber(state);
+    };
+
+    switchToSecret(secret);
+    let deferred = createDeferred();
+    store.checkAccess = async () => deferred.promise;
+    const staleCheck = app.handleAclCheck(secret.id);
+    switchToSecret(otherSecret);
+    deferred.resolve({ canRead: true, canWrite: true });
+    await staleCheck;
+    assert.match(detailPanel.innerHTML, /beta/);
+    assert.doesNotMatch(detailPanel.innerHTML, /Read: <strong>Yes<\/strong>/);
+
+    switchToSecret(secret);
+    deferred = createDeferred();
+    store.grantAccess = async () => deferred.promise;
+    const staleGrant = app.handleAclGrant(
+      {
+        preventDefault() {},
+        currentTarget: aclForm
+      },
+      secret.id
+    );
+    switchToSecret(otherSecret);
+    deferred.resolve({ transactionHash: "0xstalegrant" });
+    await staleGrant;
+    assert.match(detailPanel.innerHTML, /beta/);
+    assert.doesNotMatch(detailPanel.innerHTML, /0xstalegrant/);
+
+    switchToSecret(secret);
+    deferred = createDeferred();
+    store.revokeAccess = async () => deferred.promise;
+    const staleRevoke = app.handleAclRevoke(secret.id);
+    switchToSecret(otherSecret);
+    deferred.resolve({ transactionHash: "0xstalerevoke" });
+    await staleRevoke;
+    assert.match(detailPanel.innerHTML, /beta/);
+    assert.doesNotMatch(detailPanel.innerHTML, /0xstalerevoke/);
+
+    switchToSecret(secret);
+    deferred = createDeferred();
+    store.checkAccess = async () => deferred.promise;
+    const staleCheckError = app.handleAclCheck(secret.id);
+    switchToSecret(otherSecret);
+    deferred.reject(new Error("stale check failed"));
+    await staleCheckError;
+    assert.match(detailPanel.innerHTML, /beta/);
+    assert.doesNotMatch(detailPanel.innerHTML, /stale check failed/);
+
+    switchToSecret(secret);
+    store.checkAccess = async () => {
+      throw new Error("check failed");
+    };
+    await app.handleAclCheck(secret.id);
+    assert.match(detailPanel.innerHTML, /check failed/);
+    assert.match(detailPanel.innerHTML, /No access check performed yet\./);
+
+    store.grantAccess = async () => {
+      throw new Error("grant failed");
+    };
+    aclAccount.value = "0x1111111111111111111111111111111111111111";
+    aclRead.checked = true;
+    aclWrite.checked = false;
+    await app.handleAclGrant(
+      {
+        preventDefault() {},
+        currentTarget: aclForm
+      },
+      secret.id
+    );
+    assert.match(detailPanel.innerHTML, /grant failed/);
+    assert.match(detailPanel.innerHTML, /No access check performed yet\./);
+
+    store.revokeAccess = async () => {
+      throw new Error("revoke failed");
+    };
+    await app.handleAclRevoke(secret.id);
+    assert.match(detailPanel.innerHTML, /revoke failed/);
+    assert.match(detailPanel.innerHTML, /No access check performed yet\./);
+
+    aclAccount.value = "bad-account";
+    await app.handleAclCheck(secret.id);
+    assert.match(detailPanel.innerHTML, /valid Ethereum address/i);
+    assert.match(detailPanel.innerHTML, /No access check performed yet\./);
+
+    aclAccount.value = "0x1111111111111111111111111111111111111111";
+    aclRead.checked = false;
+    aclWrite.checked = false;
+    await app.handleAclGrant(
+      {
+        preventDefault() {},
+        currentTarget: aclForm
+      },
+      secret.id
+    );
+    assert.match(detailPanel.innerHTML, /Select at least one permission/i);
+    assert.match(detailPanel.innerHTML, /No access check performed yet\./);
+
+    aclAccount.value = "bad-account";
+    await app.handleAclRevoke(secret.id);
+    assert.match(detailPanel.innerHTML, /valid Ethereum address/i);
+    assert.match(detailPanel.innerHTML, /No access check performed yet\./);
   } finally {
     globalThis.FormData = originalFormData;
     globalThis.setTimeout = originalSetTimeout;
@@ -367,3 +554,12 @@ test("module auto-bootstraps when document exists", async () => {
     globalThis.fetch = originalFetch;
   }
 });
+
+function createDeferred() {
+  const deferred = {};
+  deferred.promise = new Promise((resolve, reject) => {
+    deferred.resolve = resolve;
+    deferred.reject = reject;
+  });
+  return deferred;
+}

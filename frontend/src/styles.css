@@ -56,6 +56,11 @@ textarea {
   letter-spacing: 0;
 }
 
+.section-heading h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
 .eyebrow {
   margin: 0 0 4px;
   color: var(--accent);
@@ -212,6 +217,12 @@ textarea {
   cursor: pointer;
 }
 
+.primary-button:disabled,
+.danger-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .primary-button {
   background: var(--brand);
 }
@@ -251,6 +262,71 @@ textarea {
 
 .metadata-grid dd {
   margin: 5px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.acl-panel {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.permission-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 650;
+}
+
+.checkbox-label input {
+  width: auto;
+}
+
+.hint-text {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.acl-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.acl-result {
+  margin: 0;
+  padding: 9px 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.acl-result.allowed {
+  background: #e7f4ee;
+  color: #17634d;
+}
+
+.acl-result.denied {
+  background: #fdecea;
+  color: #a43118;
+}
+
+.acl-result.neutral {
+  background: var(--soft);
+  color: var(--muted);
+}
+
+.acl-feedback {
+  min-height: 20px;
+  margin: 0;
+  color: var(--brand);
+  font-weight: 700;
   overflow-wrap: anywhere;
 }
 

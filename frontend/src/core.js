@@ -55,6 +55,27 @@ export function validateSecretDraft(draft, options = {}) {
   };
 }
 
+export function validateAclAccount(account) {
+  const normalized = String(account ?? "").trim();
+  if (!/^0x[a-fA-F0-9]{40}$/.test(normalized)) {
+    return {
+      valid: false,
+      error: "Account must be a valid Ethereum address."
+    };
+  }
+  return { valid: true, error: "" };
+}
+
+export function validateAclPermissions(permissions) {
+  if (permissions?.canRead || permissions?.canWrite) {
+    return { valid: true, error: "" };
+  }
+  return {
+    valid: false,
+    error: "Select at least one permission."
+  };
+}
+
 export function toCreateSecretPayload(formData) {
   return {
     name: formData.name.trim(),
@@ -100,6 +121,17 @@ export function createSecretsApi(options = {}) {
       body: JSON.stringify(secret)
     }),
     remove: (id) => requestJson(fetchImpl, `${baseUrl}/${encodeURIComponent(id)}`, {
+      method: "DELETE"
+    }),
+    grantAccess: (id, account, permissions) => requestJson(fetchImpl, `${baseUrl}/${encodeURIComponent(id)}/acl/${encodeURIComponent(account)}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        canRead: Boolean(permissions?.canRead),
+        canWrite: Boolean(permissions?.canWrite)
+      })
+    }),
+    getAccess: (id, account) => requestJson(fetchImpl, `${baseUrl}/${encodeURIComponent(id)}/acl/${encodeURIComponent(account)}`),
+    revokeAccess: (id, account) => requestJson(fetchImpl, `${baseUrl}/${encodeURIComponent(id)}/acl/${encodeURIComponent(account)}`, {
       method: "DELETE"
     })
   };
@@ -160,6 +192,15 @@ export function createSecretsStore(api) {
       await api.remove(id);
       const secrets = state.secrets.filter((item) => item.id !== id);
       setState({ secrets, selectedId: secrets[0]?.id ?? null });
+    },
+    async grantAccess(id, account, permissions) {
+      return api.grantAccess(id, account, permissions);
+    },
+    async checkAccess(id, account) {
+      return api.getAccess(id, account);
+    },
+    async revokeAccess(id, account) {
+      return api.revokeAccess(id, account);
     },
     getState
   };
