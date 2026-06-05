@@ -141,6 +141,13 @@ jobs:
           name: blockchain-coverage
           path: .
 
+      - name: Use Java 21 for Sonar scanner
+        if: steps['sonar-check'].outputs.sonar_enabled == 'true'
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        with:
+          distribution: temurin
+          java-version: 21
+
       - name: Normalize blockchain lcov path for Sonar
         if: steps['sonar-check'].outputs.sonar_enabled == 'true'
         shell: bash
@@ -172,7 +179,7 @@ jobs:
         id: sonar-args
         shell: bash
         run: |
-          args="-Dsonar.projectKey=${{ github.event.repository.name }}-blockchain"
+          args="-Dsonar.projectKey=${{ github.event.repository.name }}-blockchain -Dsonar.scanner.skipJreProvisioning=true"
           if [ -n "${SONAR_ORGANIZATION}" ]; then
             args="${args} -Dsonar.organization=${SONAR_ORGANIZATION}"
           fi
