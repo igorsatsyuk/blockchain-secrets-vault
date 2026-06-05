@@ -12,7 +12,7 @@ class EncryptionKeyTest {
     @Test
     void testEncryptionKeyCreation() {
         byte[] keyMaterial = new byte[32];
-        Instant now = Instant.now();
+        Instant now = FIXED_INSTANT;
         
         EncryptionKey key = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
         
@@ -63,8 +63,8 @@ class EncryptionKeyTest {
     
     @Test
     void testEncryptionKeyWithRotatedAt() {
-        Instant created = Instant.now().minusSeconds(3600);
-        Instant rotated = Instant.now();
+        Instant created = FIXED_INSTANT.minusSeconds(3600);
+        Instant rotated = FIXED_INSTANT;
         
         EncryptionKey key = new EncryptionKey("key-id", new byte[32], 1, KeyStatus.ROTATED, created, rotated);
         
@@ -75,7 +75,7 @@ class EncryptionKeyTest {
     @Test
     void testEncryptionKeyEquals() {
         byte[] keyMaterial = new byte[32];
-        Instant now = Instant.now();
+        Instant now = FIXED_INSTANT;
         
         EncryptionKey key1 = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
         EncryptionKey key2 = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
@@ -86,7 +86,7 @@ class EncryptionKeyTest {
     @Test
     void testEncryptionKeyNotEquals() {
         byte[] keyMaterial = new byte[32];
-        Instant now = Instant.now();
+        Instant now = FIXED_INSTANT;
         
         EncryptionKey key1 = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
         EncryptionKey key2 = new EncryptionKey("key-id", keyMaterial, 1, KeyStatus.ACTIVE, now, null);
@@ -97,7 +97,7 @@ class EncryptionKeyTest {
     @Test
     void testEncryptionKeyHashCode() {
         byte[] keyMaterial = new byte[32];
-        Instant now = Instant.now();
+        Instant now = FIXED_INSTANT;
         
         EncryptionKey key1 = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
         EncryptionKey key2 = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
@@ -108,7 +108,7 @@ class EncryptionKeyTest {
     @Test
     void testEncryptionKeyToString() {
         byte[] keyMaterial = new byte[32];
-        Instant now = Instant.now();
+        Instant now = FIXED_INSTANT;
         
         EncryptionKey key = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
         String str = key.toString();
@@ -125,7 +125,7 @@ class EncryptionKeyTest {
         byte[] keyMaterial = new byte[32];
         keyMaterial[0] = 1;
 
-        EncryptionKey key = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, Instant.now(), null);
+        EncryptionKey key = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, FIXED_INSTANT, null);
         keyMaterial[0] = 9;
 
         assertEquals(1, key.keyMaterial()[0]);
@@ -134,7 +134,7 @@ class EncryptionKeyTest {
     @Test
     void testEncryptionKeyDefensiveCopyOnAccessor() {
         byte[] keyMaterial = new byte[32];
-        EncryptionKey key = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, Instant.now(), null);
+        EncryptionKey key = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, FIXED_INSTANT, null);
 
         byte[] accessorValue = key.keyMaterial();
         accessorValue[0] = 7;
