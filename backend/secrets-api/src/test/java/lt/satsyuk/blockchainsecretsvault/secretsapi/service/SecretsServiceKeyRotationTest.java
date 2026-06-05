@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -44,7 +45,7 @@ class SecretsServiceKeyRotationTest {
         StepVerifier.create(service.rotateEncryptionKey())
                 .assertNext(result -> {
                     assertThat(result.keyId()).isEqualTo("default-secret-key");
-                    assertThat(result.previousKeyVersion()).isEqualTo(0);
+                    assertThat(result.previousKeyVersion()).isZero();
                     assertThat(result.newKeyVersion()).isEqualTo(1);
                     assertThat(result.reEncryptedSecrets()).isEqualTo(1);
                 })
@@ -60,7 +61,7 @@ class SecretsServiceKeyRotationTest {
     void rotationSucceedsWhenNoSecretsExist() {
         StepVerifier.create(service.rotateEncryptionKey())
                 .assertNext(result -> {
-                    assertThat(result.previousKeyVersion()).isEqualTo(0);
+                    assertThat(result.previousKeyVersion()).isZero();
                     assertThat(result.newKeyVersion()).isEqualTo(1);
                     assertThat(result.reEncryptedSecrets()).isZero();
                 })
@@ -92,7 +93,7 @@ class SecretsServiceKeyRotationTest {
         SecretRecord updatedDefault = repository.findById(defaultKeySecret.id()).orElseThrow();
         SecretRecord unchangedExternal = repository.findById(externalSecret.id()).orElseThrow();
         assertThat(updatedDefault.encryptionKeyVersion()).isEqualTo(1);
-        assertThat(unchangedExternal.encryptionKeyVersion()).isEqualTo(0);
+        assertThat(unchangedExternal.encryptionKeyVersion()).isZero();
         assertThat(decryptPayload(unchangedExternal)).isEqualTo("external");
     }
 
@@ -108,7 +109,7 @@ class SecretsServiceKeyRotationTest {
                 secret.encryptionKeyId(),
                 secret.encryptionKeyVersion()
         );
-        return new String(kmsService.decrypt(encryptedData));
+        return new String(kmsService.decrypt(encryptedData), StandardCharsets.UTF_8);
     }
 
     private static String encodeEncryptedData(EncryptedData encrypted) {

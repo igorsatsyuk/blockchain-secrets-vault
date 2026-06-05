@@ -17,10 +17,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -172,16 +170,12 @@ public class SecretsService {
                     .filter(secret -> secret.encryptionKeyVersion() <= previousVersion)
                     .toList();
 
-            Map<UUID, byte[]> plaintextBySecretId = new HashMap<>();
-            for (SecretRecord secret : secretsToRotate) {
-                plaintextBySecretId.put(secret.id(), kmsService.decrypt(decodeEncryptedData(secret)));
-            }
-
             EncryptionKey newActiveKey = kmsService.rotateKey(DEFAULT_KEY_ID);
             Instant now = Instant.now(clock);
 
             for (SecretRecord secret : secretsToRotate) {
-                EncryptedData reEncrypted = kmsService.encrypt(DEFAULT_KEY_ID, plaintextBySecretId.get(secret.id()));
+                byte[] plaintext = kmsService.decrypt(decodeEncryptedData(secret));
+                EncryptedData reEncrypted = kmsService.encrypt(DEFAULT_KEY_ID, plaintext);
                 SecretRecord updated = new SecretRecord(
                         secret.id(),
                         secret.name(),
@@ -194,6 +188,7 @@ public class SecretsService {
                         now
                 );
                 secretRepository.save(updated);
+                java.util.Arrays.fill(plaintext, (byte) 0);
             }
 
             return new KeyRotationResult(
@@ -202,7 +197,7 @@ public class SecretsService {
                     newActiveKey.version(),
                     secretsToRotate.size()
             );
-        }));
+        })).subscribeOn(Schedulers.boundedElastic());
     }
 
     public Mono<AclTransaction> grantAccess(UUID id, String account, boolean canRead, boolean canWrite) {

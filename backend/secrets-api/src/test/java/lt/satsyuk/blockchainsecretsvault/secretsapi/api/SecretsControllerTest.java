@@ -218,7 +218,7 @@ class SecretsControllerTest {
                 .expectBody(KeyRotationResponse.class)
                 .value(response -> {
                     assertThat(response.keyId()).isEqualTo("default-secret-key");
-                    assertThat(response.previousKeyVersion()).isEqualTo(0);
+                    assertThat(response.previousKeyVersion()).isZero();
                     assertThat(response.newKeyVersion()).isEqualTo(1);
                     assertThat(response.reEncryptedSecrets()).isEqualTo(2);
                 });
