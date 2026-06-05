@@ -5,6 +5,7 @@ import {
   createSecretsStore,
   filterAuditEvents,
   formatTimestamp,
+  normalizeAuditFilters,
   normalizeAuditEvents,
   parseTags,
   toCreateSecretPayload,
@@ -88,6 +89,14 @@ test("ACL validators enforce account format and permissions", () => {
 });
 
 test("audit helpers normalize and filter history events", () => {
+  assert.deepEqual(normalizeAuditFilters({ action: " grant ", account: " 0xabc " }), {
+    action: "GRANT",
+    account: "0xabc"
+  });
+  assert.deepEqual(normalizeAuditFilters({ action: "bad", account: null }), {
+    action: "",
+    account: ""
+  });
   assert.deepEqual(normalizeAuditEvents(null), []);
   assert.deepEqual(normalizeAuditEvents([
     {

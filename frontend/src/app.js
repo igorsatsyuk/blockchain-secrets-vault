@@ -2,6 +2,7 @@ import {
   createSecretsApi,
   createSecretsStore,
   formatTimestamp,
+  normalizeAuditFilters,
   parseTags,
   toCreateSecretPayload,
   toUpdateSecretPayload,
@@ -258,8 +259,8 @@ export function createApp(options = {}) {
     if (typeof store.loadAudit !== "function") {
       return;
     }
-    const filters = options.filters ?? currentState.audit?.filters ?? {};
-    const requestKey = `${secretId}:${filters.action ?? ""}:${filters.account ?? ""}`;
+    const filters = normalizeAuditFilters(options.filters ?? currentState.audit?.filters ?? {});
+    const requestKey = `${secretId}:${filters.action}:${filters.account}`;
     if (!options.force && lastAuditRequestKey === requestKey) {
       return;
     }

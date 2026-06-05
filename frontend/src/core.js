@@ -358,7 +358,7 @@ function createAuditState() {
   };
 }
 
-function normalizeAuditFilters(filters = {}) {
+export function normalizeAuditFilters(filters = {}) {
   return {
     action: normalizeAuditAction(filters.action),
     account: String(filters.account ?? "").trim()

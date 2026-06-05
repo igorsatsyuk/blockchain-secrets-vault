@@ -4,6 +4,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AccessAuditAction;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclClient;
@@ -42,5 +44,29 @@ class AuditWriterTest {
                     assertThat(event.transactionHash()).isEqualTo("0xtransaction");
                 });
         assertThat(writer.history(secretId, Optional.of(AccessAuditAction.READ), Optional.empty())).isEmpty();
+    }
+
+    @Test
+    void keepsOnlyNewestEventsWithinHistoryLimit() {
+        UUID secretId = UUID.fromString("00112233-4455-6677-8899-aabbccddeeff");
+        String account = "0x1111111111111111111111111111111111111111";
+        Clock clock = Clock.fixed(Instant.parse("2026-06-01T12:00:00Z"), ZoneOffset.UTC);
+        BlockchainAclClient blockchainAclClient = mock(BlockchainAclClient.class);
+        AuditWriter writer = new AuditWriter(blockchainAclClient, new AuditEventHasher(), clock, 1);
+
+        when(blockchainAclClient.auditEvent(eq(secretId), eq(account), eq(AccessAuditAction.GRANT), anyString()))
+                .thenReturn("0xgrant");
+        when(blockchainAclClient.auditEvent(eq(secretId), eq(account), eq(AccessAuditAction.REVOKE), anyString()))
+                .thenReturn("0xrevoke");
+
+        writer.publish(secretId, account, AccessAuditAction.GRANT, "canRead=true;canWrite=false");
+        writer.publish(secretId, account, AccessAuditAction.REVOKE, "");
+
+        assertThat(writer.history(secretId, Optional.empty(), Optional.empty()))
+                .singleElement()
+                .satisfies(event -> {
+                    assertThat(event.action()).isEqualTo(AccessAuditAction.REVOKE);
+                    assertThat(event.transactionHash()).isEqualTo("0xrevoke");
+                });
     }
 }
