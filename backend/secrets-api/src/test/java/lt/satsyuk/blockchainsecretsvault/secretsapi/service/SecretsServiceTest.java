@@ -236,6 +236,7 @@ class SecretsServiceTest {
 
         when(blockchainAclClient.grantAccess(created.id(), account, true, false)).thenReturn("0xgrant");
         when(blockchainAclClient.revokeAccess(created.id(), account)).thenReturn("0xrevoke");
+        when(blockchainAclClient.auditEvent(any(), anyString(), any(), anyString())).thenReturn("0xaudit");
         when(blockchainAclClient.canRead(created.id(), account)).thenReturn(true);
         when(blockchainAclClient.canWrite(created.id(), account)).thenReturn(false);
 
@@ -262,7 +263,25 @@ class SecretsServiceTest {
                 .verifyComplete();
 
         verify(blockchainAclClient).grantAccess(created.id(), account, true, false);
+        verify(blockchainAclClient).auditEvent(
+                created.id(),
+                account,
+                AccessAuditAction.GRANT,
+                new AuditEventHasher().hash(
+                        created.id(),
+                        account,
+                        AccessAuditAction.GRANT,
+                        clock.instant(),
+                        "canRead=true;canWrite=false"
+                )
+        );
         verify(blockchainAclClient).revokeAccess(created.id(), account);
+        verify(blockchainAclClient).auditEvent(
+                created.id(),
+                account,
+                AccessAuditAction.REVOKE,
+                new AuditEventHasher().hash(created.id(), account, AccessAuditAction.REVOKE, clock.instant(), "")
+        );
     }
 
     @Test
@@ -299,31 +318,5 @@ class SecretsServiceTest {
         verify(blockchainAclClient).canWrite(created.id(), account);
     }
 
-    @Test
-    void publishesAuditEventHashToBlockchain() {
-        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
-        String account = "0x1111111111111111111111111111111111111111";
-
-        when(blockchainAclClient.auditEvent(any(), anyString(), any(), anyString())).thenReturn("0xaudit");
-
-        String mixedCaseAccount = "0x" + account.substring(2).toUpperCase(Locale.ROOT);
-
-        StepVerifier.create(service.auditAccess(created.id(), mixedCaseAccount, AccessAuditAction.READ, " read ok "))
-                .assertNext(transaction -> {
-                    assertThat(transaction.account()).isEqualTo(account);
-                    assertThat(transaction.action()).isEqualTo(AccessAuditAction.READ);
-                    assertThat(transaction.occurredAt()).isEqualTo(clock.instant());
-                    assertThat(transaction.detailsHash()).startsWith("0x").hasSize(66);
-                    assertThat(transaction.transactionHash()).isEqualTo("0xaudit");
-                })
-                .verifyComplete();
-
-        verify(blockchainAclClient).auditEvent(
-                created.id(),
-                account,
-                AccessAuditAction.READ,
-                new AuditEventHasher().hash(created.id(), account, AccessAuditAction.READ, clock.instant(), " read ok ")
-        );
-    }
 }
 

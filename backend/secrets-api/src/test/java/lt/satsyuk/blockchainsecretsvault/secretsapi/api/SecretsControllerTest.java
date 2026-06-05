@@ -214,6 +214,10 @@ class SecretsControllerTest {
 
         when(blockchainAclClient.grantAccess(created.id(), account, true, false)).thenReturn("0xgrant");
         when(blockchainAclClient.revokeAccess(created.id(), account)).thenReturn("0xrevoke");
+        when(blockchainAclClient.auditEvent(eq(created.id()), eq(account), eq(AccessAuditAction.GRANT), anyString()))
+                .thenReturn("0xauditgrant");
+        when(blockchainAclClient.auditEvent(eq(created.id()), eq(account), eq(AccessAuditAction.REVOKE), anyString()))
+                .thenReturn("0xauditrevoke");
         when(blockchainAclClient.canRead(created.id(), account)).thenReturn(true);
         when(blockchainAclClient.canWrite(created.id(), account)).thenReturn(false);
 
@@ -252,32 +256,6 @@ class SecretsControllerTest {
     }
 
     @Test
-    void publishesAuditEventHash() {
-        SecretResponse created = create("alpha");
-        String account = "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd";
-        String mixedCaseAccount = "0x" + account.substring(2).toUpperCase();
-
-        when(blockchainAclClient.auditEvent(eq(created.id()), eq(account), eq(AccessAuditAction.READ), anyString()))
-                .thenReturn("0xaudit");
-
-        webTestClient.post()
-                .uri("/api/v1/secrets/{id}/audit/{account}", created.id(), mixedCaseAccount)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(Map.of("action", "READ", "details", "payload delivered"))
-                .exchange()
-                .expectStatus().isAccepted()
-                .expectBody(AuditEventResponse.class)
-                .value(response -> {
-                    assertThat(response.secretId()).isEqualTo(created.id());
-                    assertThat(response.account()).isEqualTo(account);
-                    assertThat(response.action()).isEqualTo(AccessAuditAction.READ);
-                    assertThat(response.occurredAt()).isNotNull();
-                    assertThat(response.detailsHash()).startsWith("0x").hasSize(66);
-                    assertThat(response.transactionHash()).isEqualTo("0xaudit");
-                });
-    }
-
-    @Test
     void returnsBadRequestForInvalidAclAddressAndRequestBody() {
         SecretResponse created = create("alpha");
 
@@ -296,15 +274,6 @@ class SecretsControllerTest {
                 .expectStatus().isBadRequest()
                 .expectBody(ErrorResponse.class)
                 .value(error -> assertThat(error.details()).containsKey("canWrite"));
-
-        webTestClient.post()
-                .uri("/api/v1/secrets/{id}/audit/{account}", created.id(), "0x1111111111111111111111111111111111111111")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(Map.of("details", "missing action"))
-                .exchange()
-                .expectStatus().isBadRequest()
-                .expectBody(ErrorResponse.class)
-                .value(error -> assertThat(error.details()).containsKey("action"));
     }
 
     private SecretResponse create(String name) {

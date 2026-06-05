@@ -155,6 +155,12 @@ public class SecretsService {
             requireExistingSecret(id);
             String normalizedAccount = normalizeAccount(account);
             String transactionHash = blockchainAclClient.grantAccess(id, normalizedAccount, canRead, canWrite);
+            auditWriter.publish(
+                    id,
+                    normalizedAccount,
+                    AccessAuditAction.GRANT,
+                    "canRead=%s;canWrite=%s".formatted(canRead, canWrite)
+            );
             return new AclTransaction(normalizedAccount, transactionHash);
         }).subscribeOn(Schedulers.boundedElastic());
     }
@@ -164,6 +170,7 @@ public class SecretsService {
             requireExistingSecret(id);
             String normalizedAccount = normalizeAccount(account);
             String transactionHash = blockchainAclClient.revokeAccess(id, normalizedAccount);
+            auditWriter.publish(id, normalizedAccount, AccessAuditAction.REVOKE, "");
             return new AclTransaction(normalizedAccount, transactionHash);
         }).subscribeOn(Schedulers.boundedElastic());
     }
@@ -183,14 +190,6 @@ public class SecretsService {
                             permissions.getT1(),
                             permissions.getT2()
                     ));
-        }).subscribeOn(Schedulers.boundedElastic());
-    }
-
-    public Mono<AuditEventTransaction> auditAccess(UUID id, String account, AccessAuditAction action, String details) {
-        return Mono.fromSupplier(() -> {
-            requireExistingSecret(id);
-            String normalizedAccount = normalizeAccount(account);
-            return auditWriter.publish(id, normalizedAccount, action, details);
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
