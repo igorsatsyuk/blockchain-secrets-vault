@@ -42,7 +42,7 @@ public class SecretsService {
     private final BlockchainAclClient blockchainAclClient;
     private final AuditWriter auditWriter;
     private final Clock clock;
-    private final ReentrantReadWriteLock mutationLock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock mutationLock = new ReentrantReadWriteLock(true);
     private static final String DEFAULT_KEY_ID = "default-secret-key";
 
     public SecretsService(
@@ -103,7 +103,7 @@ public class SecretsService {
             );
             return secretRepository.saveIfNameAvailable(secret, Optional.empty())
                     .orElseThrow(() -> new DuplicateSecretNameException(normalizedName));
-        }));
+        })).subscribeOn(Schedulers.boundedElastic());
     }
 
     public Flux<SecretRecord> list() {
@@ -149,15 +149,15 @@ public class SecretsService {
             );
             return secretRepository.saveIfNameAvailable(updated, Optional.of(id))
                     .orElseThrow(() -> new DuplicateSecretNameException(nextName));
-        }));
+        })).subscribeOn(Schedulers.boundedElastic());
     }
 
     public Mono<Void> delete(UUID id) {
-        return Mono.fromRunnable(() -> withMutationReadLock(() -> {
+        return Mono.<Void>fromRunnable(() -> withMutationReadLock(() -> {
             if (!secretRepository.deleteById(id)) {
                 throw new SecretNotFoundException(id);
             }
-        }));
+        })).subscribeOn(Schedulers.boundedElastic());
     }
 
     public Mono<KeyRotationResult> rotateEncryptionKey() {
@@ -170,25 +170,33 @@ public class SecretsService {
                     .filter(secret -> secret.encryptionKeyVersion() <= previousVersion)
                     .toList();
 
+            for (SecretRecord secret : secretsToRotate) {
+                byte[] plaintext = kmsService.decrypt(decodeEncryptedData(secret));
+                java.util.Arrays.fill(plaintext, (byte) 0);
+            }
+
             EncryptionKey newActiveKey = kmsService.rotateKey(DEFAULT_KEY_ID);
             Instant now = Instant.now(clock);
 
             for (SecretRecord secret : secretsToRotate) {
                 byte[] plaintext = kmsService.decrypt(decodeEncryptedData(secret));
-                EncryptedData reEncrypted = kmsService.encrypt(DEFAULT_KEY_ID, plaintext);
-                SecretRecord updated = new SecretRecord(
-                        secret.id(),
-                        secret.name(),
-                        secret.description(),
-                        encodeEncryptedData(reEncrypted),
-                        secret.encryptionKeyId(),
-                        reEncrypted.keyVersion(),
-                        secret.tags(),
-                        secret.createdAt(),
-                        now
-                );
-                secretRepository.save(updated);
-                java.util.Arrays.fill(plaintext, (byte) 0);
+                try {
+                    EncryptedData reEncrypted = kmsService.encrypt(DEFAULT_KEY_ID, plaintext);
+                    SecretRecord updated = new SecretRecord(
+                            secret.id(),
+                            secret.name(),
+                            secret.description(),
+                            encodeEncryptedData(reEncrypted),
+                            secret.encryptionKeyId(),
+                            reEncrypted.keyVersion(),
+                            secret.tags(),
+                            secret.createdAt(),
+                            now
+                    );
+                    secretRepository.save(updated);
+                } finally {
+                    java.util.Arrays.fill(plaintext, (byte) 0);
+                }
             }
 
             return new KeyRotationResult(
