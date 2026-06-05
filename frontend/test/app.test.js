@@ -255,6 +255,7 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     checks: 0,
     revokes: 0,
     auditLoads: 0,
+    auditRequests: [],
     getState() {
       return state;
     },
@@ -310,6 +311,7 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     },
     async loadAudit(id, filters = state.audit.filters) {
       this.auditLoads += 1;
+      this.auditRequests.push({ id, filters });
       state = {
         ...state,
         audit: {
@@ -346,6 +348,7 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     await Promise.resolve();
     assert.equal(store.auditLoads, 1);
     assert.match(detailPanel.innerHTML, /0xaudit/);
+    assert.match(detailPanel.innerHTML, /<time datetime="2026-06-03T12:00:00\.000Z">/);
 
     await app.handleCreate({
       preventDefault() {},
@@ -471,6 +474,27 @@ test("createApp handles create, update, delete and rendering flows", async () =>
       state = { ...state, secrets: [secret, otherSecret], selectedId: selected.id, selected };
       subscriber(state);
     };
+
+    state = {
+      ...state,
+      audit: {
+        ...state.audit,
+        secretId: secret.id,
+        filters: {
+          action: "GRANT",
+          account: "0x1111111111111111111111111111111111111111"
+        }
+      }
+    };
+    switchToSecret(otherSecret);
+    await Promise.resolve();
+    assert.deepEqual(store.auditRequests.at(-1), {
+      id: otherSecret.id,
+      filters: {
+        action: "",
+        account: ""
+      }
+    });
 
     switchToSecret(secret);
     let deferred = createDeferred();

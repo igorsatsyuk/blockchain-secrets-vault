@@ -259,7 +259,8 @@ export function createApp(options = {}) {
     if (typeof store.loadAudit !== "function") {
       return;
     }
-    const filters = normalizeAuditFilters(options.filters ?? currentState.audit?.filters ?? {});
+    const defaultFilters = currentState.audit?.secretId === secretId ? currentState.audit.filters : {};
+    const filters = normalizeAuditFilters(options.filters ?? defaultFilters);
     const requestKey = `${secretId}:${filters.action}:${filters.account}`;
     if (!options.force && lastAuditRequestKey === requestKey) {
       return;
@@ -517,18 +518,28 @@ function buildAuditEventMarkup(event) {
   const hash = event.transactionHash || event.detailsHash || "";
   const hashMarkup = hash ? `<span class="audit-hash">${escapeHtml(hash)}</span>` : "";
   const statusMarkup = event.status ? `<span class="audit-event-status">${escapeHtml(event.status)}</span>` : "";
+  const dateTime = toDateTimeAttribute(event.occurredAt);
+  const dateTimeAttribute = dateTime ? ` datetime="${escapeAttribute(dateTime)}"` : "";
 
   return `
     <li class="audit-event">
       <div class="audit-event-top">
         <span class="audit-action">${escapeHtml(event.action || "UNKNOWN")}</span>
-        <time>${formatTimestamp(event.occurredAt)}</time>
+        <time${dateTimeAttribute}>${formatTimestamp(event.occurredAt)}</time>
       </div>
       <div class="audit-event-account">${escapeHtml(event.account || "Account not recorded")}</div>
       ${hashMarkup}
       ${statusMarkup}
     </li>
   `;
+}
+
+function toDateTimeAttribute(value) {
+  if (!value) {
+    return "";
+  }
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString();
 }
 
 function getAuditStatus(auditState, eventCount) {

@@ -47,8 +47,9 @@ class AuditWriterTest {
     }
 
     @Test
-    void keepsOnlyNewestEventsWithinHistoryLimit() {
+    void keepsOnlyNewestEventsWithinPerSecretHistoryLimit() {
         UUID secretId = UUID.fromString("00112233-4455-6677-8899-aabbccddeeff");
+        UUID otherSecretId = UUID.fromString("11112233-4455-6677-8899-aabbccddeeff");
         String account = "0x1111111111111111111111111111111111111111";
         Clock clock = Clock.fixed(Instant.parse("2026-06-01T12:00:00Z"), ZoneOffset.UTC);
         BlockchainAclClient blockchainAclClient = mock(BlockchainAclClient.class);
@@ -58,7 +59,10 @@ class AuditWriterTest {
                 .thenReturn("0xgrant");
         when(blockchainAclClient.auditEvent(eq(secretId), eq(account), eq(AccessAuditAction.REVOKE), anyString()))
                 .thenReturn("0xrevoke");
+        when(blockchainAclClient.auditEvent(eq(otherSecretId), eq(account), eq(AccessAuditAction.GRANT), anyString()))
+                .thenReturn("0xothergrant");
 
+        writer.publish(otherSecretId, account, AccessAuditAction.GRANT, "canRead=true;canWrite=false");
         writer.publish(secretId, account, AccessAuditAction.GRANT, "canRead=true;canWrite=false");
         writer.publish(secretId, account, AccessAuditAction.REVOKE, "");
 
@@ -67,6 +71,12 @@ class AuditWriterTest {
                 .satisfies(event -> {
                     assertThat(event.action()).isEqualTo(AccessAuditAction.REVOKE);
                     assertThat(event.transactionHash()).isEqualTo("0xrevoke");
+                });
+        assertThat(writer.history(otherSecretId, Optional.empty(), Optional.empty()))
+                .singleElement()
+                .satisfies(event -> {
+                    assertThat(event.action()).isEqualTo(AccessAuditAction.GRANT);
+                    assertThat(event.transactionHash()).isEqualTo("0xothergrant");
                 });
     }
 }
