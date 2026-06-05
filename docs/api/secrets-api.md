@@ -3,9 +3,8 @@
 Issue #7 introduces the MVP CRUD contract for off-chain secret metadata and
 payload handling. Issue #8 adds KMS-backed encryption, issue #9 adds
 blockchain ACL grant, revoke and access-check operations, and issue #10 adds
-server-side audit event hash publishing for ACL mutations. Audit publishing is
-only performed as a side effect of grant and revoke operations; there is no
-standalone public audit endpoint.
+server-side audit event hash publishing for ACL mutations. Issue #13 exposes
+published audit events so the UI can browse and filter audit history.
 
 Base path: `/api/v1/secrets`
 
@@ -117,6 +116,30 @@ Returns `200 OK` with read/write permissions resolved from the ACL contract.
   "canRead": true,
   "canWrite": false
 }
+```
+
+## List Secret Audit History
+
+`GET /api/v1/secrets/{id}/audit`
+
+Optional query parameters:
+
+- `action`: one of `REGISTER`, `READ`, `WRITE`, `GRANT`, `REVOKE`
+- `account`: substring filter for the blockchain account address
+
+Returns `200 OK` with audit events published for the secret.
+
+```json
+[
+  {
+    "secretId": "21f51f8a-e0a4-457b-93ae-6ba78d8be5cc",
+    "account": "0x1111111111111111111111111111111111111111",
+    "action": "GRANT",
+    "occurredAt": "2026-06-01T12:00:00Z",
+    "detailsHash": "0xabc123",
+    "transactionHash": "0xaudit123"
+  }
+]
 ```
 
 ## Revoke Secret Access

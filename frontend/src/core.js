@@ -76,6 +76,38 @@ export function validateAclPermissions(permissions) {
   };
 }
 
+export function normalizeAuditEvents(events) {
+  if (!Array.isArray(events)) {
+    return [];
+  }
+
+  return events.map((event, index) => ({
+    id: String(event.id ?? event.transactionHash ?? event.detailsHash ?? `audit-${index}`),
+    secretId: String(event.secretId ?? ""),
+    account: String(event.account ?? "").trim(),
+    action: normalizeAuditAction(event.action),
+    occurredAt: event.occurredAt ?? event.timestamp ?? event.createdAt ?? null,
+    transactionHash: event.transactionHash ?? "",
+    detailsHash: event.detailsHash ?? "",
+    status: event.status ?? ""
+  }));
+}
+
+export function filterAuditEvents(events, filters = {}) {
+  const action = normalizeAuditAction(filters.action);
+  const account = String(filters.account ?? "").trim().toLowerCase();
+
+  return normalizeAuditEvents(events).filter((event) => {
+    if (action && event.action !== action) {
+      return false;
+    }
+    if (account && !event.account.toLowerCase().includes(account)) {
+      return false;
+    }
+    return true;
+  });
+}
+
 export function toCreateSecretPayload(formData) {
   return {
     name: formData.name.trim(),
@@ -133,7 +165,8 @@ export function createSecretsApi(options = {}) {
     getAccess: (id, account) => requestJson(fetchImpl, `${baseUrl}/${encodeURIComponent(id)}/acl/${encodeURIComponent(account)}`),
     revokeAccess: (id, account) => requestJson(fetchImpl, `${baseUrl}/${encodeURIComponent(id)}/acl/${encodeURIComponent(account)}`, {
       method: "DELETE"
-    })
+    }),
+    listAudit: (id, filters = {}) => requestJson(fetchImpl, `${baseUrl}/${encodeURIComponent(id)}/audit${buildAuditQuery(filters)}`)
   };
 }
 
@@ -143,7 +176,8 @@ export function createSecretsStore(api) {
     loading: false,
     error: "",
     secrets: [],
-    selectedId: null
+    selectedId: null,
+    audit: createAuditState()
   };
 
   const publish = () => {
@@ -201,6 +235,55 @@ export function createSecretsStore(api) {
     },
     async revokeAccess(id, account) {
       return api.revokeAccess(id, account);
+    },
+    setAuditFilters(filters) {
+      setState({
+        audit: {
+          ...state.audit,
+          filters: normalizeAuditFilters(filters)
+        }
+      });
+    },
+    async loadAudit(id, filters = state.audit.filters) {
+      const normalizedFilters = normalizeAuditFilters(filters);
+      setState({
+        audit: {
+          ...state.audit,
+          secretId: id,
+          filters: normalizedFilters,
+          loading: true,
+          error: ""
+        }
+      });
+      try {
+        const events = await api.listAudit(id, normalizedFilters);
+        if (!isCurrentAuditRequest(state.audit, id, normalizedFilters)) {
+          return;
+        }
+        setState({
+          audit: {
+            secretId: id,
+            filters: normalizedFilters,
+            loading: false,
+            error: "",
+            events: filterAuditEvents(events, normalizedFilters)
+          }
+        });
+      } catch (error) {
+        if (!isCurrentAuditRequest(state.audit, id, normalizedFilters)) {
+          return;
+        }
+        setState({
+          audit: {
+            ...state.audit,
+            secretId: id,
+            filters: normalizedFilters,
+            loading: false,
+            error: error.message,
+            events: []
+          }
+        });
+      }
     },
     getState
   };
@@ -260,4 +343,48 @@ function dedupeTags(tags) {
 function emptyToNull(value) {
   const trimmed = value?.trim() ?? "";
   return trimmed.length ? trimmed : null;
+}
+
+function createAuditState() {
+  return {
+    secretId: null,
+    loading: false,
+    error: "",
+    events: [],
+    filters: {
+      action: "",
+      account: ""
+    }
+  };
+}
+
+export function normalizeAuditFilters(filters = {}) {
+  return {
+    action: normalizeAuditAction(filters.action),
+    account: String(filters.account ?? "").trim()
+  };
+}
+
+function normalizeAuditAction(action) {
+  const normalized = String(action ?? "").trim().toUpperCase();
+  return ["REGISTER", "READ", "WRITE", "GRANT", "REVOKE"].includes(normalized) ? normalized : "";
+}
+
+function isCurrentAuditRequest(auditState, secretId, filters) {
+  return auditState.secretId === secretId
+    && auditState.filters.action === filters.action
+    && auditState.filters.account === filters.account;
+}
+
+function buildAuditQuery(filters = {}) {
+  const normalizedFilters = normalizeAuditFilters(filters);
+  const params = new URLSearchParams();
+  if (normalizedFilters.action) {
+    params.set("action", normalizedFilters.action);
+  }
+  if (normalizedFilters.account) {
+    params.set("account", normalizedFilters.account);
+  }
+  const query = params.toString();
+  return query ? `?${query}` : "";
 }

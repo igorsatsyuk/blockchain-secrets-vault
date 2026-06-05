@@ -253,6 +253,22 @@ class SecretsControllerTest {
                     assertThat(response.account()).isEqualTo(account);
                     assertThat(response.transactionHash()).isEqualTo("0xrevoke");
                 });
+
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/v1/secrets/{id}/audit")
+                        .queryParam("action", "GRANT")
+                        .queryParam("account", "abcdef")
+                        .build(created.id()))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(AuditEventResponse.class)
+                .value(events -> {
+                    assertThat(events).hasSize(1);
+                    assertThat(events.getFirst().account()).isEqualTo(account);
+                    assertThat(events.getFirst().action()).isEqualTo(AccessAuditAction.GRANT);
+                    assertThat(events.getFirst().transactionHash()).isEqualTo("0xauditgrant");
+                });
     }
 
     @Test
@@ -274,6 +290,16 @@ class SecretsControllerTest {
                 .expectStatus().isBadRequest()
                 .expectBody(ErrorResponse.class)
                 .value(error -> assertThat(error.details()).containsKey("canWrite"));
+
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/v1/secrets/{id}/audit")
+                        .queryParam("action", "bad-action")
+                        .build(created.id()))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody(ErrorResponse.class)
+                .value(error -> assertThat(error.message()).contains("Invalid audit action"));
     }
 
     private SecretResponse create(String name) {

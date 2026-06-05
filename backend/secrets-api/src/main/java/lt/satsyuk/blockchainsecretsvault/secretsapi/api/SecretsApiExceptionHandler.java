@@ -2,6 +2,7 @@ package lt.satsyuk.blockchainsecretsvault.secretsapi.api;
 
 import lt.satsyuk.blockchainsecretsvault.secretsapi.service.DuplicateSecretNameException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.service.EmptySecretUpdateException;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.service.InvalidAuditActionException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.service.InvalidBlockchainAccountException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.service.SecretNotFoundException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclException;
@@ -44,6 +45,12 @@ public class SecretsApiExceptionHandler {
     @ExceptionHandler(InvalidBlockchainAccountException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleInvalidBlockchainAccount(InvalidBlockchainAccountException exception) {
+        return ErrorResponse.of(BAD_REQUEST.value(), BAD_REQUEST.getReasonPhrase(), exception.getMessage());
+    }
+
+    @ExceptionHandler(InvalidAuditActionException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleInvalidAuditAction(InvalidAuditActionException exception) {
         return ErrorResponse.of(BAD_REQUEST.value(), BAD_REQUEST.getReasonPhrase(), exception.getMessage());
     }
 
