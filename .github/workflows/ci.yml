@@ -350,7 +350,19 @@ jobs:
           echo "args=${args}" >> "$GITHUB_OUTPUT"
 
       - name: Run SonarQube analysis (backend)
+        id: backend-sonar-scan
         if: steps['sonar-check'].outputs.sonar_enabled == 'true'
+        continue-on-error: true
+        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8
+        env:
+          SONAR_HOST_URL: ${{ vars.SONAR_URL || 'https://sonarcloud.io' }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: backend
+          args: ${{ steps['backend-sonar-args'].outputs.args }}
+
+      - name: Retry SonarQube analysis (backend)
+        if: steps['sonar-check'].outputs.sonar_enabled == 'true' && steps['backend-sonar-scan'].outcome == 'failure'
         uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8
         env:
           SONAR_HOST_URL: ${{ vars.SONAR_URL || 'https://sonarcloud.io' }}
