@@ -64,99 +64,12 @@ export function createApp(options = {}) {
   function renderDetail() {
     const secret = currentState.selected;
     if (!secret) {
-      aclState = createAclState();
-      elements.detailPanel.innerHTML = `
-      <div class="empty-state">
-        <img src="./src/assets/vault-mark.svg" width="88" height="88" alt="">
-        <h2>Select a secret</h2>
-        <p>Choose an existing item to inspect metadata, update fields, or rotate its stored payload.</p>
-      </div>
-    `;
+      renderEmptyDetail();
       return;
     }
 
-    if (aclState.secretId !== secret.id) {
-      aclState = createAclState(secret.id);
-    }
-
-    const actionPending = Boolean(aclState.pendingAction);
-    const checkPending = aclState.pendingAction === "check";
-    const grantPending = aclState.pendingAction === "grant";
-    const revokePending = aclState.pendingAction === "revoke";
-    const aclResult = aclState.result
-      ? `<p class="acl-result ${aclState.result.canRead || aclState.result.canWrite ? "allowed" : "denied"}">
-        Read: <strong>${aclState.result.canRead ? "Yes" : "No"}</strong> ·
-        Write: <strong>${aclState.result.canWrite ? "Yes" : "No"}</strong>
-      </p>`
-      : `<p class="acl-result neutral">No access check performed yet.</p>`;
-
-    elements.detailPanel.innerHTML = `
-    <div class="section-heading">
-      <div>
-        <p class="eyebrow">Secret</p>
-        <h2>${escapeHtml(secret.name)}</h2>
-      </div>
-      <button class="danger-button" data-delete-secret type="button">Delete</button>
-    </div>
-    <dl class="metadata-grid">
-      <div><dt>ID</dt><dd>${escapeHtml(secret.id)}</dd></div>
-      <div><dt>Created</dt><dd>${formatTimestamp(secret.createdAt)}</dd></div>
-      <div><dt>Updated</dt><dd>${formatTimestamp(secret.updatedAt)}</dd></div>
-    </dl>
-    <form data-update-form class="secret-form">
-      <label>
-        Name
-        <input name="name" maxlength="128" required value="${escapeAttribute(secret.name)}">
-      </label>
-      <label>
-        Description
-        <textarea name="description" maxlength="512" rows="3">${escapeHtml(secret.description ?? "")}</textarea>
-      </label>
-      <label>
-        Rotate payload
-        <textarea name="payload" maxlength="8192" rows="5" placeholder="Leave blank to keep the current payload"></textarea>
-      </label>
-      <label>
-        Tags
-        <input name="tags" value="${escapeAttribute((secret.tags ?? []).join(", "))}">
-      </label>
-      <p class="form-error" data-update-error role="alert"></p>
-      <button class="primary-button" type="submit">Save changes</button>
-    </form>
-    <section class="acl-panel" aria-label="Access control management">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">ACL</p>
-          <h3>Access management</h3>
-        </div>
-      </div>
-      <form class="secret-form" data-acl-form>
-        <label>
-          Account
-          <input data-acl-account name="account" autocomplete="off" placeholder="0x1111111111111111111111111111111111111111" value="${escapeAttribute(aclState.account)}">
-        </label>
-        <div class="permission-grid">
-          <label class="checkbox-label">
-            <input data-acl-read type="checkbox" ${aclState.canRead ? "checked" : ""}>
-            Can read
-          </label>
-          <label class="checkbox-label">
-            <input data-acl-write type="checkbox" ${aclState.canWrite ? "checked" : ""}>
-            Can write
-          </label>
-        </div>
-        <p class="hint-text">Grant/Revoke returns a transaction hash because blockchain updates are asynchronous.</p>
-        <p class="form-error" data-acl-error role="alert">${escapeHtml(aclState.error)}</p>
-        <div class="acl-actions">
-          <button class="primary-button" data-acl-check type="button" ${actionPending ? "disabled" : ""}>${checkPending ? "Checking..." : "Check access"}</button>
-          <button class="primary-button" data-acl-grant type="submit" ${actionPending ? "disabled" : ""}>${grantPending ? "Granting..." : "Grant access"}</button>
-          <button class="danger-button" data-acl-revoke type="button" ${actionPending ? "disabled" : ""}>${revokePending ? "Revoking..." : "Revoke access"}</button>
-        </div>
-        ${aclResult}
-        <p class="acl-feedback" data-acl-feedback>${escapeHtml(aclState.feedback)}</p>
-      </form>
-    </section>
-  `;
+    aclState = ensureAclStateForSecret(aclState, secret.id);
+    elements.detailPanel.innerHTML = buildDetailMarkup(secret, aclState);
 
     elements.detailPanel.querySelector("[data-update-form]").addEventListener("submit", (event) => handleUpdate(event, secret.id));
     elements.detailPanel.querySelector("[data-delete-secret]").addEventListener("click", () => handleDelete(secret.id));
@@ -318,6 +231,17 @@ export function createApp(options = {}) {
     return Boolean(elements.detailPanel.querySelector(selector)?.checked);
   }
 
+  function renderEmptyDetail() {
+    aclState = createAclState();
+    elements.detailPanel.innerHTML = `
+      <div class="empty-state">
+        <img src="./src/assets/vault-mark.svg" width="88" height="88" alt="">
+        <h2>Select a secret</h2>
+        <p>Choose an existing item to inspect metadata, update fields, or rotate its stored payload.</p>
+      </div>
+    `;
+  }
+
   store.subscribe((state) => {
     currentState = state;
     render();
@@ -354,6 +278,124 @@ function createAclState(secretId = null) {
     error: "",
     feedback: ""
   };
+}
+
+function ensureAclStateForSecret(state, secretId) {
+  if (state.secretId === secretId) {
+    return state;
+  }
+  return createAclState(secretId);
+}
+
+function buildDetailMarkup(secret, aclState) {
+  const actionPending = Boolean(aclState.pendingAction);
+  const actionLabels = getAclActionLabels(aclState.pendingAction);
+  const disabledAttribute = actionPending ? "disabled" : "";
+  const aclResultMarkup = buildAclResultMarkup(aclState.result);
+  const readChecked = aclState.canRead ? "checked" : "";
+  const writeChecked = aclState.canWrite ? "checked" : "";
+
+  return `
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Secret</p>
+        <h2>${escapeHtml(secret.name)}</h2>
+      </div>
+      <button class="danger-button" data-delete-secret type="button">Delete</button>
+    </div>
+    <dl class="metadata-grid">
+      <div><dt>ID</dt><dd>${escapeHtml(secret.id)}</dd></div>
+      <div><dt>Created</dt><dd>${formatTimestamp(secret.createdAt)}</dd></div>
+      <div><dt>Updated</dt><dd>${formatTimestamp(secret.updatedAt)}</dd></div>
+    </dl>
+    <form data-update-form class="secret-form">
+      <label>
+        Name
+        <input name="name" maxlength="128" required value="${escapeAttribute(secret.name)}">
+      </label>
+      <label>
+        Description
+        <textarea name="description" maxlength="512" rows="3">${escapeHtml(secret.description ?? "")}</textarea>
+      </label>
+      <label>
+        Rotate payload
+        <textarea name="payload" maxlength="8192" rows="5" placeholder="Leave blank to keep the current payload"></textarea>
+      </label>
+      <label>
+        Tags
+        <input name="tags" value="${escapeAttribute((secret.tags ?? []).join(", "))}">
+      </label>
+      <p class="form-error" data-update-error role="alert"></p>
+      <button class="primary-button" type="submit">Save changes</button>
+    </form>
+    <section class="acl-panel" aria-label="Access control management">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">ACL</p>
+          <h3>Access management</h3>
+        </div>
+      </div>
+      <form class="secret-form" data-acl-form>
+        <label>
+          Account
+          <input data-acl-account name="account" autocomplete="off" placeholder="0x1111111111111111111111111111111111111111" value="${escapeAttribute(aclState.account)}">
+        </label>
+        <div class="permission-grid">
+          <label class="checkbox-label">
+            <input data-acl-read type="checkbox" ${readChecked}>
+            Can read
+          </label>
+          <label class="checkbox-label">
+            <input data-acl-write type="checkbox" ${writeChecked}>
+            Can write
+          </label>
+        </div>
+        <p class="hint-text">Grant/Revoke returns a transaction hash because blockchain updates are asynchronous.</p>
+        <p class="form-error" data-acl-error role="alert">${escapeHtml(aclState.error)}</p>
+        <div class="acl-actions">
+          <button class="primary-button" data-acl-check type="button" ${disabledAttribute}>${actionLabels.check}</button>
+          <button class="primary-button" data-acl-grant type="submit" ${disabledAttribute}>${actionLabels.grant}</button>
+          <button class="danger-button" data-acl-revoke type="button" ${disabledAttribute}>${actionLabels.revoke}</button>
+        </div>
+        ${aclResultMarkup}
+        <p class="acl-feedback" data-acl-feedback>${escapeHtml(aclState.feedback)}</p>
+      </form>
+    </section>
+  `;
+}
+
+function getAclActionLabels(pendingAction) {
+  const labels = {
+    check: "Check access",
+    grant: "Grant access",
+    revoke: "Revoke access"
+  };
+
+  if (pendingAction === "check") {
+    labels.check = "Checking...";
+  } else if (pendingAction === "grant") {
+    labels.grant = "Granting...";
+  } else if (pendingAction === "revoke") {
+    labels.revoke = "Revoking...";
+  }
+
+  return labels;
+}
+
+function buildAclResultMarkup(result) {
+  if (!result) {
+    return `<p class="acl-result neutral">No access check performed yet.</p>`;
+  }
+
+  const hasAccess = result.canRead || result.canWrite;
+  const className = hasAccess ? "allowed" : "denied";
+  const readLabel = result.canRead ? "Yes" : "No";
+  const writeLabel = result.canWrite ? "Yes" : "No";
+
+  return `<p class="acl-result ${className}">
+    Read: <strong>${readLabel}</strong> ·
+    Write: <strong>${writeLabel}</strong>
+  </p>`;
 }
 
 export function readForm(form) {
