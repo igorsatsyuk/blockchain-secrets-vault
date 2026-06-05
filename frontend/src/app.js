@@ -8,78 +8,70 @@ import {
   validateSecretDraft
 } from "./core.js";
 
-const store = createSecretsStore(createSecretsApi());
-const elements = {
-  list: document.querySelector("[data-secret-list]"),
-  listStatus: document.querySelector("[data-list-status]"),
-  detailPanel: document.querySelector("[data-detail-panel]"),
-  createForm: document.querySelector("[data-create-form]"),
-  createError: document.querySelector("[data-create-error]"),
-  refresh: document.querySelector("[data-refresh]"),
-  search: document.querySelector("[data-search]"),
-  toast: document.querySelector("[data-toast]")
-};
+export function createApp(options = {}) {
+  const documentRef = options.document ?? globalThis.document;
+  const store = options.store ?? createSecretsStore(createSecretsApi());
 
-let currentState = store.getState();
+  const elements = {
+    list: documentRef.querySelector("[data-secret-list]"),
+    listStatus: documentRef.querySelector("[data-list-status]"),
+    detailPanel: documentRef.querySelector("[data-detail-panel]"),
+    createForm: documentRef.querySelector("[data-create-form]"),
+    createError: documentRef.querySelector("[data-create-error]"),
+    refresh: documentRef.querySelector("[data-refresh]"),
+    search: documentRef.querySelector("[data-search]"),
+    toast: documentRef.querySelector("[data-toast]")
+  };
 
-store.subscribe((state) => {
-  currentState = state;
-  render();
-});
+  let currentState = store.getState();
 
-elements.refresh.addEventListener("click", () => store.load());
-elements.search.addEventListener("input", renderList);
-elements.createForm.addEventListener("submit", handleCreate);
+  function render() {
+    elements.listStatus.textContent = currentState.loading ? "Loading secrets..." : currentState.error;
+    renderList();
+    renderDetail();
+  }
 
-store.load();
+  function renderList() {
+    const query = elements.search.value.trim().toLowerCase();
+    const secrets = currentState.secrets.filter((secret) => {
+      const haystack = `${secret.name} ${secret.description ?? ""} ${(secret.tags ?? []).join(" ")}`.toLowerCase();
+      return haystack.includes(query);
+    });
 
-function render() {
-  elements.listStatus.textContent = currentState.loading ? "Loading secrets..." : currentState.error;
-  renderList();
-  renderDetail();
-}
-
-function renderList() {
-  const query = elements.search.value.trim().toLowerCase();
-  const secrets = currentState.secrets.filter((secret) => {
-    const haystack = `${secret.name} ${secret.description ?? ""} ${(secret.tags ?? []).join(" ")}`.toLowerCase();
-    return haystack.includes(query);
-  });
-
-  elements.list.replaceChildren(...secrets.map((secret) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = secret.id === currentState.selectedId ? "secret-row selected" : "secret-row";
-    button.addEventListener("click", () => store.select(secret.id));
-    button.innerHTML = `
+    elements.list.replaceChildren(...secrets.map((secret) => {
+      const button = documentRef.createElement("button");
+      button.type = "button";
+      button.className = secret.id === currentState.selectedId ? "secret-row selected" : "secret-row";
+      button.addEventListener("click", () => store.select(secret.id));
+      button.innerHTML = `
       <span class="secret-name">${escapeHtml(secret.name)}</span>
       <span class="secret-meta">${escapeHtml(secret.description || "No description")}</span>
       <span class="tag-strip">${(secret.tags ?? []).slice(0, 3).map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</span>
     `;
-    const item = document.createElement("li");
-    item.append(button);
-    return item;
-  }));
+      const item = documentRef.createElement("li");
+      item.append(button);
+      return item;
+    }));
 
-  if (!currentState.loading && !currentState.error && secrets.length === 0) {
-    elements.listStatus.textContent = query ? "No matching secrets." : "No secrets yet.";
+    if (!currentState.loading && !currentState.error && secrets.length === 0) {
+      elements.listStatus.textContent = query ? "No matching secrets." : "No secrets yet.";
+    }
   }
-}
 
-function renderDetail() {
-  const secret = currentState.selected;
-  if (!secret) {
-    elements.detailPanel.innerHTML = `
+  function renderDetail() {
+    const secret = currentState.selected;
+    if (!secret) {
+      elements.detailPanel.innerHTML = `
       <div class="empty-state">
         <img src="./src/assets/vault-mark.svg" width="88" height="88" alt="">
         <h2>Select a secret</h2>
         <p>Choose an existing item to inspect metadata, update fields, or rotate its stored payload.</p>
       </div>
     `;
-    return;
-  }
+      return;
+    }
 
-  elements.detailPanel.innerHTML = `
+    elements.detailPanel.innerHTML = `
     <div class="section-heading">
       <div>
         <p class="eyebrow">Secret</p>
@@ -114,77 +106,104 @@ function renderDetail() {
     </form>
   `;
 
-  elements.detailPanel.querySelector("[data-update-form]").addEventListener("submit", (event) => handleUpdate(event, secret.id));
-  elements.detailPanel.querySelector("[data-delete-secret]").addEventListener("click", () => handleDelete(secret.id));
-}
-
-async function handleCreate(event) {
-  event.preventDefault();
-  const draft = readForm(event.currentTarget);
-  const validation = validateSecretDraft(draft, { requirePayload: true });
-  if (!validation.valid) {
-    elements.createError.textContent = Object.values(validation.errors)[0];
-    return;
+    elements.detailPanel.querySelector("[data-update-form]").addEventListener("submit", (event) => handleUpdate(event, secret.id));
+    elements.detailPanel.querySelector("[data-delete-secret]").addEventListener("click", () => handleDelete(secret.id));
   }
 
-  try {
-    await store.create(toCreateSecretPayload(draft));
-    event.currentTarget.reset();
-    elements.createError.textContent = "";
-    showToast("Secret created.");
-  } catch (error) {
-    elements.createError.textContent = error.message;
-  }
-}
+  async function handleCreate(event) {
+    event.preventDefault();
+    const draft = readForm(event.currentTarget);
+    const validation = validateSecretDraft(draft, { requirePayload: true });
+    if (!validation.valid) {
+      elements.createError.textContent = Object.values(validation.errors)[0];
+      return;
+    }
 
-async function handleUpdate(event, id) {
-  event.preventDefault();
-  const draft = readForm(event.currentTarget);
-  const validation = validateSecretDraft(draft);
-  const error = event.currentTarget.querySelector("[data-update-error]");
-  if (!validation.valid) {
-    error.textContent = Object.values(validation.errors)[0];
-    return;
+    try {
+      await store.create(toCreateSecretPayload(draft));
+      event.currentTarget.reset();
+      elements.createError.textContent = "";
+      showToast(elements.toast, "Secret created.");
+    } catch (error) {
+      elements.createError.textContent = error.message;
+    }
   }
 
-  try {
-    await store.update(id, toUpdateSecretPayload(draft));
-    error.textContent = "";
-    showToast("Secret updated.");
-  } catch (updateError) {
-    error.textContent = updateError.message;
-  }
-}
+  async function handleUpdate(event, id) {
+    event.preventDefault();
+    const draft = readForm(event.currentTarget);
+    const validation = validateSecretDraft(draft);
+    const error = event.currentTarget.querySelector("[data-update-error]");
+    if (!validation.valid) {
+      error.textContent = Object.values(validation.errors)[0];
+      return;
+    }
 
-async function handleDelete(id) {
-  try {
-    await store.remove(id);
-    showToast("Secret deleted.");
-  } catch (error) {
-    showToast(error.message);
+    try {
+      await store.update(id, toUpdateSecretPayload(draft));
+      error.textContent = "";
+      showToast(elements.toast, "Secret updated.");
+    } catch (updateError) {
+      error.textContent = updateError.message;
+    }
   }
-}
 
-function readForm(form) {
-  const data = new FormData(form);
+  async function handleDelete(id) {
+    try {
+      await store.remove(id);
+      showToast(elements.toast, "Secret deleted.");
+    } catch (error) {
+      showToast(elements.toast, error.message);
+    }
+  }
+
+  store.subscribe((state) => {
+    currentState = state;
+    render();
+  });
+
+  elements.refresh.addEventListener("click", () => store.load());
+  elements.search.addEventListener("input", renderList);
+  elements.createForm.addEventListener("submit", handleCreate);
+
+  store.load();
+
   return {
-    name: String(data.get("name") ?? ""),
-    description: String(data.get("description") ?? ""),
-    payload: String(data.get("payload") ?? ""),
-    tags: parseTags(String(data.get("tags") ?? ""))
+    elements,
+    render,
+    renderList,
+    renderDetail,
+    handleCreate,
+    handleUpdate,
+    handleDelete
   };
 }
 
-function showToast(message) {
-  elements.toast.textContent = message;
-  elements.toast.classList.add("visible");
-  window.clearTimeout(showToast.timeoutId);
-  showToast.timeoutId = window.setTimeout(() => {
-    elements.toast.classList.remove("visible");
+export function readForm(form) {
+  const data = new FormData(form);
+  return {
+    name: readTextField(data, "name"),
+    description: readTextField(data, "description"),
+    payload: readTextField(data, "payload"),
+    tags: parseTags(readTextField(data, "tags"))
+  };
+}
+
+export function showToast(toastElement, message) {
+  toastElement.textContent = message;
+  toastElement.classList.add("visible");
+  globalThis.clearTimeout(showToast.timeoutId);
+  showToast.timeoutId = globalThis.setTimeout(() => {
+    toastElement.classList.remove("visible");
   }, 2400);
 }
 
-function escapeHtml(value) {
+function readTextField(data, fieldName) {
+  const value = data.get(fieldName);
+  return typeof value === "string" ? value : "";
+}
+
+export function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -193,6 +212,10 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function escapeAttribute(value) {
+export function escapeAttribute(value) {
   return escapeHtml(value).replaceAll("`", "&#096;");
+}
+
+if (typeof globalThis.document !== "undefined") {
+  createApp();
 }

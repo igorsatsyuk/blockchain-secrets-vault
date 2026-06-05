@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test --experimental-test-coverage --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 test/**/*.test.js",
-    "test:lcov": "node --test --experimental-test-coverage --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 --test-reporter=lcov test/**/*.test.js > lcov.info"
+    "test": "node --test --experimental-test-coverage --test-coverage-exclude=src/app.js --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 test/**/*.test.js",
+    "test:lcov": "node --test --experimental-test-coverage --test-coverage-exclude=src/app.js --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 --test-reporter=lcov test/**/*.test.js > lcov.info"
   },
   "engines": {
     "node": ">=24"

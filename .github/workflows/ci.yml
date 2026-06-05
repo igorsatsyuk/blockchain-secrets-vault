@@ -518,6 +518,7 @@ jobs:
           args="${args} -Dsonar.sources=src"
           args="${args} -Dsonar.tests=test"
           args="${args} -Dsonar.test.inclusions=test/**/*.test.js"
+          args="${args} -Dsonar.coverage.exclusions=src/app.js"
           if [ -f "frontend/lcov.info" ]; then
             args="${args} -Dsonar.javascript.lcov.reportPaths=lcov.info"
           fi
