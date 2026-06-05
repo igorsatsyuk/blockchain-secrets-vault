@@ -1,6 +1,7 @@
 package lt.satsyuk.blockchainsecretsvault.secretsapi.service;
 
 import lt.satsyuk.blockchainsecretsvault.kms.model.EncryptedData;
+import lt.satsyuk.blockchainsecretsvault.kms.model.EncryptionKey;
 import lt.satsyuk.blockchainsecretsvault.kms.service.KmsService;
 import lt.satsyuk.blockchainsecretsvault.kms.service.KeyNotFoundException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.CreateSecretRequest;
@@ -16,11 +17,16 @@ import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -38,6 +44,7 @@ public class SecretsService {
     private final BlockchainAclClient blockchainAclClient;
     private final AuditWriter auditWriter;
     private final Clock clock;
+    private final ReentrantReadWriteLock mutationLock = new ReentrantReadWriteLock();
     private static final String DEFAULT_KEY_ID = "default-secret-key";
 
     public SecretsService(
@@ -76,13 +83,15 @@ public class SecretsService {
     }
 
     public Mono<SecretRecord> create(CreateSecretRequest request) {
-        return Mono.fromSupplier(() -> {
+        return Mono.fromSupplier(() -> withMutationReadLock(() -> {
             String normalizedName = normalizeName(request.name());
             Instant now = Instant.now(clock);
-            
-            EncryptedData encrypted = kmsService.encrypt(DEFAULT_KEY_ID, 
-                request.payload().getBytes(StandardCharsets.UTF_8));
-            
+
+            EncryptedData encrypted = kmsService.encrypt(
+                    DEFAULT_KEY_ID,
+                    request.payload().getBytes(StandardCharsets.UTF_8)
+            );
+
             SecretRecord secret = new SecretRecord(
                     UUID.randomUUID(),
                     normalizedName,
@@ -96,7 +105,7 @@ public class SecretsService {
             );
             return secretRepository.saveIfNameAvailable(secret, Optional.empty())
                     .orElseThrow(() -> new DuplicateSecretNameException(normalizedName));
-        });
+        }));
     }
 
     public Flux<SecretRecord> list() {
@@ -109,7 +118,7 @@ public class SecretsService {
     }
 
     public Mono<SecretRecord> update(UUID id, UpdateSecretRequest request) {
-        return Mono.fromSupplier(() -> {
+        return Mono.fromSupplier(() -> withMutationReadLock(() -> {
             if (request.isEmpty()) {
                 throw new EmptySecretUpdateException();
             }
@@ -142,15 +151,58 @@ public class SecretsService {
             );
             return secretRepository.saveIfNameAvailable(updated, Optional.of(id))
                     .orElseThrow(() -> new DuplicateSecretNameException(nextName));
-        });
+        }));
     }
 
     public Mono<Void> delete(UUID id) {
-        return Mono.fromRunnable(() -> {
+        return Mono.fromRunnable(() -> withMutationReadLock(() -> {
             if (!secretRepository.deleteById(id)) {
                 throw new SecretNotFoundException(id);
             }
-        });
+        }));
+    }
+
+    public Mono<KeyRotationResult> rotateEncryptionKey() {
+        return Mono.fromSupplier(() -> withMutationWriteLock(() -> {
+            EncryptionKey previousActiveKey = kmsService.getActiveKey(DEFAULT_KEY_ID);
+            int previousVersion = previousActiveKey.version();
+
+            java.util.List<SecretRecord> secretsToRotate = secretRepository.findAll().stream()
+                    .filter(secret -> DEFAULT_KEY_ID.equals(secret.encryptionKeyId()))
+                    .filter(secret -> secret.encryptionKeyVersion() <= previousVersion)
+                    .toList();
+
+            Map<UUID, byte[]> plaintextBySecretId = new HashMap<>();
+            for (SecretRecord secret : secretsToRotate) {
+                plaintextBySecretId.put(secret.id(), kmsService.decrypt(decodeEncryptedData(secret)));
+            }
+
+            EncryptionKey newActiveKey = kmsService.rotateKey(DEFAULT_KEY_ID);
+            Instant now = Instant.now(clock);
+
+            for (SecretRecord secret : secretsToRotate) {
+                EncryptedData reEncrypted = kmsService.encrypt(DEFAULT_KEY_ID, plaintextBySecretId.get(secret.id()));
+                SecretRecord updated = new SecretRecord(
+                        secret.id(),
+                        secret.name(),
+                        secret.description(),
+                        encodeEncryptedData(reEncrypted),
+                        secret.encryptionKeyId(),
+                        reEncrypted.keyVersion(),
+                        secret.tags(),
+                        secret.createdAt(),
+                        now
+                );
+                secretRepository.save(updated);
+            }
+
+            return new KeyRotationResult(
+                    DEFAULT_KEY_ID,
+                    previousVersion,
+                    newActiveKey.version(),
+                    secretsToRotate.size()
+            );
+        }));
     }
 
     public Mono<AclTransaction> grantAccess(UUID id, String account, boolean canRead, boolean canWrite) {
@@ -288,5 +340,73 @@ public class SecretsService {
             throw new InvalidAuditActionException(action);
         }
     }
-}
 
+    private EncryptedData decodeEncryptedData(SecretRecord secret) {
+        try {
+            ByteBuffer buffer = ByteBuffer.wrap(Base64.getDecoder().decode(secret.encryptedPayload()));
+            byte[] ciphertext = readEncodedSegment(buffer, "ciphertext");
+            byte[] nonce = readEncodedSegment(buffer, "nonce");
+            byte[] authTag = readEncodedSegment(buffer, "authTag");
+            if (buffer.hasRemaining()) {
+                throw new IllegalArgumentException(
+                        "Encrypted payload contains trailing bytes for secret " + secret.id()
+                );
+            }
+            return new EncryptedData(
+                    ciphertext,
+                    nonce,
+                    authTag,
+                    secret.encryptionKeyId(),
+                    secret.encryptionKeyVersion()
+            );
+        } catch (RuntimeException exception) {
+            throw new IllegalArgumentException("Stored encrypted payload is malformed for secret " + secret.id(), exception);
+        }
+    }
+
+    private static byte[] readEncodedSegment(ByteBuffer buffer, String segmentName) {
+        if (buffer.remaining() < Integer.BYTES) {
+            throw new IllegalArgumentException("Missing length prefix for " + segmentName);
+        }
+        int length = buffer.getInt();
+        if (length <= 0) {
+            throw new IllegalArgumentException("Invalid length for " + segmentName + ": " + length);
+        }
+        if (buffer.remaining() < length) {
+            throw new IllegalArgumentException("Invalid payload length for " + segmentName + ": " + length);
+        }
+        byte[] segment = new byte[length];
+        buffer.get(segment);
+        return segment;
+    }
+
+    private <T> T withMutationReadLock(Supplier<T> action) {
+        Lock lock = mutationLock.readLock();
+        lock.lock();
+        try {
+            return action.get();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private void withMutationReadLock(Runnable action) {
+        Lock lock = mutationLock.readLock();
+        lock.lock();
+        try {
+            action.run();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private <T> T withMutationWriteLock(Supplier<T> action) {
+        Lock lock = mutationLock.writeLock();
+        lock.lock();
+        try {
+            return action.get();
+        } finally {
+            lock.unlock();
+        }
+    }
+}

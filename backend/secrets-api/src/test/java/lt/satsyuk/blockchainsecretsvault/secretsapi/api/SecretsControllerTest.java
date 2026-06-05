@@ -207,6 +207,24 @@ class SecretsControllerTest {
     }
 
     @Test
+    void rotatesDefaultEncryptionKeyAndReEncryptsStoredSecrets() {
+        create("alpha");
+        create("beta");
+
+        webTestClient.post()
+                .uri("/api/v1/secrets/encryption-key/rotate")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(KeyRotationResponse.class)
+                .value(response -> {
+                    assertThat(response.keyId()).isEqualTo("default-secret-key");
+                    assertThat(response.previousKeyVersion()).isEqualTo(0);
+                    assertThat(response.newKeyVersion()).isEqualTo(1);
+                    assertThat(response.reEncryptedSecrets()).isEqualTo(2);
+                });
+    }
+
+    @Test
     void grantsRevokesAndChecksAcl() {
         SecretResponse created = create("alpha");
         String account = "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd";

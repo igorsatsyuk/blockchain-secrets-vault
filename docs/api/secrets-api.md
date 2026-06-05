@@ -2,9 +2,10 @@
 
 Issue #7 introduces the MVP CRUD contract for off-chain secret metadata and
 payload handling. Issue #8 adds KMS-backed encryption, issue #9 adds
-blockchain ACL grant, revoke and access-check operations, and issue #10 adds
-server-side audit event hash publishing for ACL mutations. Issue #13 exposes
-published audit events so the UI can browse and filter audit history.
+blockchain ACL grant, revoke and access-check operations, issue #10 adds
+server-side audit event hash publishing for ACL mutations, issue #13 exposes
+published audit events so the UI can browse and filter audit history, and issue
+#14 adds controlled encryption key rotation with secret re-encryption.
 
 Base path: `/api/v1/secrets`
 
@@ -39,6 +40,25 @@ Responses intentionally do not return the stored payload.
 Returns `201 Created` with `Location: /api/v1/secrets/{id}` and the created
 secret summary in the response body. The response body uses the Model shape
 above and intentionally omits `payload`.
+
+## Rotate Encryption Key
+
+`POST /api/v1/secrets/encryption-key/rotate`
+
+Rotates the active default encryption key and re-encrypts all stored secrets
+that use this key id.
+
+Returns `200 OK` with key version metadata and the number of re-encrypted
+secrets.
+
+```json
+{
+  "keyId": "default-secret-key",
+  "previousKeyVersion": 0,
+  "newKeyVersion": 1,
+  "reEncryptedSecrets": 3
+}
+```
 
 ## List Secrets
 
