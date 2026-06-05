@@ -45,7 +45,8 @@ Secrets API contract: [docs/api/secrets-api.md](docs/api/secrets-api.md)
 - `SecretsAcl.sol` contract
 
 ### Frontend
-- Angular, Tailwind / Material
+- Dependency-free HTML, CSS, and JavaScript UI MVP
+- Node.js built-in test runner with coverage gates
 
 ### Infrastructure
 - Docker Compose, optional Kubernetes
@@ -56,10 +57,22 @@ Secrets API contract: [docs/api/secrets-api.md](docs/api/secrets-api.md)
 blockchain-secrets-vault/
 ├─ backend/      # Spring Boot multi-module services
 ├─ blockchain/   # Hardhat project and Solidity contracts
-├─ frontend/     # Angular UI
-├─ deploy/       # docker-compose and environment configuration
+├─ frontend/     # Secrets management UI
 ├─ docs/         # architecture and API documentation
 └─ ROADMAP.md
+```
+
+## Frontend
+
+Serve `frontend/` from the same origin as the backend to use the default
+`/api/v1/secrets` endpoint. Opening `frontend/index.html` directly via `file://`
+will not work with the default API base URL.
+
+Run frontend tests and coverage checks:
+
+```bash
+cd frontend
+npm test
 ```
 
 ## Roadmap

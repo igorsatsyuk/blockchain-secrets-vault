@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Blockchain Secrets Vault</title>
+    <link rel="stylesheet" href="./src/styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar" aria-label="Secrets">
+        <header class="brand">
+          <img src="./src/assets/vault-mark.svg" width="44" height="44" alt="">
+          <div>
+            <p class="eyebrow">Secrets UI</p>
+            <h1>Blockchain Secrets Vault</h1>
+          </div>
+        </header>
+
+        <div class="toolbar">
+          <label class="search-field">
+            <span class="sr-only">Search secrets</span>
+            <input data-search type="search" placeholder="Search secrets">
+          </label>
+          <button class="icon-button" data-refresh type="button" title="Refresh secrets" aria-label="Refresh secrets">↻</button>
+        </div>
+
+        <div class="list-status" data-list-status role="status"></div>
+        <ul class="secret-list" data-secret-list></ul>
+      </aside>
+
+      <section class="workspace" aria-label="Secret management workspace">
+        <section class="editor-panel" aria-labelledby="create-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Create</p>
+              <h2 id="create-title">New Secret</h2>
+            </div>
+            <span class="state-pill">Payload write-only</span>
+          </div>
+
+          <form data-create-form class="secret-form">
+            <label>
+              Name
+              <input name="name" maxlength="128" required autocomplete="off" placeholder="payment-api">
+            </label>
+            <label>
+              Description
+              <textarea name="description" maxlength="512" rows="3" placeholder="Production token for payment gateway"></textarea>
+            </label>
+            <label>
+              Payload
+              <textarea name="payload" maxlength="8192" rows="5" required placeholder="Paste the secret value"></textarea>
+            </label>
+            <label>
+              Tags
+              <input name="tags" autocomplete="off" placeholder="prod, payments">
+            </label>
+            <p class="form-error" data-create-error role="alert"></p>
+            <button class="primary-button" type="submit">Create secret</button>
+          </form>
+        </section>
+
+        <section class="detail-panel" aria-live="polite" data-detail-panel>
+          <div class="empty-state">
+            <img src="./src/assets/vault-mark.svg" width="88" height="88" alt="">
+            <h2>Select a secret</h2>
+            <p>Choose an existing item to inspect metadata, update fields, or rotate its stored payload.</p>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div class="toast" data-toast role="status" aria-live="polite"></div>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>

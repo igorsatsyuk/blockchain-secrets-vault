@@ -18,7 +18,7 @@
 
 ## Phase 3 - Frontend
 
-- [ ] [#11](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/11) UI for secrets management
+- [x] [#11](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/11) UI for secrets management
 - [ ] [#12](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/12) UI for ACL management
 - [ ] [#13](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/13) UI for audit history viewing
 
