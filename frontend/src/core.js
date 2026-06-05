@@ -26,6 +26,7 @@ export function validateSecretDraft(draft, options = {}) {
   const requirePayload = options.requirePayload ?? false;
   const name = draft.name?.trim() ?? "";
   const payload = draft.payload?.trim() ?? "";
+  const description = draft.description?.trim() ?? "";
 
   if (!name && options.requireName !== false) {
     errors.name = "Name is required.";
@@ -39,7 +40,7 @@ export function validateSecretDraft(draft, options = {}) {
     errors.payload = "Payload must be 8192 characters or fewer.";
   }
 
-  if ((draft.description ?? "").length > 512) {
+  if (description.length > 512) {
     errors.description = "Description must be 512 characters or fewer.";
   }
 
@@ -174,12 +175,16 @@ export function createSecretsStore(api) {
 }
 
 async function requestJson(fetchImpl, url, options = {}) {
+  const headers = {
+    Accept: "application/json",
+    ...(options.body ? { "Content-Type": "application/json" } : {}),
+    ...(options.headers ?? {})
+  };
+
+  const { headers: _ignoredHeaders, ...restOptions } = options;
   const response = await fetchImpl(url, {
-    headers: {
-      Accept: "application/json",
-      ...(options.body ? { "Content-Type": "application/json" } : {})
-    },
-    ...options
+    ...restOptions,
+    headers
   });
 
   if (!response.ok) {

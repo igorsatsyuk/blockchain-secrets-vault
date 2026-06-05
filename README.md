@@ -58,15 +58,15 @@ blockchain-secrets-vault/
 ├─ backend/      # Spring Boot multi-module services
 ├─ blockchain/   # Hardhat project and Solidity contracts
 ├─ frontend/     # Secrets management UI
-├─ deploy/       # docker-compose and environment configuration
 ├─ docs/         # architecture and API documentation
 └─ ROADMAP.md
 ```
 
 ## Frontend
 
-Open `frontend/index.html` in a browser to use the secrets management UI against
-the Secrets API at `/api/v1/secrets`.
+Serve `frontend/` from the same origin as the backend to use the default
+`/api/v1/secrets` endpoint. Opening `frontend/index.html` directly via `file://`
+will not work with the default API base URL.
 
 Run frontend tests and coverage checks:
 

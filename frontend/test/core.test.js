@@ -37,7 +37,10 @@ test("parseTags trims, removes blanks, and deduplicates values", () => {
 test("formatTimestamp handles missing, invalid, and valid timestamps", () => {
   assert.equal(formatTimestamp(null), "Not recorded");
   assert.equal(formatTimestamp("not-a-date"), "Invalid date");
-  assert.match(formatTimestamp("2026-06-01T12:00:00Z"), /2026|Jun|06|1/);
+  const formatted = formatTimestamp("2026-06-01T12:00:00Z");
+  assert.notEqual(formatted, "Not recorded");
+  assert.notEqual(formatted, "Invalid date");
+  assert.match(formatted, /2026/);
 });
 
 test("validateSecretDraft enforces API limits", () => {
@@ -45,6 +48,7 @@ test("validateSecretDraft enforces API limits", () => {
   assert.equal(validateSecretDraft({ name: "a", payload: "" }, { requirePayload: true }).errors.payload, "Payload is required.");
   assert.equal(validateSecretDraft({ name: "a".repeat(129), payload: "x" }).errors.name, "Name must be 128 characters or fewer.");
   assert.equal(validateSecretDraft({ name: "a", description: "x".repeat(513) }).errors.description, "Description must be 512 characters or fewer.");
+  assert.equal(validateSecretDraft({ name: "a", description: " ".repeat(513) }).errors.description, undefined);
   assert.equal(validateSecretDraft({ name: "a", tags: ["x".repeat(65)] }).errors.tags, "Tags must be 64 characters or fewer.");
   assert.equal(validateSecretDraft({ name: "valid", payload: "secret" }, { requirePayload: true }).valid, true);
 });
@@ -78,6 +82,9 @@ test("API client sends expected HTTP requests and decodes responses", async () =
   const calls = [];
   const fetchImpl = async (url, options = {}) => {
     calls.push({ url, options });
+    if (!options.method && url === "/secrets") {
+      return response([secretA]);
+    }
     if (options.method === "DELETE") {
       return response(null, { status: 204 });
     }
@@ -85,7 +92,7 @@ test("API client sends expected HTTP requests and decodes responses", async () =
   };
   const api = createSecretsApi({ baseUrl: "/secrets", fetchImpl });
 
-  assert.deepEqual(await api.list(), secretA);
+  assert.deepEqual(await api.list(), [secretA]);
   await api.get("abc/123");
   await api.create({ name: "x" });
   await api.update("id-1", { name: "y" });
