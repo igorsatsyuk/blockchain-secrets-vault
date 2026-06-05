@@ -137,6 +137,7 @@ test("createApp handles create, update, delete and rendering flows", async () =>
   const aclWrite = createElement();
   aclWrite.checked = false;
   const aclCheckButton = createElement();
+  const aclGrantButton = createElement();
   const aclRevokeButton = createElement();
   const detailPanel = createElement();
   detailPanel.querySelector = (selector) => {
@@ -160,6 +161,9 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     }
     if (selector === "[data-acl-check]") {
       return aclCheckButton;
+    }
+    if (selector === "[data-acl-grant]") {
+      return aclGrantButton;
     }
     if (selector === "[data-acl-revoke]") {
       return aclRevokeButton;
@@ -286,6 +290,7 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     state = { ...state, secrets: [secret], selectedId: secret.id, selected: secret };
     subscriber(state);
     assert.match(detailPanel.innerHTML, /Save changes/);
+    assert.match(detailPanel.innerHTML, /data-acl-grant type="button"/);
 
     await app.handleCreate({
       preventDefault() {},
@@ -359,6 +364,15 @@ test("createApp handles create, update, delete and rendering flows", async () =>
 
     state = { ...state, secrets: [secret], selectedId: secret.id, selected: secret };
     subscriber(state);
+
+    let aclSubmitPrevented = false;
+    aclForm.trigger("submit", {
+      preventDefault() {
+        aclSubmitPrevented = true;
+      }
+    });
+    assert.equal(aclSubmitPrevented, true);
+    assert.equal(store.grants, 0);
 
     await app.handleAclCheck(secret.id);
     assert.equal(store.checks, 1);

@@ -73,8 +73,9 @@ export function createApp(options = {}) {
 
     elements.detailPanel.querySelector("[data-update-form]").addEventListener("submit", (event) => handleUpdate(event, secret.id));
     elements.detailPanel.querySelector("[data-delete-secret]").addEventListener("click", () => handleDelete(secret.id));
-    elements.detailPanel.querySelector("[data-acl-form]").addEventListener("submit", (event) => handleAclGrant(event, secret.id));
+    elements.detailPanel.querySelector("[data-acl-form]").addEventListener("submit", handleAclFormSubmit);
     elements.detailPanel.querySelector("[data-acl-check]").addEventListener("click", () => handleAclCheck(secret.id));
+    elements.detailPanel.querySelector("[data-acl-grant]").addEventListener("click", (event) => handleAclGrant(event, secret.id));
     elements.detailPanel.querySelector("[data-acl-revoke]").addEventListener("click", () => handleAclRevoke(secret.id));
   }
 
@@ -200,6 +201,10 @@ export function createApp(options = {}) {
       aclState = { ...aclState, pendingAction: "", error: error.message, feedback: "", result: null };
       renderDetail();
     }
+  }
+
+  function handleAclFormSubmit(event) {
+    event.preventDefault();
   }
 
   async function handleAclRevoke(secretId) {
@@ -373,7 +378,7 @@ function buildDetailMarkup(secret, aclState) {
         <p class="form-error" data-acl-error role="alert">${escapeHtml(aclState.error)}</p>
         <div class="acl-actions">
           <button class="primary-button" data-acl-check type="button" ${disabledAttribute}>${actionLabels.check}</button>
-          <button class="primary-button" data-acl-grant type="submit" ${disabledAttribute}>${actionLabels.grant}</button>
+          <button class="primary-button" data-acl-grant type="button" ${disabledAttribute}>${actionLabels.grant}</button>
           <button class="danger-button" data-acl-revoke type="button" ${disabledAttribute}>${actionLabels.revoke}</button>
         </div>
         ${aclResultMarkup}
