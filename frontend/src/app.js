@@ -216,6 +216,6 @@ export function escapeAttribute(value) {
   return escapeHtml(value).replaceAll("`", "&#096;");
 }
 
-if (typeof globalThis.document !== "undefined") {
+if (globalThis.document !== undefined) {
   createApp();
 }

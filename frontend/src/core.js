@@ -175,13 +175,17 @@ export function createSecretsStore(api) {
 }
 
 async function requestJson(fetchImpl, url, options = {}) {
+  const restOptions = { ...options };
+  delete restOptions.headers;
+
   const headers = {
     Accept: "application/json",
-    ...(options.body ? { "Content-Type": "application/json" } : {}),
-    ...(options.headers ?? {})
+    ...(options.body ? { "Content-Type": "application/json" } : {})
   };
+  if (options.headers) {
+    Object.assign(headers, options.headers);
+  }
 
-  const { headers: _ignoredHeaders, ...restOptions } = options;
   const response = await fetchImpl(url, {
     ...restOptions,
     headers
