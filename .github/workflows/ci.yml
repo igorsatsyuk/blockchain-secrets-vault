@@ -390,7 +390,7 @@ jobs:
         run: |
           mvn -B -ntp \
             -f backend/pom.xml \
-            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar \
             -Dsonar.host.url="${SONAR_HOST_URL}" \
             -Dsonar.token="${SONAR_TOKEN}" \
             ${BACKEND_SONAR_ARGS}
@@ -405,7 +405,7 @@ jobs:
         run: |
           mvn -B -ntp \
             -f backend/pom.xml \
-            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar \
             -Dsonar.host.url="${SONAR_HOST_URL}" \
             -Dsonar.token="${SONAR_TOKEN}" \
             ${BACKEND_SONAR_ARGS}
