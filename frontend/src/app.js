@@ -203,10 +203,6 @@ export function createApp(options = {}) {
     }
   }
 
-  function handleAclFormSubmit(event) {
-    event.preventDefault();
-  }
-
   async function handleAclRevoke(secretId) {
     if (aclState.pendingAction) {
       return;
@@ -309,6 +305,10 @@ function ensureAclStateForSecret(state, secretId) {
     return state;
   }
   return createAclState(secretId);
+}
+
+function handleAclFormSubmit(event) {
+  event.preventDefault();
 }
 
 function buildDetailMarkup(secret, aclState) {
