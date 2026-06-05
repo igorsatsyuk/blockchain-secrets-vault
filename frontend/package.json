@@ -1,0 +1,12 @@
+{
+  "name": "blockchain-secrets-vault-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test --experimental-test-coverage --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 test/**/*.test.js"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

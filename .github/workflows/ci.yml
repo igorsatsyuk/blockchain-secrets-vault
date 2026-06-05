@@ -83,6 +83,22 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+  frontend:
+    name: Frontend (Secrets UI)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Use Node 24
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 24
+
+      - name: Run frontend tests with coverage
+        working-directory: frontend
+        run: npm test
+
   sonar-blockchain:
     name: SonarQube - blockchain
     runs-on: ubuntu-latest
@@ -406,7 +422,7 @@ jobs:
   notify-telegram:
     name: Notify Telegram
     runs-on: ubuntu-latest
-    needs: [ blockchain, backend, sonar-blockchain, sonar-backend ]
+    needs: [ blockchain, backend, frontend, sonar-blockchain, sonar-backend ]
     if: ${{ always() }}
     permissions:
       contents: read
@@ -423,6 +439,7 @@ jobs:
         env:
           BLOCKCHAIN_RESULT: ${{ needs.blockchain.result }}
           BACKEND_RESULT: ${{ needs.backend.result }}
+          FRONTEND_RESULT: ${{ needs.frontend.result }}
           SONAR_BLOCKCHAIN_RESULT: ${{ needs.sonar-blockchain.result }}
           SONAR_BACKEND_RESULT: ${{ needs.sonar-backend.result }}
           SONAR_BLOCKCHAIN_SKIPPED: ${{ needs['sonar-blockchain'].outputs.sonar_skipped }}
