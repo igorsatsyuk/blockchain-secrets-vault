@@ -305,6 +305,25 @@ class SecretsServiceTest {
     }
 
     @Test
+    void grantAccessReturnsAclTransactionWhenAuditPublishFailsUnexpectedly() {
+        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
+        String account = "0x1111111111111111111111111111111111111111";
+
+        when(blockchainAclClient.grantAccess(created.id(), account, true, false)).thenReturn("0xgrant");
+        when(blockchainAclClient.auditEvent(any(), anyString(), any(), anyString()))
+                .thenThrow(new IllegalStateException("hashing unavailable"));
+
+        StepVerifier.create(service.grantAccess(created.id(), account, true, false))
+                .assertNext(transaction -> {
+                    assertThat(transaction.account()).isEqualTo(account);
+                    assertThat(transaction.transactionHash()).isEqualTo("0xgrant");
+                })
+                .verifyComplete();
+
+        verify(blockchainAclClient).grantAccess(created.id(), account, true, false);
+    }
+
+    @Test
     void revokeAccessReturnsAclTransactionWhenAuditPublishFails() {
         SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
         String account = "0x1111111111111111111111111111111111111111";

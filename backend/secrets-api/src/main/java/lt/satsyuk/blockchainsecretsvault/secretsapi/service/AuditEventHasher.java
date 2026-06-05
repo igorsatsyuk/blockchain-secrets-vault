@@ -3,6 +3,7 @@ package lt.satsyuk.blockchainsecretsvault.secretsapi.service;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AccessAuditAction;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.UUID;
 import org.web3j.crypto.Hash;
 import org.web3j.utils.Numeric;
@@ -13,7 +14,7 @@ public class AuditEventHasher {
         String payload = String.join("\n",
                 "blockchain-secrets-vault.audit.v1",
                 "secretId=" + secretId,
-                "account=" + account,
+                "account=" + normalizeAccount(account),
                 "action=" + action.name(),
                 "occurredAt=" + occurredAt,
                 "details=" + normalizeDetails(details)
@@ -26,5 +27,12 @@ public class AuditEventHasher {
             return "";
         }
         return details.trim();
+    }
+
+    private static String normalizeAccount(String account) {
+        if (account == null) {
+            return "";
+        }
+        return account.trim().toLowerCase(Locale.ROOT);
     }
 }

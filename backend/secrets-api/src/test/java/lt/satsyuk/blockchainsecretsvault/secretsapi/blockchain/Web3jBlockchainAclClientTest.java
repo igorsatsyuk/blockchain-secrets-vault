@@ -100,6 +100,19 @@ class Web3jBlockchainAclClientTest {
         assertThatThrownBy(() -> client.auditEvent(SECRET_ID, ACCOUNT, AccessAuditAction.READ, "0x1234"))
                 .isInstanceOf(BlockchainAclException.class)
                 .hasMessage("ACL audit details hash must be 32 bytes");
+
+        assertThatThrownBy(() -> client.auditEvent(SECRET_ID, ACCOUNT, AccessAuditAction.READ, null))
+                .isInstanceOf(BlockchainAclException.class)
+                .hasMessage("ACL audit details hash must be 32 bytes");
+    }
+
+    @Test
+    void rejectsMalformedAuditDetailsHashesWithAclException() {
+        Web3jBlockchainAclClient client = clientWithTransactionSender(successfulTransactionSender());
+
+        assertThatThrownBy(() -> client.auditEvent(SECRET_ID, ACCOUNT, AccessAuditAction.READ, "0xzz"))
+                .isInstanceOf(BlockchainAclException.class)
+                .hasMessage("ACL audit details hash must be valid hex");
     }
 
     @Test

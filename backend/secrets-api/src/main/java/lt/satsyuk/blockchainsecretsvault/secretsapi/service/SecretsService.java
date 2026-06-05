@@ -9,7 +9,6 @@ import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AclTransaction;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AccessGrant;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AccessAuditAction;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclClient;
-import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.model.SecretRecord;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.repository.SecretRepository;
 import java.nio.ByteBuffer;
@@ -189,7 +188,7 @@ public class SecretsService {
     ) {
         try {
             auditWriter.publish(id, account, action, details);
-        } catch (BlockchainAclException exception) {
+        } catch (RuntimeException exception) {
             LOGGER.warn(
                     "ACL {} transaction {} was submitted, but audit publish failed for secret {} and account {}",
                     action,

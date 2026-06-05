@@ -182,7 +182,18 @@ public class Web3jBlockchainAclClient implements BlockchainAclClient {
     }
 
     private static Bytes32 bytes32(String value) {
-        byte[] bytes = Numeric.hexStringToByteArray(value);
+        if (!hasText(value)) {
+            throw new BlockchainAclException("ACL audit details hash must be 32 bytes");
+        }
+        if (!value.matches("0[xX][0-9a-fA-F]+")) {
+            throw new BlockchainAclException("ACL audit details hash must be valid hex");
+        }
+        byte[] bytes;
+        try {
+            bytes = Numeric.hexStringToByteArray(value);
+        } catch (RuntimeException exception) {
+            throw new BlockchainAclException("ACL audit details hash must be valid hex", exception);
+        }
         if (bytes.length != 32) {
             throw new BlockchainAclException("ACL audit details hash must be 32 bytes");
         }

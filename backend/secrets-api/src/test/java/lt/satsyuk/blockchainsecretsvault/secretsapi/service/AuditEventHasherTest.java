@@ -26,6 +26,15 @@ class AuditEventHasherTest {
     }
 
     @Test
+    void normalizesAccountBeforeHashingCanonicalAuditEvent() {
+        Instant occurredAt = Instant.parse("2026-06-01T12:00:00Z");
+        String mixedCaseAccount = "  0x1111111111111111111111111111111111111111  ".toUpperCase();
+
+        assertThat(hasher.hash(SECRET_ID, mixedCaseAccount, AccessAuditAction.READ, occurredAt, "ok"))
+                .isEqualTo(hasher.hash(SECRET_ID, ACCOUNT, AccessAuditAction.READ, occurredAt, "ok"));
+    }
+
+    @Test
     void hashChangesWhenImportantEventFieldsChange() {
         Instant occurredAt = Instant.parse("2026-06-01T12:00:00Z");
         String readHash = hasher.hash(SECRET_ID, ACCOUNT, AccessAuditAction.READ, occurredAt, null);
