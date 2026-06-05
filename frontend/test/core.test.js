@@ -57,7 +57,7 @@ test("validateSecretDraft enforces API limits", () => {
 
 test("ACL validators enforce account format and permissions", () => {
   assert.equal(validateAclAccount("0x1111111111111111111111111111111111111111").valid, true);
-  assert.equal(validateAclAccount("0X1111111111111111111111111111111111111111").valid, true);
+  assert.equal(validateAclAccount("0X1111111111111111111111111111111111111111").valid, false);
   assert.equal(validateAclAccount("0x123").valid, false);
   assert.match(validateAclAccount("bad").error, /ethereum address/i);
 

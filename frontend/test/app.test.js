@@ -367,6 +367,8 @@ test("createApp handles create, update, delete and rendering flows", async () =>
       secret.id
     );
     assert.equal(store.grants, 1);
+    assert.match(detailPanel.innerHTML, /Grant transaction submitted: 0xgrant/);
+    assert.match(detailPanel.innerHTML, /No access check performed yet\./);
 
     await app.handleAclRevoke(secret.id);
     assert.equal(store.revokes, 1);

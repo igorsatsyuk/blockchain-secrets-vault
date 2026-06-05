@@ -57,7 +57,7 @@ export function validateSecretDraft(draft, options = {}) {
 
 export function validateAclAccount(account) {
   const normalized = String(account ?? "").trim();
-  if (!/^0[xX][a-fA-F0-9]{40}$/.test(normalized)) {
+  if (!/^0x[a-fA-F0-9]{40}$/.test(normalized)) {
     return {
       valid: false,
       error: "Account must be a valid Ethereum address."

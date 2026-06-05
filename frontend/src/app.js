@@ -179,6 +179,7 @@ export function createApp(options = {}) {
       aclState = {
         ...aclState,
         pendingAction: "",
+        result: null,
         feedback: `Grant transaction submitted: ${response.transactionHash}`
       };
       showToast(elements.toast, "Grant transaction submitted.");
