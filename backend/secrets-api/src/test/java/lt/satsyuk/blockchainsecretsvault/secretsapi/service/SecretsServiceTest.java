@@ -11,6 +11,7 @@ import lt.satsyuk.blockchainsecretsvault.kms.model.EncryptedData;
 import lt.satsyuk.blockchainsecretsvault.kms.service.KmsService;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.CreateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.UpdateSecretRequest;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AccessAuditAction;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclClient;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.model.SecretRecord;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.repository.InMemorySecretRepository;
@@ -29,7 +30,14 @@ class SecretsServiceTest {
     private final Clock clock = Clock.fixed(Instant.parse("2026-06-01T12:00:00Z"), ZoneOffset.UTC);
     private final KmsService kmsService = createMockKmsService();
     private final BlockchainAclClient blockchainAclClient = mock(BlockchainAclClient.class);
-    private final SecretsService service = new SecretsService(repository, kmsService, blockchainAclClient, clock);
+    private final AuditWriter auditWriter = new AuditWriter(blockchainAclClient, new AuditEventHasher(), clock);
+    private final SecretsService service = new SecretsService(
+            repository,
+            kmsService,
+            blockchainAclClient,
+            auditWriter,
+            clock
+    );
 
     private static KmsService createMockKmsService() {
         KmsService mock = mock(KmsService.class);
@@ -289,6 +297,33 @@ class SecretsServiceTest {
 
         verify(blockchainAclClient).canRead(created.id(), account);
         verify(blockchainAclClient).canWrite(created.id(), account);
+    }
+
+    @Test
+    void publishesAuditEventHashToBlockchain() {
+        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
+        String account = "0x1111111111111111111111111111111111111111";
+
+        when(blockchainAclClient.auditEvent(any(), anyString(), any(), anyString())).thenReturn("0xaudit");
+
+        String mixedCaseAccount = "0x" + account.substring(2).toUpperCase(Locale.ROOT);
+
+        StepVerifier.create(service.auditAccess(created.id(), mixedCaseAccount, AccessAuditAction.READ, " read ok "))
+                .assertNext(transaction -> {
+                    assertThat(transaction.account()).isEqualTo(account);
+                    assertThat(transaction.action()).isEqualTo(AccessAuditAction.READ);
+                    assertThat(transaction.occurredAt()).isEqualTo(clock.instant());
+                    assertThat(transaction.detailsHash()).startsWith("0x").hasSize(66);
+                    assertThat(transaction.transactionHash()).isEqualTo("0xaudit");
+                })
+                .verifyComplete();
+
+        verify(blockchainAclClient).auditEvent(
+                created.id(),
+                account,
+                AccessAuditAction.READ,
+                new AuditEventHasher().hash(created.id(), account, AccessAuditAction.READ, clock.instant(), " read ok ")
+        );
     }
 }
 

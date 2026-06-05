@@ -101,4 +101,16 @@ public class SecretsController {
         return secretsService.checkAccess(id, account)
                 .map(grant -> AccessGrantResponse.from(id, grant));
     }
+
+    @PostMapping("/{id}/audit/{account}")
+    public Mono<ResponseEntity<AuditEventResponse>> auditAccess(
+            @PathVariable("id") UUID id,
+            @PathVariable("account") String account,
+            @Valid @RequestBody AuditEventRequest request
+    ) {
+        return secretsService.auditAccess(id, account, request.action(), request.details())
+                .map(transaction -> ResponseEntity
+                        .status(HttpStatus.ACCEPTED)
+                        .body(AuditEventResponse.from(id, transaction)));
+    }
 }

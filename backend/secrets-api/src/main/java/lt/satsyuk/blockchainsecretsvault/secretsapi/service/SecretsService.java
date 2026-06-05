@@ -7,6 +7,7 @@ import lt.satsyuk.blockchainsecretsvault.secretsapi.api.CreateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.UpdateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AclTransaction;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AccessGrant;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AccessAuditAction;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclClient;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.model.SecretRecord;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.repository.SecretRepository;
@@ -32,6 +33,7 @@ public class SecretsService {
     private final SecretRepository secretRepository;
     private final KmsService kmsService;
     private final BlockchainAclClient blockchainAclClient;
+    private final AuditWriter auditWriter;
     private final Clock clock;
     private static final String DEFAULT_KEY_ID = "default-secret-key";
 
@@ -39,11 +41,13 @@ public class SecretsService {
             SecretRepository secretRepository,
             KmsService kmsService,
             BlockchainAclClient blockchainAclClient,
+            AuditWriter auditWriter,
             Clock clock
     ) {
         this.secretRepository = secretRepository;
         this.kmsService = kmsService;
         this.blockchainAclClient = blockchainAclClient;
+        this.auditWriter = auditWriter;
         this.clock = clock;
         initializeDefaultKey();
     }
@@ -179,6 +183,14 @@ public class SecretsService {
                             permissions.getT1(),
                             permissions.getT2()
                     ));
+        }).subscribeOn(Schedulers.boundedElastic());
+    }
+
+    public Mono<AuditEventTransaction> auditAccess(UUID id, String account, AccessAuditAction action, String details) {
+        return Mono.fromSupplier(() -> {
+            requireExistingSecret(id);
+            String normalizedAccount = normalizeAccount(account);
+            return auditWriter.publish(id, normalizedAccount, action, details);
         }).subscribeOn(Schedulers.boundedElastic());
     }
 

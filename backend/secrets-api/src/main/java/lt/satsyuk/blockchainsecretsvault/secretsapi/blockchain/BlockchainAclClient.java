@@ -8,6 +8,8 @@ public interface BlockchainAclClient {
 
     String revokeAccess(UUID secretId, String account);
 
+    String auditEvent(UUID secretId, String account, AccessAuditAction action, String detailsHash);
+
     boolean canRead(UUID secretId, String account);
 
     boolean canWrite(UUID secretId, String account);

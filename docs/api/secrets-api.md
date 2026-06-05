@@ -1,8 +1,9 @@
 # Secrets API
 
 Issue #7 introduces the MVP CRUD contract for off-chain secret metadata and
-payload handling. Issue #8 adds KMS-backed encryption, and issue #9 adds
-blockchain ACL grant, revoke and access-check operations.
+payload handling. Issue #8 adds KMS-backed encryption, issue #9 adds
+blockchain ACL grant, revoke and access-check operations, and issue #10 adds
+audit event hash publishing.
 
 Base path: `/api/v1/secrets`
 
@@ -122,6 +123,36 @@ Returns `202 Accepted` with the submitted transaction hash.
   "secretId": "21f51f8a-e0a4-457b-93ae-6ba78d8be5cc",
   "account": "0x1111111111111111111111111111111111111111",
   "transactionHash": "0xabc123"
+}
+```
+
+## Publish Access Audit Event
+
+`POST /api/v1/secrets/{id}/audit/{account}`
+
+Publishes a canonical `keccak256` hash of an access event to the ACL contract
+via `auditEvent`. The backend normalizes `account` to lowercase before hashing
+and sending the transaction. Supported actions match the contract enum:
+`REGISTER`, `GRANT`, `REVOKE`, `READ`, `WRITE`.
+
+```json
+{
+  "action": "READ",
+  "details": "payload delivered"
+}
+```
+
+Returns `202 Accepted` with the submitted transaction hash and the published
+`bytes32` details hash.
+
+```json
+{
+  "secretId": "21f51f8a-e0a4-457b-93ae-6ba78d8be5cc",
+  "account": "0x1111111111111111111111111111111111111111",
+  "action": "READ",
+  "occurredAt": "2026-06-01T12:00:00Z",
+  "detailsHash": "0xabc123...",
+  "transactionHash": "0xdef456"
 }
 ```
 
