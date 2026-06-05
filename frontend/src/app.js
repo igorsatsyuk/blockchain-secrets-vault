@@ -27,6 +27,7 @@ export function createApp(options = {}) {
 
   let currentState = store.getState();
   let aclState = createAclState();
+  let lastAuditRequestKey = "";
 
   function render() {
     elements.listStatus.textContent = currentState.loading ? "Loading secrets..." : currentState.error;
@@ -69,7 +70,8 @@ export function createApp(options = {}) {
     }
 
     aclState = ensureAclStateForSecret(aclState, secret.id);
-    elements.detailPanel.innerHTML = buildDetailMarkup(secret, aclState);
+    const auditState = currentState.audit?.secretId === secret.id ? currentState.audit : createAuditViewState(secret.id);
+    elements.detailPanel.innerHTML = buildDetailMarkup(secret, aclState, auditState);
 
     elements.detailPanel.querySelector("[data-update-form]").addEventListener("submit", (event) => handleUpdate(event, secret.id));
     elements.detailPanel.querySelector("[data-delete-secret]").addEventListener("click", () => handleDelete(secret.id));
@@ -77,6 +79,8 @@ export function createApp(options = {}) {
     elements.detailPanel.querySelector("[data-acl-check]").addEventListener("click", () => handleAclCheck(secret.id));
     elements.detailPanel.querySelector("[data-acl-grant]").addEventListener("click", (event) => handleAclGrant(event, secret.id));
     elements.detailPanel.querySelector("[data-acl-revoke]").addEventListener("click", () => handleAclRevoke(secret.id));
+    elements.detailPanel.querySelector("[data-audit-form]").addEventListener("submit", (event) => handleAuditFilter(event, secret.id));
+    elements.detailPanel.querySelector("[data-audit-refresh]").addEventListener("click", () => requestAudit(secret.id, { force: true }));
   }
 
   async function handleCreate(event) {
@@ -194,6 +198,7 @@ export function createApp(options = {}) {
       };
       showToast(elements.toast, "Grant transaction submitted.");
       renderDetail();
+      requestAudit(secretId, { force: true });
     } catch (error) {
       if (aclState.secretId !== secretId) {
         return;
@@ -233,6 +238,7 @@ export function createApp(options = {}) {
       };
       showToast(elements.toast, "Revoke transaction submitted.");
       renderDetail();
+      requestAudit(secretId, { force: true });
     } catch (error) {
       if (aclState.secretId !== secretId) {
         return;
@@ -240,6 +246,25 @@ export function createApp(options = {}) {
       aclState = { ...aclState, pendingAction: "", error: error.message, feedback: "", result: null };
       renderDetail();
     }
+  }
+
+  async function handleAuditFilter(event, secretId) {
+    event.preventDefault();
+    const filters = readAuditFilters();
+    await requestAudit(secretId, { filters, force: true });
+  }
+
+  async function requestAudit(secretId, options = {}) {
+    if (typeof store.loadAudit !== "function") {
+      return;
+    }
+    const filters = options.filters ?? currentState.audit?.filters ?? {};
+    const requestKey = `${secretId}:${filters.action ?? ""}:${filters.account ?? ""}`;
+    if (!options.force && lastAuditRequestKey === requestKey) {
+      return;
+    }
+    lastAuditRequestKey = requestKey;
+    await store.loadAudit(secretId, filters);
   }
 
   function readAclAccount() {
@@ -251,8 +276,16 @@ export function createApp(options = {}) {
     return Boolean(elements.detailPanel.querySelector(selector)?.checked);
   }
 
+  function readAuditFilters() {
+    return {
+      action: elements.detailPanel.querySelector("[data-audit-action]")?.value ?? "",
+      account: elements.detailPanel.querySelector("[data-audit-account]")?.value ?? ""
+    };
+  }
+
   function renderEmptyDetail() {
     aclState = createAclState();
+    lastAuditRequestKey = "";
     elements.detailPanel.innerHTML = `
       <div class="empty-state">
         <img src="./src/assets/vault-mark.svg" width="88" height="88" alt="">
@@ -265,6 +298,9 @@ export function createApp(options = {}) {
   store.subscribe((state) => {
     currentState = state;
     render();
+    if (currentState.selectedId) {
+      requestAudit(currentState.selectedId);
+    }
   });
 
   elements.refresh.addEventListener("click", () => store.load());
@@ -283,7 +319,8 @@ export function createApp(options = {}) {
     handleDelete,
     handleAclCheck,
     handleAclGrant,
-    handleAclRevoke
+    handleAclRevoke,
+    handleAuditFilter
   };
 }
 
@@ -311,7 +348,20 @@ function handleAclFormSubmit(event) {
   event.preventDefault();
 }
 
-function buildDetailMarkup(secret, aclState) {
+function createAuditViewState(secretId = null) {
+  return {
+    secretId,
+    loading: false,
+    error: "",
+    events: [],
+    filters: {
+      action: "",
+      account: ""
+    }
+  };
+}
+
+function buildDetailMarkup(secret, aclState, auditState) {
   const actionPending = Boolean(aclState.pendingAction);
   const actionLabels = getAclActionLabels(aclState.pendingAction);
   const disabledAttribute = actionPending ? "disabled" : "";
@@ -385,6 +435,7 @@ function buildDetailMarkup(secret, aclState) {
         <p class="acl-feedback" data-acl-feedback>${escapeHtml(aclState.feedback)}</p>
       </form>
     </section>
+    ${buildAuditMarkup(auditState)}
   `;
 }
 
@@ -420,6 +471,76 @@ function buildAclResultMarkup(result) {
     Read: <strong>${readLabel}</strong> ·
     Write: <strong>${writeLabel}</strong>
   </p>`;
+}
+
+function buildAuditMarkup(auditState) {
+  const filters = auditState.filters ?? {};
+  const actionOptions = ["", "READ", "WRITE", "GRANT", "REVOKE"].map((action) => {
+    const label = action || "All actions";
+    const selected = action === (filters.action ?? "") ? "selected" : "";
+    return `<option value="${action}" ${selected}>${label}</option>`;
+  }).join("");
+  const events = auditState.events ?? [];
+  const rows = events.map(buildAuditEventMarkup).join("");
+  const status = getAuditStatus(auditState, events.length);
+
+  return `
+    <section class="audit-panel" aria-label="Audit history">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Audit</p>
+          <h3>History</h3>
+        </div>
+        <button class="icon-button" data-audit-refresh type="button" title="Refresh audit history" aria-label="Refresh audit history">↻</button>
+      </div>
+      <form class="audit-filters" data-audit-form>
+        <label>
+          Action
+          <select data-audit-action name="action">${actionOptions}</select>
+        </label>
+        <label>
+          Account
+          <input data-audit-account name="account" autocomplete="off" placeholder="Filter by address" value="${escapeAttribute(filters.account ?? "")}">
+        </label>
+        <button class="primary-button" type="submit">Apply filters</button>
+      </form>
+      <p class="audit-status" data-audit-status>${escapeHtml(status)}</p>
+      <ol class="audit-list" data-audit-list>
+        ${rows}
+      </ol>
+    </section>
+  `;
+}
+
+function buildAuditEventMarkup(event) {
+  const hash = event.transactionHash || event.detailsHash || "";
+  const hashMarkup = hash ? `<span class="audit-hash">${escapeHtml(hash)}</span>` : "";
+  const statusMarkup = event.status ? `<span class="audit-event-status">${escapeHtml(event.status)}</span>` : "";
+
+  return `
+    <li class="audit-event">
+      <div class="audit-event-top">
+        <span class="audit-action">${escapeHtml(event.action || "UNKNOWN")}</span>
+        <time>${formatTimestamp(event.occurredAt)}</time>
+      </div>
+      <div class="audit-event-account">${escapeHtml(event.account || "Account not recorded")}</div>
+      ${hashMarkup}
+      ${statusMarkup}
+    </li>
+  `;
+}
+
+function getAuditStatus(auditState, eventCount) {
+  if (auditState.loading) {
+    return "Loading audit history...";
+  }
+  if (auditState.error) {
+    return auditState.error;
+  }
+  if (eventCount === 0) {
+    return "No audit events match the current filters.";
+  }
+  return `${eventCount} audit event${eventCount === 1 ? "" : "s"} shown.`;
 }
 
 export function readForm(form) {

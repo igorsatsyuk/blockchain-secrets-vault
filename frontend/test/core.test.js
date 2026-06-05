@@ -3,7 +3,9 @@ import { test } from "node:test";
 import {
   createSecretsApi,
   createSecretsStore,
+  filterAuditEvents,
   formatTimestamp,
+  normalizeAuditEvents,
   parseTags,
   toCreateSecretPayload,
   toUpdateSecretPayload,
@@ -29,6 +31,25 @@ const secretB = {
   createdAt: "2026-06-02T12:00:00Z",
   updatedAt: "2026-06-02T12:00:00Z"
 };
+
+const auditEvents = [
+  {
+    id: "event-1",
+    secretId: secretA.id,
+    account: " 0x1111111111111111111111111111111111111111 ",
+    action: "grant",
+    occurredAt: "2026-06-03T12:00:00Z",
+    transactionHash: "0xgrant",
+    status: "accepted"
+  },
+  {
+    secretId: secretA.id,
+    account: "0x2222222222222222222222222222222222222222",
+    action: "READ",
+    timestamp: "2026-06-03T12:05:00Z",
+    detailsHash: "0xhash"
+  }
+];
 
 test("parseTags trims, removes blanks, and deduplicates values", () => {
   assert.deepEqual(parseTags("prod, payments, prod,  ,audit"), ["prod", "payments", "audit"]);
@@ -64,6 +85,37 @@ test("ACL validators enforce account format and permissions", () => {
   assert.equal(validateAclPermissions({ canRead: true, canWrite: false }).valid, true);
   assert.equal(validateAclPermissions({ canRead: false, canWrite: true }).valid, true);
   assert.equal(validateAclPermissions({ canRead: false, canWrite: false }).valid, false);
+});
+
+test("audit helpers normalize and filter history events", () => {
+  assert.deepEqual(normalizeAuditEvents(null), []);
+  assert.deepEqual(normalizeAuditEvents([
+    {
+      transactionHash: "0xabc",
+      action: "invalid-action",
+      createdAt: "2026-06-03T12:00:00Z"
+    }
+  ]), [
+    {
+      id: "0xabc",
+      secretId: "",
+      account: "",
+      action: "",
+      occurredAt: "2026-06-03T12:00:00Z",
+      transactionHash: "0xabc",
+      detailsHash: "",
+      status: ""
+    }
+  ]);
+
+  const normalized = normalizeAuditEvents(auditEvents);
+  assert.equal(normalized[0].action, "GRANT");
+  assert.equal(normalized[0].account, "0x1111111111111111111111111111111111111111");
+  assert.equal(normalized[1].occurredAt, "2026-06-03T12:05:00Z");
+
+  assert.deepEqual(filterAuditEvents(auditEvents, { action: "grant" }).map((event) => event.id), ["event-1"]);
+  assert.deepEqual(filterAuditEvents(auditEvents, { account: "2222" }).map((event) => event.action), ["READ"]);
+  assert.equal(filterAuditEvents(auditEvents, { action: "WRITE" }).length, 0);
 });
 
 test("payload mappers normalize create and update requests", () => {
@@ -120,6 +172,9 @@ test("API client sends expected HTTP requests and decodes responses", async () =
         transactionHash: "0xdef"
       }, { status: 202 });
     }
+    if (!options.method && url === "/secrets/id-1/audit?action=GRANT&account=0x1111111111111111111111111111111111111111") {
+      return response(auditEvents);
+    }
     if (options.method === "DELETE") {
       return response(null, { status: 204 });
     }
@@ -135,6 +190,7 @@ test("API client sends expected HTTP requests and decodes responses", async () =
   assert.equal((await api.grantAccess("id-1", "0x1111111111111111111111111111111111111111", { canRead: true, canWrite: false })).transactionHash, "0xabc");
   assert.equal((await api.getAccess("id-1", "0x1111111111111111111111111111111111111111")).canRead, true);
   assert.equal((await api.revokeAccess("id-1", "0x1111111111111111111111111111111111111111")).transactionHash, "0xdef");
+  assert.equal((await api.listAudit("id-1", { action: "grant", account: "0x1111111111111111111111111111111111111111" }))[0].id, "event-1");
 
   assert.equal(calls[1].url, "/secrets/abc%2F123");
   assert.equal(calls[2].options.method, "POST");
@@ -145,6 +201,7 @@ test("API client sends expected HTTP requests and decodes responses", async () =
   assert.equal(calls[5].url, "/secrets/id-1/acl/0x1111111111111111111111111111111111111111");
   assert.equal(calls[6].url, "/secrets/id-1/acl/0x1111111111111111111111111111111111111111");
   assert.equal(calls[7].options.method, "DELETE");
+  assert.equal(calls[8].url, "/secrets/id-1/audit?action=GRANT&account=0x1111111111111111111111111111111111111111");
 });
 
 test("API client surfaces validation details and fallback errors", async () => {
@@ -170,7 +227,8 @@ test("store loads, selects, creates, updates, removes, and reports load errors",
     remove: async () => null,
     grantAccess: async () => ({ transactionHash: "0xabc" }),
     getAccess: async () => ({ canRead: true, canWrite: false }),
-    revokeAccess: async () => ({ transactionHash: "0xdef" })
+    revokeAccess: async () => ({ transactionHash: "0xdef" }),
+    listAudit: async () => auditEvents
   };
   const store = createSecretsStore(api);
   const unsubscribe = store.subscribe((state) => events.push(state));
@@ -193,12 +251,23 @@ test("store loads, selects, creates, updates, removes, and reports load errors",
   assert.equal((await store.grantAccess(secretB.id, "0x1111111111111111111111111111111111111111", { canRead: true, canWrite: false })).transactionHash, "0xabc");
   assert.equal((await store.checkAccess(secretB.id, "0x1111111111111111111111111111111111111111")).canRead, true);
   assert.equal((await store.revokeAccess(secretB.id, "0x1111111111111111111111111111111111111111")).transactionHash, "0xdef");
+  store.setAuditFilters({ action: "read", account: "2222" });
+  assert.deepEqual(store.getState().audit.filters, { action: "READ", account: "2222" });
+  await store.loadAudit(secretB.id);
+  assert.equal(store.getState().audit.loading, false);
+  assert.equal(store.getState().audit.events.length, 1);
+  assert.equal(store.getState().audit.events[0].action, "READ");
   assert.ok(events.length >= 7);
   unsubscribe();
 
   const failingStore = createSecretsStore({ ...api, list: async () => { throw new Error("offline"); } });
   await failingStore.load();
   assert.equal(failingStore.getState().error, "offline");
+
+  const failingAuditStore = createSecretsStore({ ...api, listAudit: async () => { throw new Error("audit offline"); } });
+  await failingAuditStore.loadAudit(secretA.id, { action: "grant" });
+  assert.equal(failingAuditStore.getState().audit.error, "audit offline");
+  assert.equal(failingAuditStore.getState().audit.events.length, 0);
 });
 
 function response(body, options = {}) {

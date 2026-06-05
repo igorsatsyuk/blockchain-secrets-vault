@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -100,5 +101,16 @@ public class SecretsController {
     ) {
         return secretsService.checkAccess(id, account)
                 .map(grant -> AccessGrantResponse.from(id, grant));
+    }
+
+    @GetMapping("/{id}/audit")
+    public Mono<List<AuditEventResponse>> listAudit(
+            @PathVariable("id") UUID id,
+            @RequestParam(value = "action", required = false) String action,
+            @RequestParam(value = "account", required = false) String account
+    ) {
+        return secretsService.listAudit(id, action, account)
+                .map(AuditEventResponse::from)
+                .collectList();
     }
 }

@@ -218,6 +218,17 @@ public class SecretsService {
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
+    public Flux<AuditEventRecord> listAudit(UUID id, String action, String account) {
+        return Flux.defer(() -> {
+            requireExistingSecret(id);
+            return Flux.fromIterable(auditWriter.history(
+                    id,
+                    parseAuditAction(action),
+                    Optional.ofNullable(account).map(String::trim).filter(value -> !value.isBlank())
+            ));
+        });
+    }
+
     private SecretRecord requireExistingSecret(UUID id) {
         return secretRepository.findById(id)
                 .orElseThrow(() -> new SecretNotFoundException(id));
@@ -265,6 +276,17 @@ public class SecretsService {
             throw new InvalidBlockchainAccountException(String.valueOf(account));
         }
         return account.toLowerCase(Locale.ROOT);
+    }
+
+    private static Optional<AccessAuditAction> parseAuditAction(String action) {
+        if (action == null || action.isBlank()) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(AccessAuditAction.valueOf(action.trim().toUpperCase(Locale.ROOT)));
+        } catch (IllegalArgumentException exception) {
+            throw new InvalidAuditActionException(action);
+        }
     }
 }
 

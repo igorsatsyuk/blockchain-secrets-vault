@@ -24,6 +24,7 @@ body {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
 }
@@ -78,6 +79,8 @@ textarea {
 
 .search-field input,
 .secret-form input,
+.audit-filters input,
+.audit-filters select,
 .secret-form textarea {
   width: 100%;
   border: 1px solid var(--line);
@@ -89,6 +92,8 @@ textarea {
 
 .search-field input:focus,
 .secret-form input:focus,
+.audit-filters input:focus,
+.audit-filters select:focus,
 .secret-form textarea:focus,
 .icon-button:focus,
 .primary-button:focus,
@@ -271,6 +276,80 @@ textarea {
   border-top: 1px solid var(--line);
 }
 
+.audit-panel {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.audit-filters {
+  display: grid;
+  grid-template-columns: 150px minmax(180px, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.audit-filters label {
+  display: grid;
+  gap: 7px;
+  color: var(--brand);
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+
+.audit-status {
+  min-height: 22px;
+  margin: 14px 0 10px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.audit-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.audit-event {
+  display: grid;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  padding: 12px;
+}
+
+.audit-event-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.audit-action {
+  color: var(--brand);
+  font-weight: 800;
+}
+
+.audit-event-account,
+.audit-hash,
+.audit-event-status {
+  overflow-wrap: anywhere;
+}
+
+.audit-hash {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.audit-event-status {
+  color: var(--accent);
+  font-weight: 750;
+}
+
 .permission-grid {
   display: flex;
   flex-wrap: wrap;
@@ -391,6 +470,10 @@ textarea {
   }
 
   .metadata-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .audit-filters {
     grid-template-columns: 1fr;
   }
 }

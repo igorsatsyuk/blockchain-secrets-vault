@@ -139,6 +139,12 @@ test("createApp handles create, update, delete and rendering flows", async () =>
   const aclCheckButton = createElement();
   const aclGrantButton = createElement();
   const aclRevokeButton = createElement();
+  const auditForm = createElement();
+  const auditAction = createElement();
+  auditAction.value = "GRANT";
+  const auditAccount = createElement();
+  auditAccount.value = "0x1111111111111111111111111111111111111111";
+  const auditRefreshButton = createElement();
   const detailPanel = createElement();
   detailPanel.querySelector = (selector) => {
     if (selector === "[data-update-form]") {
@@ -167,6 +173,18 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     }
     if (selector === "[data-acl-revoke]") {
       return aclRevokeButton;
+    }
+    if (selector === "[data-audit-form]") {
+      return auditForm;
+    }
+    if (selector === "[data-audit-action]") {
+      return auditAction;
+    }
+    if (selector === "[data-audit-account]") {
+      return auditAccount;
+    }
+    if (selector === "[data-audit-refresh]") {
+      return auditRefreshButton;
     }
     return createElement();
   };
@@ -214,7 +232,17 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     error: "",
     secrets: [],
     selectedId: null,
-    selected: null
+    selected: null,
+    audit: {
+      secretId: null,
+      loading: false,
+      error: "",
+      events: [],
+      filters: {
+        action: "",
+        account: ""
+      }
+    }
   };
   let subscriber = () => {};
 
@@ -226,6 +254,7 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     grants: 0,
     checks: 0,
     revokes: 0,
+    auditLoads: 0,
     getState() {
       return state;
     },
@@ -278,6 +307,29 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     async revokeAccess() {
       this.revokes += 1;
       return { transactionHash: "0xrevoke" };
+    },
+    async loadAudit(id, filters = state.audit.filters) {
+      this.auditLoads += 1;
+      state = {
+        ...state,
+        audit: {
+          secretId: id,
+          loading: false,
+          error: "",
+          filters,
+          events: [
+            {
+              id: "audit-1",
+              action: filters.action || "GRANT",
+              account: filters.account || "0x1111111111111111111111111111111111111111",
+              occurredAt: "2026-06-03T12:00:00Z",
+              transactionHash: "0xaudit",
+              status: "accepted"
+            }
+          ]
+        }
+      };
+      subscriber(state);
     }
   };
 
@@ -291,6 +343,9 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     subscriber(state);
     assert.match(detailPanel.innerHTML, /Save changes/);
     assert.match(detailPanel.innerHTML, /data-acl-grant type="button"/);
+    await Promise.resolve();
+    assert.equal(store.auditLoads, 1);
+    assert.match(detailPanel.innerHTML, /0xaudit/);
 
     await app.handleCreate({
       preventDefault() {},
@@ -378,6 +433,7 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     assert.equal(store.checks, 1);
     assert.match(detailPanel.innerHTML, /Read: <strong>Yes<\/strong>/);
 
+    const auditLoadsBeforeGrant = store.auditLoads;
     await app.handleAclGrant(
       {
         preventDefault() {},
@@ -388,9 +444,28 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     assert.equal(store.grants, 1);
     assert.match(detailPanel.innerHTML, /Grant transaction submitted: 0xgrant/);
     assert.match(detailPanel.innerHTML, /No access check performed yet\./);
+    await Promise.resolve();
+    assert.equal(store.auditLoads, auditLoadsBeforeGrant + 1);
 
+    const auditLoadsBeforeRevoke = store.auditLoads;
     await app.handleAclRevoke(secret.id);
     assert.equal(store.revokes, 1);
+    await Promise.resolve();
+    assert.equal(store.auditLoads, auditLoadsBeforeRevoke + 1);
+
+    let auditSubmitPrevented = false;
+    const auditLoadsBeforeFilter = store.auditLoads;
+    await app.handleAuditFilter(
+      {
+        preventDefault() {
+          auditSubmitPrevented = true;
+        }
+      },
+      secret.id
+    );
+    assert.equal(auditSubmitPrevented, true);
+    assert.equal(store.auditLoads, auditLoadsBeforeFilter + 1);
+    assert.match(detailPanel.innerHTML, /GRANT/);
 
     const switchToSecret = (selected) => {
       state = { ...state, secrets: [secret, otherSecret], selectedId: selected.id, selected };

@@ -283,6 +283,17 @@ class SecretsServiceTest {
                 AccessAuditAction.REVOKE,
                 new AuditEventHasher().hash(created.id(), account, AccessAuditAction.REVOKE, clock.instant(), "")
         );
+
+        StepVerifier.create(service.listAudit(created.id(), "grant", "1111"))
+                .assertNext(event -> {
+                    assertThat(event.action()).isEqualTo(AccessAuditAction.GRANT);
+                    assertThat(event.account()).isEqualTo(account);
+                    assertThat(event.transactionHash()).isEqualTo("0xaudit");
+                })
+                .verifyComplete();
+
+        StepVerifier.create(service.listAudit(created.id(), null, "2222"))
+                .verifyComplete();
     }
 
     @Test
@@ -350,10 +361,18 @@ class SecretsServiceTest {
                 .expectError(SecretNotFoundException.class)
                 .verify();
 
+        StepVerifier.create(service.listAudit(missing, null, null))
+                .expectError(SecretNotFoundException.class)
+                .verify();
+
         SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
 
         StepVerifier.create(service.checkAccess(created.id(), "not-an-address"))
                 .expectError(InvalidBlockchainAccountException.class)
+                .verify();
+
+        StepVerifier.create(service.listAudit(created.id(), "bad-action", null))
+                .expectError(InvalidAuditActionException.class)
                 .verify();
     }
 
