@@ -144,7 +144,7 @@ export function createApp(options = {}) {
       aclState = { ...aclState, pendingAction: "", result: access };
       renderDetail();
     } catch (error) {
-      aclState = { ...aclState, pendingAction: "", error: error.message };
+      aclState = { ...aclState, pendingAction: "", error: error.message, feedback: "", result: null };
       renderDetail();
     }
   }
@@ -184,7 +184,7 @@ export function createApp(options = {}) {
       showToast(elements.toast, "Grant transaction submitted.");
       renderDetail();
     } catch (error) {
-      aclState = { ...aclState, pendingAction: "", error: error.message };
+      aclState = { ...aclState, pendingAction: "", error: error.message, feedback: "", result: null };
       renderDetail();
     }
   }
@@ -217,7 +217,7 @@ export function createApp(options = {}) {
       showToast(elements.toast, "Revoke transaction submitted.");
       renderDetail();
     } catch (error) {
-      aclState = { ...aclState, pendingAction: "", error: error.message };
+      aclState = { ...aclState, pendingAction: "", error: error.message, feedback: "", result: null };
       renderDetail();
     }
   }

@@ -357,6 +357,7 @@ test("createApp handles create, update, delete and rendering flows", async () =>
 
     await app.handleAclCheck(secret.id);
     assert.equal(store.checks, 1);
+    assert.match(detailPanel.innerHTML, /Read: <strong>Yes<\/strong>/);
 
     await app.handleAclGrant(
       {
@@ -369,6 +370,36 @@ test("createApp handles create, update, delete and rendering flows", async () =>
 
     await app.handleAclRevoke(secret.id);
     assert.equal(store.revokes, 1);
+
+    store.checkAccess = async () => {
+      throw new Error("check failed");
+    };
+    await app.handleAclCheck(secret.id);
+    assert.match(detailPanel.innerHTML, /check failed/);
+    assert.match(detailPanel.innerHTML, /No access check performed yet\./);
+
+    store.grantAccess = async () => {
+      throw new Error("grant failed");
+    };
+    aclAccount.value = "0x1111111111111111111111111111111111111111";
+    aclRead.checked = true;
+    aclWrite.checked = false;
+    await app.handleAclGrant(
+      {
+        preventDefault() {},
+        currentTarget: aclForm
+      },
+      secret.id
+    );
+    assert.match(detailPanel.innerHTML, /grant failed/);
+    assert.match(detailPanel.innerHTML, /No access check performed yet\./);
+
+    store.revokeAccess = async () => {
+      throw new Error("revoke failed");
+    };
+    await app.handleAclRevoke(secret.id);
+    assert.match(detailPanel.innerHTML, /revoke failed/);
+    assert.match(detailPanel.innerHTML, /No access check performed yet\./);
 
     aclAccount.value = "bad-account";
     await app.handleAclCheck(secret.id);
