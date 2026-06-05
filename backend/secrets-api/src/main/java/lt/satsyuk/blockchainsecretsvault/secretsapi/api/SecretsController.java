@@ -38,6 +38,11 @@ public class SecretsController {
                         .body(response));
     }
 
+    @PostMapping("/encryption-key/rotate")
+    public Mono<KeyRotationResponse> rotateEncryptionKey() {
+        return secretsService.rotateEncryptionKey().map(KeyRotationResponse::from);
+    }
+
     @GetMapping
     public Mono<List<SecretResponse>> list() {
         return secretsService.list()
