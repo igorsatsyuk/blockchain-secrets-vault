@@ -3,7 +3,9 @@
 Issue #7 introduces the MVP CRUD contract for off-chain secret metadata and
 payload handling. Issue #8 adds KMS-backed encryption, issue #9 adds
 blockchain ACL grant, revoke and access-check operations, and issue #10 adds
-server-side audit event hash publishing for ACL mutations.
+server-side audit event hash publishing for ACL mutations. Audit publishing is
+only performed as a side effect of grant and revoke operations; there is no
+standalone public audit endpoint.
 
 Base path: `/api/v1/secrets`
 
@@ -90,6 +92,9 @@ the remaining 16 bytes.
 Returns `202 Accepted` with the submitted transaction hash.
 After the ACL transaction is accepted by the blockchain adapter, the backend
 publishes a server-generated `GRANT` audit hash through `SecretsAcl.auditEvent`.
+If the audit publish attempt fails after the ACL transaction is submitted, this
+endpoint still returns the ACL transaction hash so clients can correlate the
+accepted operation without retrying it blindly.
 
 ```json
 {
@@ -122,6 +127,9 @@ Returns `202 Accepted` with the submitted transaction hash.
 After the ACL transaction is accepted by the blockchain adapter, the backend
 publishes a server-generated `REVOKE` audit hash through
 `SecretsAcl.auditEvent`.
+If the audit publish attempt fails after the ACL transaction is submitted, this
+endpoint still returns the ACL transaction hash so clients can correlate the
+accepted operation without retrying it blindly.
 
 ```json
 {

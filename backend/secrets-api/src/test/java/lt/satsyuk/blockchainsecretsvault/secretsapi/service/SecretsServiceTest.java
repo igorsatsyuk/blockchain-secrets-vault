@@ -13,6 +13,7 @@ import lt.satsyuk.blockchainsecretsvault.secretsapi.api.CreateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.api.UpdateSecretRequest;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.AccessAuditAction;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclClient;
+import lt.satsyuk.blockchainsecretsvault.secretsapi.blockchain.BlockchainAclException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.model.SecretRecord;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.repository.InMemorySecretRepository;
 import java.time.Clock;
@@ -282,6 +283,44 @@ class SecretsServiceTest {
                 AccessAuditAction.REVOKE,
                 new AuditEventHasher().hash(created.id(), account, AccessAuditAction.REVOKE, clock.instant(), "")
         );
+    }
+
+    @Test
+    void grantAccessReturnsAclTransactionWhenAuditPublishFails() {
+        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
+        String account = "0x1111111111111111111111111111111111111111";
+
+        when(blockchainAclClient.grantAccess(created.id(), account, true, false)).thenReturn("0xgrant");
+        when(blockchainAclClient.auditEvent(any(), anyString(), any(), anyString()))
+                .thenThrow(new BlockchainAclException("audit unavailable"));
+
+        StepVerifier.create(service.grantAccess(created.id(), account, true, false))
+                .assertNext(transaction -> {
+                    assertThat(transaction.account()).isEqualTo(account);
+                    assertThat(transaction.transactionHash()).isEqualTo("0xgrant");
+                })
+                .verifyComplete();
+
+        verify(blockchainAclClient).grantAccess(created.id(), account, true, false);
+    }
+
+    @Test
+    void revokeAccessReturnsAclTransactionWhenAuditPublishFails() {
+        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
+        String account = "0x1111111111111111111111111111111111111111";
+
+        when(blockchainAclClient.revokeAccess(created.id(), account)).thenReturn("0xrevoke");
+        when(blockchainAclClient.auditEvent(any(), anyString(), any(), anyString()))
+                .thenThrow(new BlockchainAclException("audit unavailable"));
+
+        StepVerifier.create(service.revokeAccess(created.id(), account))
+                .assertNext(transaction -> {
+                    assertThat(transaction.account()).isEqualTo(account);
+                    assertThat(transaction.transactionHash()).isEqualTo("0xrevoke");
+                })
+                .verifyComplete();
+
+        verify(blockchainAclClient).revokeAccess(created.id(), account);
     }
 
     @Test
