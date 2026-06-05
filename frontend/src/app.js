@@ -132,7 +132,7 @@ export function createApp(options = {}) {
     const account = readAclAccount();
     const validation = validateAclAccount(account);
     if (!validation.valid) {
-      aclState = { ...aclState, account, error: validation.error, feedback: "" };
+      aclState = { ...aclState, account, error: validation.error, feedback: "", result: null };
       renderDetail();
       return;
     }
@@ -160,14 +160,14 @@ export function createApp(options = {}) {
     const canWrite = readAclCheckbox("[data-acl-write]");
     const accountValidation = validateAclAccount(account);
     if (!accountValidation.valid) {
-      aclState = { ...aclState, account, canRead, canWrite, error: accountValidation.error, feedback: "" };
+      aclState = { ...aclState, account, canRead, canWrite, error: accountValidation.error, feedback: "", result: null };
       renderDetail();
       return;
     }
 
     const permissionsValidation = validateAclPermissions({ canRead, canWrite });
     if (!permissionsValidation.valid) {
-      aclState = { ...aclState, account, canRead, canWrite, error: permissionsValidation.error, feedback: "" };
+      aclState = { ...aclState, account, canRead, canWrite, error: permissionsValidation.error, feedback: "", result: null };
       renderDetail();
       return;
     }
@@ -197,7 +197,7 @@ export function createApp(options = {}) {
     const account = readAclAccount();
     const validation = validateAclAccount(account);
     if (!validation.valid) {
-      aclState = { ...aclState, account, error: validation.error, feedback: "" };
+      aclState = { ...aclState, account, error: validation.error, feedback: "", result: null };
       renderDetail();
       return;
     }

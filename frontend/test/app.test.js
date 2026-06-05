@@ -373,6 +373,7 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     aclAccount.value = "bad-account";
     await app.handleAclCheck(secret.id);
     assert.match(detailPanel.innerHTML, /valid Ethereum address/i);
+    assert.match(detailPanel.innerHTML, /No access check performed yet\./);
 
     aclAccount.value = "0x1111111111111111111111111111111111111111";
     aclRead.checked = false;
@@ -385,6 +386,12 @@ test("createApp handles create, update, delete and rendering flows", async () =>
       secret.id
     );
     assert.match(detailPanel.innerHTML, /Select at least one permission/i);
+    assert.match(detailPanel.innerHTML, /No access check performed yet\./);
+
+    aclAccount.value = "bad-account";
+    await app.handleAclRevoke(secret.id);
+    assert.match(detailPanel.innerHTML, /valid Ethereum address/i);
+    assert.match(detailPanel.innerHTML, /No access check performed yet\./);
   } finally {
     globalThis.FormData = originalFormData;
     globalThis.setTimeout = originalSetTimeout;
