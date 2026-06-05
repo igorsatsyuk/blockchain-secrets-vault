@@ -298,12 +298,7 @@ export function createApp(options = {}) {
         pendingAction: "",
         canRead: false,
         canWrite: false,
-        result: {
-          secretId,
-          account,
-          canRead: false,
-          canWrite: false
-        },
+        result: null,
         feedback: `Revoke transaction submitted: ${response.transactionHash}`
       };
       showToast(elements.toast, "Revoke transaction submitted.");
