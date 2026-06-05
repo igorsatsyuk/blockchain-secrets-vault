@@ -359,10 +359,6 @@ jobs:
           args="-Dsonar.projectKey=${REPO_NAME}-backend"
           args="${args} -Dsonar.projectName=${REPO_NAME}-backend"
           args="${args} -Dsonar.scanner.skipJreProvisioning=true"
-          args="${args} -Dsonar.sources=kms-service/src/main/java,secrets-api/src/main/java"
-          args="${args} -Dsonar.tests=kms-service/src/test/java,secrets-api/src/test/java"
-          args="${args} -Dsonar.java.binaries=kms-service/target/classes,secrets-api/target/classes"
-          args="${args} -Dsonar.java.test.binaries=kms-service/target/test-classes,secrets-api/target/test-classes"
 
           if [ -n "${report_paths}" ]; then
             args="${args} -Dsonar.coverage.jacoco.xmlReportPaths=${report_paths}"
@@ -386,23 +382,33 @@ jobs:
         id: backend-sonar-scan
         if: steps['sonar-check'].outputs.sonar_enabled == 'true'
         continue-on-error: true
-        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8
+        shell: bash
         env:
           SONAR_HOST_URL: ${{ vars.SONAR_URL || 'https://sonarcloud.io' }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: backend
-          args: ${{ steps['backend-sonar-args'].outputs.args }}
+          BACKEND_SONAR_ARGS: ${{ steps['backend-sonar-args'].outputs.args }}
+        run: |
+          mvn -B -ntp \
+            -f backend/pom.xml \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.host.url="${SONAR_HOST_URL}" \
+            -Dsonar.token="${SONAR_TOKEN}" \
+            ${BACKEND_SONAR_ARGS}
 
       - name: Retry SonarQube analysis (backend)
         if: steps['sonar-check'].outputs.sonar_enabled == 'true' && steps['backend-sonar-scan'].outcome == 'failure'
-        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8
+        shell: bash
         env:
           SONAR_HOST_URL: ${{ vars.SONAR_URL || 'https://sonarcloud.io' }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: backend
-          args: ${{ steps['backend-sonar-args'].outputs.args }}
+          BACKEND_SONAR_ARGS: ${{ steps['backend-sonar-args'].outputs.args }}
+        run: |
+          mvn -B -ntp \
+            -f backend/pom.xml \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.host.url="${SONAR_HOST_URL}" \
+            -Dsonar.token="${SONAR_TOKEN}" \
+            ${BACKEND_SONAR_ARGS}
 
       - name: Locate backend Sonar report-task
         if: steps['sonar-check'].outputs.sonar_enabled == 'true'
