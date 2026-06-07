@@ -65,6 +65,14 @@ class AuthControllerTest {
 
         webTestClient.post()
                 .uri("/api/v1/auth/login")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer invalid-token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("username", "admin", "password", "change-me"))
+                .exchange()
+                .expectStatus().isOk();
+
+        webTestClient.post()
+                .uri("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(Map.of("username", "admin", "password", "wrong"))
                 .exchange()

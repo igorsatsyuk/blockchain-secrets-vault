@@ -17,7 +17,8 @@ export function createApp(options = {}) {
   const documentRef = options.document ?? globalThis.document;
   const tokenStorage = options.tokenStorage ?? createTokenStorage();
   const authApi = options.authApi ?? createAuthApi();
-  const store = options.store ?? createSecretsStore(createSecretsApi({ getToken: tokenStorage.get }));
+  const getAuthToken = () => tokenStorage.get();
+  const store = options.store ?? createSecretsStore(createSecretsApi({ getToken: getAuthToken }));
 
   const elements = {
     authPanel: documentRef.querySelector("[data-auth-panel]"),
@@ -66,7 +67,7 @@ export function createApp(options = {}) {
     const username = readTextField(data, "username");
     const password = readTextField(data, "password");
     if (!username || !password) {
-      elements.authError.textContent = "Username and password are required.";
+      setAuthError("Username and password are required.");
       return;
     }
 
@@ -74,12 +75,18 @@ export function createApp(options = {}) {
       const response = await authApi.login({ username, password });
       tokenStorage.set(response.accessToken);
       authenticated = true;
-      elements.authError.textContent = "";
+      setAuthError("");
       event.currentTarget.reset();
       renderAuth();
       await store.load();
     } catch (error) {
-      elements.authError.textContent = error.message;
+      setAuthError(error.message);
+    }
+  }
+
+  function setAuthError(message) {
+    if (elements.authError) {
+      elements.authError.textContent = message;
     }
   }
 

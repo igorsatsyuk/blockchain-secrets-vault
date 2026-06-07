@@ -197,7 +197,7 @@ export function createAuthApi(options = {}) {
 }
 
 export function createTokenStorage(options = {}) {
-  const storage = options.storage ?? globalThis.localStorage ?? createMemoryStorage();
+  const storage = options.storage ?? getBrowserStorage();
   const key = options.key ?? DEFAULT_TOKEN_KEY;
 
   return {
@@ -456,4 +456,12 @@ function createMemoryStorage() {
     setItem: (key, value) => values.set(key, String(value)),
     removeItem: (key) => values.delete(key)
   };
+}
+
+function getBrowserStorage() {
+  try {
+    return globalThis.localStorage ?? createMemoryStorage();
+  } catch {
+    return createMemoryStorage();
+  }
 }

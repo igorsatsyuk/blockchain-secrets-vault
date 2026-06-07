@@ -725,6 +725,110 @@ test("module auto-bootstraps when document exists", async () => {
   }
 });
 
+test("createApp binds token getter when it creates the default API store", async () => {
+  const calls = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url, options = {}) => {
+    calls.push({ url, options });
+    return {
+      ok: true,
+      status: 200,
+      json: async () => []
+    };
+  };
+
+  const elements = createAppElements();
+  const documentRef = {
+    querySelector(selector) {
+      return elements[selector];
+    },
+    createElement: createTestElement
+  };
+  const tokenStorage = {
+    token: "jwt-token",
+    get() {
+      return this.token;
+    },
+    set(token) {
+      this.token = token;
+    },
+    clear() {
+      this.token = "";
+    }
+  };
+
+  try {
+    createApp({ document: documentRef, tokenStorage });
+    await Promise.resolve();
+    await Promise.resolve();
+    assert.equal(calls[0].options.headers.Authorization, "Bearer jwt-token");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("handleLogin tolerates missing optional auth error element", async () => {
+  const originalFormData = globalThis.FormData;
+  globalThis.FormData = class {
+    constructor(form) {
+      this.form = form;
+    }
+
+    get(name) {
+      return this.form.values[name] ?? null;
+    }
+  };
+
+  const elements = createAppElements();
+  elements["[data-auth-error]"] = null;
+  const documentRef = {
+    querySelector(selector) {
+      return elements[selector];
+    },
+    createElement: createTestElement
+  };
+  const store = {
+    getState: () => ({
+      loading: false,
+      error: "",
+      secrets: [],
+      selectedId: null,
+      selected: null,
+      audit: { secretId: null, loading: false, error: "", events: [], filters: { action: "", account: "" } }
+    }),
+    subscribe(listener) {
+      listener(this.getState());
+      return () => {};
+    },
+    load: async () => null
+  };
+
+  try {
+    const app = createApp({
+      document: documentRef,
+      store,
+      tokenStorage: {
+        get: () => "",
+        set() {},
+        clear() {}
+      },
+      authApi: {
+        login: async () => ({ accessToken: "jwt-token" })
+      }
+    });
+
+    await app.handleLogin({
+      preventDefault() {},
+      currentTarget: {
+        reset() {},
+        values: { username: "", password: "" }
+      }
+    });
+  } finally {
+    globalThis.FormData = originalFormData;
+  }
+});
+
 function createDeferred() {
   const deferred = {};
   deferred.promise = new Promise((resolve, reject) => {
@@ -732,4 +836,51 @@ function createDeferred() {
     deferred.reject = reject;
   });
   return deferred;
+}
+
+function createTestElement() {
+  const listeners = {};
+  return {
+    value: "",
+    textContent: "",
+    innerHTML: "",
+    className: "",
+    type: "",
+    children: [],
+    classList: {
+      add() {},
+      remove() {}
+    },
+    addEventListener(event, handler) {
+      listeners[event] = handler;
+    },
+    replaceChildren(...children) {
+      this.children = children;
+    },
+    append(child) {
+      this.children.push(child);
+    },
+    querySelector() {
+      return createTestElement();
+    }
+  };
+}
+
+function createAppElements() {
+  return {
+    "[data-auth-panel]": createTestElement(),
+    "[data-auth-form]": createTestElement(),
+    "[data-auth-error]": createTestElement(),
+    "[data-auth-user]": createTestElement(),
+    "[data-logout]": createTestElement(),
+    "[data-app-shell]": createTestElement(),
+    "[data-secret-list]": createTestElement(),
+    "[data-list-status]": createTestElement(),
+    "[data-detail-panel]": createTestElement(),
+    "[data-create-form]": createTestElement(),
+    "[data-create-error]": createTestElement(),
+    "[data-refresh]": createTestElement(),
+    "[data-search]": createTestElement(),
+    "[data-toast]": createTestElement()
+  };
 }

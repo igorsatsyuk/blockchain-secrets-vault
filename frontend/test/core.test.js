@@ -262,6 +262,30 @@ test("auth client logs in and token storage tolerates browser storage failures",
   assert.throws(() => createAuthApi({ fetchImpl: null }), /fetch implementation/);
 });
 
+test("token storage falls back when localStorage access is blocked", () => {
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    get() {
+      throw new Error("blocked");
+    }
+  });
+
+  try {
+    const tokenStorage = createTokenStorage();
+    tokenStorage.set("jwt-token");
+    assert.equal(tokenStorage.get(), "jwt-token");
+    tokenStorage.clear();
+    assert.equal(tokenStorage.get(), "");
+  } finally {
+    if (descriptor) {
+      Object.defineProperty(globalThis, "localStorage", descriptor);
+    } else {
+      delete globalThis.localStorage;
+    }
+  }
+});
+
 test("API client surfaces validation details and fallback errors", async () => {
   const validationApi = createSecretsApi({
     fetchImpl: async () => response({ details: { name: "must not be blank" } }, { ok: false, status: 400 })
