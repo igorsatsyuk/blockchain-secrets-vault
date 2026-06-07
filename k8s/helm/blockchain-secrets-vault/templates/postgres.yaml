@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: postgres-secrets
+  name: {{ include "bsv.componentName" (dict "root" . "component" "postgres-secrets") }}
   labels:
     {{- include "bsv.labels" . | nindent 4 }}
 type: Opaque
@@ -13,12 +13,12 @@ stringData:
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres
+  name: {{ include "bsv.componentName" (dict "root" . "component" "postgres") }}
   labels:
     {{- include "bsv.labels" . | nindent 4 }}
 spec:
   selector:
-    {{- include "bsv.selectorLabel" "postgres" | nindent 4 }}
+    {{- include "bsv.selectorLabels" (dict "root" . "name" "postgres") | nindent 4 }}
   ports:
     - name: postgres
       port: {{ .Values.postgres.service.port }}
@@ -27,19 +27,19 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: postgres
+  name: {{ include "bsv.componentName" (dict "root" . "component" "postgres") }}
   labels:
     {{- include "bsv.labels" . | nindent 4 }}
 spec:
-  serviceName: postgres
+  serviceName: {{ include "bsv.componentName" (dict "root" . "component" "postgres") }}
   replicas: 1
   selector:
     matchLabels:
-      {{- include "bsv.selectorLabel" "postgres" | nindent 6 }}
+      {{- include "bsv.selectorLabels" (dict "root" . "name" "postgres") | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "bsv.selectorLabel" "postgres" | nindent 8 }}
+        {{- include "bsv.selectorLabels" (dict "root" . "name" "postgres") | nindent 8 }}
         {{- include "bsv.labels" . | nindent 8 }}
     spec:
       containers:
@@ -54,7 +54,7 @@ spec:
               name: postgres
           envFrom:
             - secretRef:
-                name: postgres-secrets
+                name: {{ include "bsv.componentName" (dict "root" . "component" "postgres-secrets") }}
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data
@@ -84,9 +84,9 @@ spec:
       spec:
         accessModes:
           - ReadWriteOnce
-        {{- if .Values.postgres.persistence.storageClassName }}
+        {{ if .Values.postgres.persistence.storageClassName }}
         storageClassName: {{ .Values.postgres.persistence.storageClassName | quote }}
-        {{- end }}
+        {{ end }}
         resources:
           requests:
             storage: {{ .Values.postgres.persistence.size }}

@@ -112,7 +112,10 @@ Install or upgrade:
 helm upgrade --install blockchain-secrets-vault k8s/helm/blockchain-secrets-vault \
   --namespace blockchain-secrets-vault \
   --create-namespace \
-  -f k8s/helm/blockchain-secrets-vault/values-dev.yaml
+  -f k8s/helm/blockchain-secrets-vault/values-dev.yaml \
+  --set secretsApi.secrets.authPassword='replace-with-strong-password' \
+  --set secretsApi.secrets.authJwtSecret='replace-with-at-least-32-bytes-of-secret-material' \
+  --set postgres.auth.password='replace-with-strong-password'
 ```
 
 Use a different environment values file:
@@ -121,7 +124,10 @@ Use a different environment values file:
 - `values-stage.yaml`
 - `values-prod.yaml`
 
-For production-like environments, override secret values at deploy time:
+All Helm environments require overriding `secretsApi.secrets.authPassword`,
+`secretsApi.secrets.authJwtSecret`, and `postgres.auth.password`.
+
+For production-like environments, use `values-prod.yaml` and override secrets:
 
 ```bash
 helm upgrade --install blockchain-secrets-vault k8s/helm/blockchain-secrets-vault \

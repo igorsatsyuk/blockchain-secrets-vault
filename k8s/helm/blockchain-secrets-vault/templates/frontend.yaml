@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend
+  name: {{ include "bsv.componentName" (dict "root" . "component" "frontend") }}
   labels:
     {{- include "bsv.labels" . | nindent 4 }}
 spec:
   selector:
-    {{- include "bsv.selectorLabel" "frontend" | nindent 4 }}
+    {{- include "bsv.selectorLabels" (dict "root" . "name" "frontend") | nindent 4 }}
   ports:
     - name: http
       port: {{ .Values.frontend.service.port }}
@@ -15,18 +15,18 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
+  name: {{ include "bsv.componentName" (dict "root" . "component" "frontend") }}
   labels:
     {{- include "bsv.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.frontend.replicas }}
   selector:
     matchLabels:
-      {{- include "bsv.selectorLabel" "frontend" | nindent 6 }}
+      {{- include "bsv.selectorLabels" (dict "root" . "name" "frontend") | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "bsv.selectorLabel" "frontend" | nindent 8 }}
+        {{- include "bsv.selectorLabels" (dict "root" . "name" "frontend") | nindent 8 }}
         {{- include "bsv.labels" . | nindent 8 }}
     spec:
       containers:
