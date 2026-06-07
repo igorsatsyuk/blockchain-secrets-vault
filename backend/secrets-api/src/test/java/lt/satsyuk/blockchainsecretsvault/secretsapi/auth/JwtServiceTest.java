@@ -74,11 +74,19 @@ class JwtServiceTest {
         assertThat(defaults.jwtSecret()).isEqualTo("configured-jwt-secret");
         assertThat(defaults.issuer()).isEqualTo("blockchain-secrets-vault");
         assertThat(defaults.tokenTtl()).isEqualTo(Duration.ofHours(1));
-        assertThatThrownBy(() -> new AuthProperties("admin", " ", "secret", "issuer", Duration.ofMinutes(5)))
+        assertThatThrownBy(this::authPropertiesWithoutPassword)
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("secrets.auth.password must be configured");
-        assertThatThrownBy(() -> new AuthProperties("admin", "password", " ", "issuer", Duration.ofMinutes(5)))
+        assertThatThrownBy(this::authPropertiesWithoutJwtSecret)
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("secrets.auth.jwt-secret must be configured");
+    }
+
+    private AuthProperties authPropertiesWithoutPassword() {
+        return new AuthProperties("admin", " ", "secret", "issuer", Duration.ofMinutes(5));
+    }
+
+    private AuthProperties authPropertiesWithoutJwtSecret() {
+        return new AuthProperties("admin", "password", " ", "issuer", Duration.ofMinutes(5));
     }
 }
