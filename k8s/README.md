@@ -1,10 +1,9 @@
-# Kubernetes manifests
+# Kubernetes manifests and Helm chart
 
-This directory contains plain Kubernetes manifests for issue #17.
+This directory contains:
 
-## Layout
-
-- `base/` - deployable manifests for the current project topology
+- `base/` - plain Kubernetes manifests from issue #17
+- `helm/blockchain-secrets-vault/` - Helm chart for parameterized environment deployments (issue #18)
 
 ## What gets deployed
 
@@ -33,7 +32,7 @@ docker build -f blockchain/Dockerfile -t ghcr.io/igorsatsyuk/blockchain-secrets-
 
 Update tags in `base/*.yaml` if you publish different image names.
 
-## Deploy
+## Deploy with plain manifests (kustomize)
 
 The base manifests intentionally fail closed for required secrets. At the
 current stage of the project, only `secrets-api` is required for the working
@@ -104,3 +103,54 @@ kubectl -n blockchain-secrets-vault rollout restart deployment/secrets-api
 
 Once both values are non-empty, `secrets-api` automatically enables the
 Web3j-backed ACL client.
+
+## Deploy with Helm (dev/stage/prod values)
+
+Install or upgrade:
+
+```bash
+# create local files with secret values (do not commit them)
+printf 'replace-with-strong-password' > auth-password.txt
+printf 'replace-with-at-least-32-bytes-of-secret-material' > jwt-secret.txt
+printf 'replace-with-strong-password' > postgres-password.txt
+
+helm upgrade --install blockchain-secrets-vault k8s/helm/blockchain-secrets-vault \
+  --namespace blockchain-secrets-vault \
+  --create-namespace \
+  -f k8s/helm/blockchain-secrets-vault/values-dev.yaml \
+  --set-file secretsApi.secrets.authPassword=auth-password.txt \
+  --set-file secretsApi.secrets.authJwtSecret=jwt-secret.txt \
+  --set-file postgres.auth.password=postgres-password.txt
+```
+
+Note: Helm still stores these values in-cluster as rendered Kubernetes Secrets
+and inside Helm release metadata/history. Restrict access to the namespace and
+to Helm release secrets accordingly.
+
+Use a different environment values file:
+
+- `values-dev.yaml`
+- `values-stage.yaml`
+- `values-prod.yaml`
+
+All Helm environments require overriding `secretsApi.secrets.authPassword`,
+`secretsApi.secrets.authJwtSecret`, and `postgres.auth.password`.
+Unlike `k8s/base`, this chart always deploys PostgreSQL, so a non-empty
+`postgres.auth.password` is mandatory for successful startup.
+
+For production-like environments, use `values-prod.yaml` and override secrets:
+
+```bash
+# create local files with production secret values (do not commit them)
+printf 'replace-with-strong-password' > auth-password.txt
+printf 'replace-with-at-least-32-bytes-of-secret-material' > jwt-secret.txt
+printf 'replace-with-strong-password' > postgres-password.txt
+
+helm upgrade --install blockchain-secrets-vault k8s/helm/blockchain-secrets-vault \
+  --namespace blockchain-secrets-vault \
+  --create-namespace \
+  -f k8s/helm/blockchain-secrets-vault/values-prod.yaml \
+  --set-file secretsApi.secrets.authPassword=auth-password.txt \
+  --set-file secretsApi.secrets.authJwtSecret=jwt-secret.txt \
+  --set-file postgres.auth.password=postgres-password.txt
+```

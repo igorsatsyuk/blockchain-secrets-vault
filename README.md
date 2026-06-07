@@ -49,9 +49,9 @@ Secrets API contract: [docs/api/secrets-api.md](docs/api/secrets-api.md)
 - Node.js built-in test runner with coverage gates
 
 ### Infrastructure
-- Docker Compose, optional Kubernetes
+- Docker Compose, optional Kubernetes (manifests + Helm chart)
 
-Kubernetes manifests: [k8s/README.md](k8s/README.md)
+Kubernetes deployment docs: [k8s/README.md](k8s/README.md)
 
 ## Repository Layout
 

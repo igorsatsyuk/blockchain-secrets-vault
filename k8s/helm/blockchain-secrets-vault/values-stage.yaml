@@ -1,0 +1,15 @@
+postgres:
+  persistence:
+    size: 8Gi
+
+secretsApi:
+  replicas: 2
+
+frontend:
+  replicas: 2
+
+ingress:
+  hosts:
+    - host: stage.secrets-vault.local
+      apiPath: /api
+      frontendPath: /
