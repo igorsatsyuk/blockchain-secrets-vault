@@ -3,7 +3,6 @@ package lt.satsyuk.blockchainsecretsvault.secretsapi.auth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -21,7 +20,7 @@ class JwtServiceTest {
             Duration.ofMinutes(15)
     );
     private final Clock clock = Clock.fixed(Instant.parse("2026-06-01T12:00:00Z"), ZoneOffset.UTC);
-    private final JwtService jwtService = new JwtService(properties, new ObjectMapper(), clock);
+    private final JwtService jwtService = new JwtService(properties, clock);
 
     @Test
     void issuesAndValidatesSignedTokens() {
@@ -45,13 +44,11 @@ class JwtServiceTest {
 
         JwtService expiredService = new JwtService(
                 new AuthProperties("admin", "change-me", properties.jwtSecret(), properties.issuer(), Duration.ofSeconds(1)),
-                new ObjectMapper(),
                 clock
         );
         String expiredToken = expiredService.issueToken("admin");
         JwtService validatingLater = new JwtService(
                 properties,
-                new ObjectMapper(),
                 Clock.fixed(Instant.parse("2026-06-01T12:00:02Z"), ZoneOffset.UTC)
         );
         assertThatThrownBy(() -> validatingLater.validate(expiredToken))

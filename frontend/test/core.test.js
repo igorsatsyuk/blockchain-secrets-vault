@@ -257,6 +257,7 @@ test("auth client logs in and token storage tolerates browser storage failures",
     }
   });
   failingStorage.set("abc");
+  assert.equal(failingStorage.get(), "abc");
   failingStorage.clear();
   assert.equal(failingStorage.get(), "");
   assert.throws(() => createAuthApi({ fetchImpl: null }), /fetch implementation/);

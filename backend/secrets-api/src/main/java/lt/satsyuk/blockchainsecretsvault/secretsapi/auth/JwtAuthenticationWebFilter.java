@@ -1,6 +1,7 @@
 package lt.satsyuk.blockchainsecretsvault.secretsapi.auth;
 
 import java.util.List;
+import java.util.Locale;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono;
 public class JwtAuthenticationWebFilter implements WebFilter {
 
     private static final String BEARER_PREFIX = "Bearer ";
+    private static final String BEARER_SCHEME = "bearer";
 
     private final JwtService jwtService;
 
@@ -25,12 +27,12 @@ public class JwtAuthenticationWebFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String header = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        if (header == null || !header.startsWith(BEARER_PREFIX)) {
+        if (header == null || !isBearer(header)) {
             return chain.filter(exchange);
         }
 
         try {
-            String subject = jwtService.validate(header.substring(BEARER_PREFIX.length()));
+            String subject = jwtService.validate(header.substring(BEARER_PREFIX.length()).trim());
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     subject,
                     null,
@@ -41,5 +43,11 @@ public class JwtAuthenticationWebFilter implements WebFilter {
         } catch (JwtAuthenticationException _) {
             return chain.filter(exchange);
         }
+    }
+
+    private static boolean isBearer(String header) {
+        return header.length() > BEARER_PREFIX.length()
+                && header.charAt(BEARER_PREFIX.length() - 1) == ' '
+                && BEARER_SCHEME.equals(header.substring(0, BEARER_PREFIX.length() - 1).toLowerCase(Locale.ROOT));
     }
 }

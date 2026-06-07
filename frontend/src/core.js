@@ -199,23 +199,26 @@ export function createAuthApi(options = {}) {
 export function createTokenStorage(options = {}) {
   const storage = options.storage ?? getBrowserStorage();
   const key = options.key ?? DEFAULT_TOKEN_KEY;
+  let memoryToken = "";
 
   return {
     get() {
       try {
-        return storage.getItem(key) ?? "";
+        return storage.getItem(key) ?? memoryToken;
       } catch {
-        return "";
+        return memoryToken;
       }
     },
     set(token) {
+      memoryToken = String(token ?? "");
       try {
-        storage.setItem(key, token);
+        storage.setItem(key, memoryToken);
       } catch {
         // Non-persistent storage is acceptable for restricted browser contexts.
       }
     },
     clear() {
+      memoryToken = "";
       try {
         storage.removeItem(key);
       } catch {

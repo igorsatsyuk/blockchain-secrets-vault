@@ -25,7 +25,7 @@ public class AuthController {
     public Mono<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return Mono.fromSupplier(() -> new AuthResponse(
                 "Bearer",
-                authService.login(request.username(), request.password()),
+                authService.login(request.username().trim(), request.password()),
                 properties.tokenTtl().toSeconds()
         ));
     }

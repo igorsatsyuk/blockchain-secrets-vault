@@ -31,7 +31,7 @@ class AuthControllerTest {
         AuthResponse response = webTestClient.post()
                 .uri("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(Map.of("username", "admin", "password", "change-me"))
+                .bodyValue(Map.of("username", " admin ", "password", "change-me"))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(AuthResponse.class)
@@ -45,7 +45,7 @@ class AuthControllerTest {
 
         webTestClient.get()
                 .uri("/api/v1/secrets")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + response.accessToken())
+                .header(HttpHeaders.AUTHORIZATION, "bearer " + response.accessToken())
                 .exchange()
                 .expectStatus().isOk();
     }
@@ -55,7 +55,9 @@ class AuthControllerTest {
         webTestClient.get()
                 .uri("/api/v1/secrets")
                 .exchange()
-                .expectStatus().isUnauthorized();
+                .expectStatus().isUnauthorized()
+                .expectBody(ErrorResponse.class)
+                .value(error -> assertThat(error.message()).isEqualTo("Authentication is required"));
 
         webTestClient.get()
                 .uri("/api/v1/secrets")
