@@ -37,7 +37,7 @@ class SecretsServiceKeyRotationTest {
     );
 
     @Test
-    void rotatesDefaultKeyAndReEncryptsExistingSecrets() {
+    void rotatesDefaultKeyAndRewrapsEnvelopeEncryptedSecrets() {
         SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "initial-value", Set.of())).block();
         SecretRecord beforeRotation = repository.findById(created.id()).orElseThrow();
         String payloadBeforeRotation = decryptPayload(beforeRotation);
@@ -54,7 +54,7 @@ class SecretsServiceKeyRotationTest {
         SecretRecord afterRotation = repository.findById(created.id()).orElseThrow();
         assertThat(afterRotation.encryptionKeyVersion()).isEqualTo(1);
         assertThat(afterRotation.encryptedPayload()).isNotEqualTo(beforeRotation.encryptedPayload());
-        assertThat(envelopeCiphertext(afterRotation)).isEqualTo(envelopeCiphertext(beforeRotation));
+        assertThat(payloadCiphertextBase64(afterRotation)).isEqualTo(payloadCiphertextBase64(beforeRotation));
         assertThat(decryptPayload(afterRotation)).isEqualTo(payloadBeforeRotation);
     }
 
@@ -103,7 +103,7 @@ class SecretsServiceKeyRotationTest {
         return new String(kmsService.decrypt(encryptedData), StandardCharsets.UTF_8);
     }
 
-    private String envelopeCiphertext(SecretRecord secret) {
+    private String payloadCiphertextBase64(SecretRecord secret) {
         return Base64.getEncoder().encodeToString(decodeEncryptedData(secret).ciphertext());
     }
 

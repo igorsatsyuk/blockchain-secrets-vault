@@ -52,8 +52,11 @@ payload ciphertext and only re-wrap their DEK with the new active KEK version.
 Legacy directly encrypted payloads are decrypted and re-encrypted into the
 envelope format during rotation.
 
-Returns `200 OK` with key version metadata and the number of re-encrypted
-secrets.
+Returns `200 OK` with key version metadata and the number of rotated secrets.
+For envelope-encrypted secrets this count means the wrapped DEK was updated;
+for legacy directly encrypted payloads it means the payload was re-encrypted
+into the envelope format. The response field name remains `reEncryptedSecrets`
+for API compatibility.
 
 ```json
 {

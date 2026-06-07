@@ -19,6 +19,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -135,7 +136,7 @@ public class AesGcmKmsService implements KmsService {
                     wrappedDataKey.authTag()
                 );
             } finally {
-                java.util.Arrays.fill(dataEncryptionKey, (byte) 0);
+                Arrays.fill(dataEncryptionKey, (byte) 0);
             }
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
             logger.error("Encryption failed for keyId: {}", keyId, e);
@@ -164,7 +165,7 @@ public class AesGcmKmsService implements KmsService {
             try {
                 return decryptWithKey(dataEncryptionKey, encryptedData.ciphertext(), encryptedData.nonce(), encryptedData.authTag());
             } finally {
-                java.util.Arrays.fill(dataEncryptionKey, (byte) 0);
+                Arrays.fill(dataEncryptionKey, (byte) 0);
             }
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
             logger.error("Decryption failed for keyId: {}, version: {}", encryptedData.keyId(), encryptedData.keyVersion(), e);
@@ -204,7 +205,7 @@ public class AesGcmKmsService implements KmsService {
                     wrappedDataKey.authTag()
                 );
             } finally {
-                java.util.Arrays.fill(dataEncryptionKey, (byte) 0);
+                Arrays.fill(dataEncryptionKey, (byte) 0);
             }
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
             logger.error("Data key re-wrap failed for keyId: {}, version: {}", encryptedData.keyId(), encryptedData.keyVersion(), e);
@@ -341,6 +342,27 @@ public class AesGcmKmsService implements KmsService {
         return result;
     }
 
-    private record EncryptionResult(byte[] ciphertext, byte[] nonce, byte[] authTag) {
+    private static final class EncryptionResult {
+        private final byte[] ciphertext;
+        private final byte[] nonce;
+        private final byte[] authTag;
+
+        private EncryptionResult(byte[] ciphertext, byte[] nonce, byte[] authTag) {
+            this.ciphertext = ciphertext;
+            this.nonce = nonce;
+            this.authTag = authTag;
+        }
+
+        private byte[] ciphertext() {
+            return ciphertext;
+        }
+
+        private byte[] nonce() {
+            return nonce;
+        }
+
+        private byte[] authTag() {
+            return authTag;
+        }
     }
 }

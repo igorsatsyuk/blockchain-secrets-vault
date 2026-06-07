@@ -18,33 +18,11 @@ public record EncryptedData(
     }
 
     public EncryptedData {
-        if (ciphertext == null || ciphertext.length == 0) {
-            throw new IllegalArgumentException("ciphertext cannot be empty");
-        }
-        if (nonce == null || nonce.length == 0) {
-            throw new IllegalArgumentException("nonce cannot be empty");
-        }
-        if (authTag == null || authTag.length == 0) {
-            throw new IllegalArgumentException("authTag cannot be empty");
-        }
-        if (keyId == null || keyId.isBlank()) {
-            throw new IllegalArgumentException("keyId cannot be blank");
-        }
-        if (keyVersion < 0) {
-            throw new IllegalArgumentException("keyVersion cannot be negative");
-        }
-        boolean hasEncryptedDataKey = encryptedDataKey != null || dataKeyNonce != null || dataKeyAuthTag != null;
-        if (hasEncryptedDataKey) {
-            if (encryptedDataKey == null || encryptedDataKey.length == 0) {
-                throw new IllegalArgumentException("encryptedDataKey cannot be empty");
-            }
-            if (dataKeyNonce == null || dataKeyNonce.length == 0) {
-                throw new IllegalArgumentException("dataKeyNonce cannot be empty");
-            }
-            if (dataKeyAuthTag == null || dataKeyAuthTag.length == 0) {
-                throw new IllegalArgumentException("dataKeyAuthTag cannot be empty");
-            }
-        }
+        validateRequiredSegment(ciphertext, "ciphertext");
+        validateRequiredSegment(nonce, "nonce");
+        validateRequiredSegment(authTag, "authTag");
+        validateKeyMetadata(keyId, keyVersion);
+        validateEnvelopeMetadata(encryptedDataKey, dataKeyNonce, dataKeyAuthTag);
 
         ciphertext = ciphertext.clone();
         nonce = nonce.clone();
@@ -86,6 +64,34 @@ public record EncryptedData(
 
     public boolean envelopeEncrypted() {
         return encryptedDataKey != null;
+    }
+
+    private static void validateKeyMetadata(String keyId, int keyVersion) {
+        if (keyId == null || keyId.isBlank()) {
+            throw new IllegalArgumentException("keyId cannot be blank");
+        }
+        if (keyVersion < 0) {
+            throw new IllegalArgumentException("keyVersion cannot be negative");
+        }
+    }
+
+    private static void validateEnvelopeMetadata(byte[] encryptedDataKey, byte[] dataKeyNonce, byte[] dataKeyAuthTag) {
+        if (!hasEnvelopeMetadata(encryptedDataKey, dataKeyNonce, dataKeyAuthTag)) {
+            return;
+        }
+        validateRequiredSegment(encryptedDataKey, "encryptedDataKey");
+        validateRequiredSegment(dataKeyNonce, "dataKeyNonce");
+        validateRequiredSegment(dataKeyAuthTag, "dataKeyAuthTag");
+    }
+
+    private static boolean hasEnvelopeMetadata(byte[] encryptedDataKey, byte[] dataKeyNonce, byte[] dataKeyAuthTag) {
+        return encryptedDataKey != null || dataKeyNonce != null || dataKeyAuthTag != null;
+    }
+
+    private static void validateRequiredSegment(byte[] segment, String name) {
+        if (segment == null || segment.length == 0) {
+            throw new IllegalArgumentException(name + " cannot be empty");
+        }
     }
 
     @Override
