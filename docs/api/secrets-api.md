@@ -44,7 +44,7 @@ The username defaults to `admin`, but `secrets.auth.password` and
 
 - `secrets.auth.username`
 - `secrets.auth.password`
-- `secrets.auth.jwt-secret`
+- `secrets.auth.jwt-secret`, must be at least 32 bytes
 - `secrets.auth.issuer`, default `blockchain-secrets-vault`
 - `secrets.auth.token-ttl`, default `PT1H`
 

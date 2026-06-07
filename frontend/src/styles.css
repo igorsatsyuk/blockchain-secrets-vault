@@ -126,6 +126,7 @@ textarea {
 .icon-button:focus,
 .primary-button:focus,
 .danger-button:focus,
+.text-button:focus,
 .secret-row:focus {
   outline: 3px solid color-mix(in srgb, var(--focus), transparent 76%);
   outline-offset: 1px;
