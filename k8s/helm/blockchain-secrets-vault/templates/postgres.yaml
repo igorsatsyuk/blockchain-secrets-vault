@@ -41,6 +41,8 @@ spec:
       labels:
         {{- include "bsv.selectorLabels" (dict "root" . "name" "postgres") | nindent 8 }}
         {{- include "bsv.labels" . | nindent 8 }}
+      annotations:
+        checksum/postgres-auth: {{ .Values.postgres.auth | toJson | sha256sum | quote }}
     spec:
       containers:
         - name: postgres

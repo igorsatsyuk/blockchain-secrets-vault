@@ -123,6 +123,10 @@ helm upgrade --install blockchain-secrets-vault k8s/helm/blockchain-secrets-vaul
   --set-file postgres.auth.password=postgres-password.txt
 ```
 
+Note: Helm still stores these values in-cluster as rendered Kubernetes Secrets
+and inside Helm release metadata/history. Restrict access to the namespace and
+to Helm release secrets accordingly.
+
 Use a different environment values file:
 
 - `values-dev.yaml`
