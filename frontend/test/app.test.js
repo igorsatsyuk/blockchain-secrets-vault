@@ -432,6 +432,23 @@ test("createApp handles create, update, delete and rendering flows", async () =>
       currentTarget: authForm
     });
     assert.match(elements["[data-auth-error]"].textContent, /required/i);
+    assert.equal(authApi.logins, 1);
+
+    authForm.values = { username: "   ", password: "secret" };
+    await app.handleLogin({
+      preventDefault() {},
+      currentTarget: authForm
+    });
+    assert.match(elements["[data-auth-error]"].textContent, /required/i);
+    assert.equal(authApi.logins, 1);
+
+    authForm.values = { username: "admin", password: "   " };
+    await app.handleLogin({
+      preventDefault() {},
+      currentTarget: authForm
+    });
+    assert.match(elements["[data-auth-error]"].textContent, /required/i);
+    assert.equal(authApi.logins, 1);
 
     authForm.values = { username: "admin", password: "bad" };
     await app.handleLogin({

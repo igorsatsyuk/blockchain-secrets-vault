@@ -260,6 +260,24 @@ test("auth client logs in and token storage tolerates browser storage failures",
   assert.equal(failingStorage.get(), "abc");
   failingStorage.clear();
   assert.equal(failingStorage.get(), "");
+
+  let blocked = false;
+  const storageThatBecomesBlocked = createTokenStorage({
+    key: "token",
+    storage: {
+      getItem: () => {
+        if (blocked) {
+          throw new Error("blocked");
+        }
+        return "stored-token";
+      },
+      setItem: () => null,
+      removeItem: () => null
+    }
+  });
+  assert.equal(storageThatBecomesBlocked.get(), "stored-token");
+  blocked = true;
+  assert.equal(storageThatBecomesBlocked.get(), "stored-token");
   assert.throws(() => createAuthApi({ fetchImpl: null }), /fetch implementation/);
 });
 

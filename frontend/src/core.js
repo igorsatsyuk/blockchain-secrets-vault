@@ -204,7 +204,12 @@ export function createTokenStorage(options = {}) {
   return {
     get() {
       try {
-        return storage.getItem(key) ?? memoryToken;
+        const storedToken = storage.getItem(key);
+        if (storedToken !== null) {
+          memoryToken = storedToken;
+          return memoryToken;
+        }
+        return memoryToken;
       } catch {
         return memoryToken;
       }

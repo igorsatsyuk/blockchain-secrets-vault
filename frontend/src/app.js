@@ -64,9 +64,9 @@ export function createApp(options = {}) {
   async function handleLogin(event) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const username = readTextField(data, "username");
+    const username = readTextField(data, "username").trim();
     const password = readTextField(data, "password");
-    if (!username || !password) {
+    if (!username || !password.trim()) {
       setAuthError("Username and password are required.");
       return;
     }
