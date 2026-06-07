@@ -19,7 +19,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+        "secrets.auth.password=change-me",
+        "secrets.auth.jwt-secret=test-jwt-secret-with-enough-entropy"
+})
 @AutoConfigureWebTestClient
 class SecretsControllerTest {
 

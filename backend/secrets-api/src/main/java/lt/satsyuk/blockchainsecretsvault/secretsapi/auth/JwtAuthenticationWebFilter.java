@@ -39,7 +39,7 @@ public class JwtAuthenticationWebFilter implements WebFilter {
             );
             return chain.filter(exchange)
                     .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication));
-        } catch (JwtAuthenticationException exception) {
+        } catch (JwtAuthenticationException _) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }

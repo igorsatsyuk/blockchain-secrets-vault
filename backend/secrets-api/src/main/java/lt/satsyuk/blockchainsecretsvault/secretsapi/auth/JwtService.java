@@ -23,6 +23,7 @@ public class JwtService {
     private static final TypeReference<Map<String, Object>> CLAIMS_TYPE = new TypeReference<>() {};
     private static final Base64.Encoder BASE64_URL_ENCODER = Base64.getUrlEncoder().withoutPadding();
     private static final Base64.Decoder BASE64_URL_DECODER = Base64.getUrlDecoder();
+    private static final String JWT_PART_FORMAT = "%s.%s";
 
     private final AuthProperties properties;
     private final ObjectMapper objectMapper;
@@ -43,8 +44,8 @@ public class JwtService {
                 "iat", now.getEpochSecond(),
                 "exp", now.plus(properties.tokenTtl()).getEpochSecond()
         );
-        String unsignedToken = "%s.%s".formatted(encodeJson(header), encodeJson(claims));
-        return "%s.%s".formatted(unsignedToken, sign(unsignedToken));
+        String unsignedToken = JWT_PART_FORMAT.formatted(encodeJson(header), encodeJson(claims));
+        return JWT_PART_FORMAT.formatted(unsignedToken, sign(unsignedToken));
     }
 
     public String validate(String token) {
@@ -53,7 +54,7 @@ public class JwtService {
             throw new JwtAuthenticationException("Malformed bearer token");
         }
 
-        String unsignedToken = "%s.%s".formatted(parts[0], parts[1]);
+        String unsignedToken = JWT_PART_FORMAT.formatted(parts[0], parts[1]);
         if (!MessageDigest.isEqual(sign(unsignedToken).getBytes(StandardCharsets.UTF_8), parts[2].getBytes(StandardCharsets.UTF_8))) {
             throw new JwtAuthenticationException("Invalid bearer token signature");
         }
@@ -82,7 +83,7 @@ public class JwtService {
     private Map<String, Object> decodeJson(String value) {
         try {
             return objectMapper.readValue(BASE64_URL_DECODER.decode(value), CLAIMS_TYPE);
-        } catch (IllegalArgumentException | IOException exception) {
+        } catch (IllegalArgumentException | IOException _) {
             throw new JwtAuthenticationException("Malformed bearer token payload");
         }
     }

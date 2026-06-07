@@ -60,13 +60,25 @@ class JwtServiceTest {
     }
 
     @Test
-    void appliesSafeDefaultsForBlankProperties() {
-        AuthProperties defaults = new AuthProperties(" ", "", null, " ", null);
+    void appliesSafeDefaultsAndRequiresSecrets() {
+        AuthProperties defaults = new AuthProperties(
+                " ",
+                "configured-password",
+                "configured-jwt-secret",
+                " ",
+                null
+        );
 
         assertThat(defaults.username()).isEqualTo("admin");
-        assertThat(defaults.password()).isEqualTo("change-me");
-        assertThat(defaults.jwtSecret()).isNotBlank();
+        assertThat(defaults.password()).isEqualTo("configured-password");
+        assertThat(defaults.jwtSecret()).isEqualTo("configured-jwt-secret");
         assertThat(defaults.issuer()).isEqualTo("blockchain-secrets-vault");
         assertThat(defaults.tokenTtl()).isEqualTo(Duration.ofHours(1));
+        assertThatThrownBy(() -> new AuthProperties("admin", " ", "secret", "issuer", Duration.ofMinutes(5)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("secrets.auth.password must be configured");
+        assertThatThrownBy(() -> new AuthProperties("admin", "password", " ", "issuer", Duration.ofMinutes(5)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("secrets.auth.jwt-secret must be configured");
     }
 }

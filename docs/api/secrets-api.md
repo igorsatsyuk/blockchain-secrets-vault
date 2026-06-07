@@ -39,8 +39,8 @@ Returns `200 OK` with an HMAC-SHA256 signed JWT.
 }
 ```
 
-Default development credentials are `admin` / `change-me`. Override them before
-running outside local development:
+The username defaults to `admin`, but `secrets.auth.password` and
+`secrets.auth.jwt-secret` must be configured explicitly before the API starts:
 
 - `secrets.auth.username`
 - `secrets.auth.password`
