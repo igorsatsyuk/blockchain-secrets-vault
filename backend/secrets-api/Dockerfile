@@ -15,14 +15,18 @@ RUN mvn -pl secrets-api -am -DskipTests package
 
 FROM eclipse-temurin:25-jre
 
+ARG APP_UID=10001
+ARG APP_GID=10001
+
 WORKDIR /app
 
 COPY --from=build /workspace/secrets-api/target/secrets-api-*.jar /app/secrets-api.jar
 
-RUN addgroup --system app && adduser --system --ingroup app app \
-    && chown -R app:app /app
+RUN addgroup --system --gid ${APP_GID} app \
+    && adduser --system --uid ${APP_UID} --ingroup app app \
+    && chown -R ${APP_UID}:${APP_GID} /app
 
-USER app
+USER ${APP_UID}:${APP_GID}
 
 EXPOSE 8080
 
