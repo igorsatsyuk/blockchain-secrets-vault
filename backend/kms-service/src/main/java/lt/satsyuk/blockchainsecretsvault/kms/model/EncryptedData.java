@@ -96,15 +96,20 @@ public record EncryptedData(
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof EncryptedData(byte[] ct, byte[] n, byte[] at, String id, int kv, byte[] edk, byte[] dkn, byte[] dkat) &&
-               kv == keyVersion &&
-               Arrays.equals(ciphertext, ct) &&
-               Arrays.equals(nonce, n) &&
-               Arrays.equals(authTag, at) &&
-               Arrays.equals(encryptedDataKey, edk) &&
-               Arrays.equals(dataKeyNonce, dkn) &&
-               Arrays.equals(dataKeyAuthTag, dkat) &&
-               Objects.equals(keyId, id);
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EncryptedData other)) {
+            return false;
+        }
+        return other.keyVersion == keyVersion &&
+               Arrays.equals(ciphertext, other.ciphertext) &&
+               Arrays.equals(nonce, other.nonce) &&
+               Arrays.equals(authTag, other.authTag) &&
+               Arrays.equals(encryptedDataKey, other.encryptedDataKey) &&
+               Arrays.equals(dataKeyNonce, other.dataKeyNonce) &&
+               Arrays.equals(dataKeyAuthTag, other.dataKeyAuthTag) &&
+               Objects.equals(keyId, other.keyId);
     }
 
     @Override
