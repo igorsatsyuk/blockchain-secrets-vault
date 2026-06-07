@@ -7,7 +7,29 @@
     <link rel="stylesheet" href="./src/styles.css">
   </head>
   <body>
-    <main class="app-shell">
+    <section class="auth-panel" data-auth-panel aria-labelledby="auth-title">
+      <form class="auth-form" data-auth-form method="post">
+        <div class="brand">
+          <img src="./src/assets/vault-mark.svg" width="44" height="44" alt="">
+          <div>
+            <p class="eyebrow">Secrets UI</p>
+            <h1 id="auth-title">Blockchain Secrets Vault</h1>
+          </div>
+        </div>
+        <label>
+          Username
+          <input name="username" autocomplete="username" required>
+        </label>
+        <label>
+          Password
+          <input name="password" type="password" autocomplete="current-password" required>
+        </label>
+        <p class="form-error" data-auth-error role="alert"></p>
+        <button class="primary-button" type="submit">Sign in</button>
+      </form>
+    </section>
+
+    <main class="app-shell" data-app-shell hidden>
       <aside class="sidebar" aria-label="Secrets">
         <header class="brand">
           <img src="./src/assets/vault-mark.svg" width="44" height="44" alt="">
@@ -23,6 +45,10 @@
             <input data-search type="search" placeholder="Search secrets">
           </label>
           <button class="icon-button" data-refresh type="button" title="Refresh secrets" aria-label="Refresh secrets">↻</button>
+        </div>
+        <div class="session-bar">
+          <span data-auth-user></span>
+          <button class="text-button" data-logout type="button">Sign out</button>
         </div>
 
         <div class="list-status" data-list-status role="status"></div>

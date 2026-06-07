@@ -1,6 +1,8 @@
 import {
+  createAuthApi,
   createSecretsApi,
   createSecretsStore,
+  createTokenStorage,
   formatTimestamp,
   normalizeAuditFilters,
   parseTags,
@@ -13,9 +15,18 @@ import {
 
 export function createApp(options = {}) {
   const documentRef = options.document ?? globalThis.document;
-  const store = options.store ?? createSecretsStore(createSecretsApi());
+  const tokenStorage = options.tokenStorage ?? createTokenStorage();
+  const authApi = options.authApi ?? createAuthApi();
+  const getAuthToken = () => tokenStorage.get();
+  const store = options.store ?? createSecretsStore(createSecretsApi({ getToken: getAuthToken }));
 
   const elements = {
+    authPanel: documentRef.querySelector("[data-auth-panel]"),
+    authForm: documentRef.querySelector("[data-auth-form]"),
+    authError: documentRef.querySelector("[data-auth-error]"),
+    authUser: documentRef.querySelector("[data-auth-user]"),
+    logout: documentRef.querySelector("[data-logout]"),
+    appShell: documentRef.querySelector("[data-app-shell]"),
     list: documentRef.querySelector("[data-secret-list]"),
     listStatus: documentRef.querySelector("[data-list-status]"),
     detailPanel: documentRef.querySelector("[data-detail-panel]"),
@@ -29,11 +40,69 @@ export function createApp(options = {}) {
   let currentState = store.getState();
   let aclState = createAclState();
   let lastAuditRequestKey = "";
+  let authenticated = Boolean(tokenStorage.get());
 
   function render() {
+    renderAuth();
     elements.listStatus.textContent = currentState.loading ? "Loading secrets..." : currentState.error;
     renderList();
     renderDetail();
+  }
+
+  function renderAuth() {
+    if (elements.authPanel) {
+      elements.authPanel.hidden = authenticated;
+    }
+    if (elements.appShell) {
+      elements.appShell.hidden = !authenticated;
+    }
+    if (elements.authUser) {
+      elements.authUser.textContent = authenticated ? "Authenticated" : "";
+    }
+  }
+
+  async function handleLogin(event) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const username = readTextField(data, "username").trim();
+    const password = readTextField(data, "password");
+    if (!username || !password.trim()) {
+      setAuthError("Username and password are required.");
+      return;
+    }
+
+    try {
+      const response = await authApi.login({ username, password });
+      tokenStorage.set(response.accessToken);
+      authenticated = true;
+      setAuthError("");
+      event.currentTarget.reset();
+      renderAuth();
+      await store.load();
+    } catch (error) {
+      setAuthError(error.message);
+    }
+  }
+
+  function setAuthError(message) {
+    if (elements.authError) {
+      elements.authError.textContent = message;
+    }
+  }
+
+  function handleLogout() {
+    tokenStorage.clear();
+    authenticated = false;
+    lastAuditRequestKey = "";
+    store.clear?.();
+    renderAuth();
+    showOptionalToast("Signed out.");
+  }
+
+  function showOptionalToast(message) {
+    if (elements.toast) {
+      showToast(elements.toast, message);
+    }
   }
 
   function renderList() {
@@ -305,17 +374,24 @@ export function createApp(options = {}) {
     }
   });
 
+  elements.authForm?.addEventListener("submit", handleLogin);
+  elements.logout?.addEventListener("click", handleLogout);
   elements.refresh.addEventListener("click", () => store.load());
   elements.search.addEventListener("input", renderList);
   elements.createForm.addEventListener("submit", handleCreate);
 
-  store.load();
+  renderAuth();
+  if (authenticated) {
+    store.load();
+  }
 
   return {
     elements,
     render,
     renderList,
     renderDetail,
+    handleLogin,
+    handleLogout,
     handleCreate,
     handleUpdate,
     handleDelete,

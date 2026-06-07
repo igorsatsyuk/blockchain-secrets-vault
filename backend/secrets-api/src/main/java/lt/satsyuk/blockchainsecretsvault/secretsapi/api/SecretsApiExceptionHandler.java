@@ -1,5 +1,6 @@
 package lt.satsyuk.blockchainsecretsvault.secretsapi.api;
 
+import lt.satsyuk.blockchainsecretsvault.secretsapi.auth.InvalidCredentialsException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.service.DuplicateSecretNameException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.service.EmptySecretUpdateException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.service.InvalidAuditActionException;
@@ -34,6 +35,12 @@ public class SecretsApiExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleConflict(DuplicateSecretNameException exception) {
         return ErrorResponse.of(409, "Conflict", exception.getMessage());
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleInvalidCredentials(InvalidCredentialsException exception) {
+        return ErrorResponse.of(401, "Unauthorized", exception.getMessage());
     }
 
     @ExceptionHandler(EmptySecretUpdateException.class)

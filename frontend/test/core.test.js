@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  createAuthApi,
   createSecretsApi,
   createSecretsStore,
+  createTokenStorage,
   filterAuditEvents,
   formatTimestamp,
   normalizeAuditFilters,
@@ -193,7 +195,7 @@ test("API client sends expected HTTP requests and decodes responses", async () =
     }
     return response(secretA);
   };
-  const api = createSecretsApi({ baseUrl: "/secrets", fetchImpl });
+  const api = createSecretsApi({ baseUrl: "/secrets", fetchImpl, getToken: () => "jwt-token" });
 
   assert.deepEqual(await api.list(), [secretA]);
   await api.get("abc/123");
@@ -208,6 +210,7 @@ test("API client sends expected HTTP requests and decodes responses", async () =
   assert.equal(calls[1].url, "/secrets/abc%2F123");
   assert.equal(calls[2].options.method, "POST");
   assert.equal(calls[2].options.headers["Content-Type"], "application/json");
+  assert.equal(calls[2].options.headers.Authorization, "Bearer jwt-token");
   assert.equal(calls[3].options.method, "PUT");
   assert.equal(calls[4].options.method, "DELETE");
   assert.equal(calls[5].options.method, "PUT");
@@ -215,6 +218,91 @@ test("API client sends expected HTTP requests and decodes responses", async () =
   assert.equal(calls[6].url, "/secrets/id-1/acl/0x1111111111111111111111111111111111111111");
   assert.equal(calls[7].options.method, "DELETE");
   assert.equal(calls[8].url, "/secrets/id-1/audit?action=GRANT&account=0x1111111111111111111111111111111111111111");
+});
+
+test("auth client logs in and token storage tolerates browser storage failures", async () => {
+  const calls = [];
+  const authApi = createAuthApi({
+    loginUrl: "/login",
+    fetchImpl: async (url, options = {}) => {
+      calls.push({ url, options });
+      return response({ tokenType: "Bearer", accessToken: "jwt-token", expiresIn: 3600 });
+    }
+  });
+
+  assert.equal((await authApi.login({ username: " admin ", password: "secret" })).accessToken, "jwt-token");
+  assert.equal(calls[0].url, "/login");
+  assert.equal(calls[0].options.method, "POST");
+  assert.deepEqual(JSON.parse(calls[0].options.body), { username: "admin", password: "secret" });
+
+  const values = new Map();
+  const tokenStorage = createTokenStorage({
+    key: "token",
+    storage: {
+      getItem: (key) => values.get(key) ?? null,
+      setItem: (key, value) => values.set(key, value),
+      removeItem: (key) => values.delete(key)
+    }
+  });
+  tokenStorage.set("abc");
+  assert.equal(tokenStorage.get(), "abc");
+  tokenStorage.clear();
+  assert.equal(tokenStorage.get(), "");
+
+  const failingStorage = createTokenStorage({
+    storage: {
+      getItem: () => { throw new Error("blocked"); },
+      setItem: () => { throw new Error("blocked"); },
+      removeItem: () => { throw new Error("blocked"); }
+    }
+  });
+  failingStorage.set("abc");
+  assert.equal(failingStorage.get(), "abc");
+  failingStorage.clear();
+  assert.equal(failingStorage.get(), "");
+
+  let blocked = false;
+  const storageThatBecomesBlocked = createTokenStorage({
+    key: "token",
+    storage: {
+      getItem: () => {
+        if (blocked) {
+          throw new Error("blocked");
+        }
+        return "stored-token";
+      },
+      setItem: () => null,
+      removeItem: () => null
+    }
+  });
+  assert.equal(storageThatBecomesBlocked.get(), "stored-token");
+  blocked = true;
+  assert.equal(storageThatBecomesBlocked.get(), "stored-token");
+  assert.throws(() => createAuthApi({ fetchImpl: null }), /fetch implementation/);
+});
+
+test("token storage falls back when localStorage access is blocked", () => {
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    get() {
+      throw new Error("blocked");
+    }
+  });
+
+  try {
+    const tokenStorage = createTokenStorage();
+    tokenStorage.set("jwt-token");
+    assert.equal(tokenStorage.get(), "jwt-token");
+    tokenStorage.clear();
+    assert.equal(tokenStorage.get(), "");
+  } finally {
+    if (descriptor) {
+      Object.defineProperty(globalThis, "localStorage", descriptor);
+    } else {
+      delete globalThis.localStorage;
+    }
+  }
 });
 
 test("API client surfaces validation details and fallback errors", async () => {
@@ -270,6 +358,10 @@ test("store loads, selects, creates, updates, removes, and reports load errors",
   assert.equal(store.getState().audit.loading, false);
   assert.equal(store.getState().audit.events.length, 1);
   assert.equal(store.getState().audit.events[0].action, "READ");
+  store.clear();
+  assert.equal(store.getState().secrets.length, 0);
+  assert.equal(store.getState().selectedId, null);
+  assert.equal(store.getState().audit.events.length, 0);
   assert.ok(events.length >= 7);
   unsubscribe();
 

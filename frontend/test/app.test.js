@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { createApp, escapeAttribute, escapeHtml, readForm, showToast } from "../src/app.js";
+
+test("login form uses post to avoid credential leakage on fallback submission", () => {
+  const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  assert.match(html, /<form[^>]*data-auth-form[^>]*method="post"/);
+});
 
 test("readForm normalizes string-only fields", () => {
   const originalFormData = globalThis.FormData;
@@ -196,6 +202,12 @@ test("createApp handles create, update, delete and rendering flows", async () =>
   createForm.values = { name: "alpha", description: "desc", payload: "payload", tags: "prod" };
 
   const elements = {
+    "[data-auth-panel]": createElement(),
+    "[data-auth-form]": createElement(),
+    "[data-auth-error]": createElement(),
+    "[data-auth-user]": createElement(),
+    "[data-logout]": createElement(),
+    "[data-app-shell]": createElement(),
     "[data-secret-list]": createElement(),
     "[data-list-status]": createElement(),
     "[data-detail-panel]": detailPanel,
@@ -255,6 +267,7 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     checks: 0,
     revokes: 0,
     auditLoads: 0,
+    clears: 0,
     auditRequests: [],
     getState() {
       return state;
@@ -297,6 +310,26 @@ test("createApp handles create, update, delete and rendering flows", async () =>
       subscriber(state);
       return null;
     },
+    clear() {
+      this.clears += 1;
+      state = {
+        ...state,
+        secrets: [],
+        selectedId: null,
+        selected: null,
+        audit: {
+          secretId: null,
+          loading: false,
+          error: "",
+          events: [],
+          filters: {
+            action: "",
+            account: ""
+          }
+        }
+      };
+      subscriber(state);
+    },
     async grantAccess() {
       this.grants += 1;
       return { transactionHash: "0xgrant" };
@@ -334,10 +367,34 @@ test("createApp handles create, update, delete and rendering flows", async () =>
       subscriber(state);
     }
   };
+  const tokenStorage = {
+    token: "jwt-token",
+    get() {
+      return this.token;
+    },
+    set(token) {
+      this.token = token;
+    },
+    clear() {
+      this.token = "";
+    }
+  };
+  const authApi = {
+    logins: 0,
+    async login(credentials) {
+      this.logins += 1;
+      if (credentials.password === "bad") {
+        throw new Error("login failed");
+      }
+      return { accessToken: "new-jwt-token" };
+    }
+  };
 
   try {
-    const app = createApp({ document: documentRef, store });
+    const app = createApp({ document: documentRef, store, tokenStorage, authApi });
     assert.equal(store.loads, 1);
+    assert.equal(elements["[data-app-shell]"].hidden, false);
+    assert.equal(elements["[data-auth-panel]"].hidden, true);
     assert.match(elements["[data-list-status]"].textContent, /No secrets yet\./);
     assert.match(detailPanel.innerHTML, /Select a secret/);
 
@@ -363,6 +420,54 @@ test("createApp handles create, update, delete and rendering flows", async () =>
       currentTarget: createForm
     });
     assert.match(elements["[data-create-error]"].textContent, /required/i);
+
+    const authForm = elements["[data-auth-form]"];
+    authForm.reset = () => {};
+    authForm.values = { username: "admin", password: "secret" };
+    await app.handleLogin({
+      preventDefault() {},
+      currentTarget: authForm
+    });
+    assert.equal(authApi.logins, 1);
+    assert.equal(tokenStorage.token, "new-jwt-token");
+    assert.equal(elements["[data-auth-error]"].textContent, "");
+
+    authForm.values = { username: "", password: "" };
+    await app.handleLogin({
+      preventDefault() {},
+      currentTarget: authForm
+    });
+    assert.match(elements["[data-auth-error]"].textContent, /required/i);
+    assert.equal(authApi.logins, 1);
+
+    authForm.values = { username: "   ", password: "secret" };
+    await app.handleLogin({
+      preventDefault() {},
+      currentTarget: authForm
+    });
+    assert.match(elements["[data-auth-error]"].textContent, /required/i);
+    assert.equal(authApi.logins, 1);
+
+    authForm.values = { username: "admin", password: "   " };
+    await app.handleLogin({
+      preventDefault() {},
+      currentTarget: authForm
+    });
+    assert.match(elements["[data-auth-error]"].textContent, /required/i);
+    assert.equal(authApi.logins, 1);
+
+    authForm.values = { username: "admin", password: "bad" };
+    await app.handleLogin({
+      preventDefault() {},
+      currentTarget: authForm
+    });
+    assert.equal(elements["[data-auth-error]"].textContent, "login failed");
+
+    app.handleLogout();
+    assert.equal(tokenStorage.token, "");
+    assert.equal(store.clears, 1);
+    assert.equal(state.secrets.length, 0);
+    assert.equal(elements["[data-app-shell]"].hidden, true);
 
     store.create = async () => {
       throw new Error("create failed");
@@ -621,6 +726,12 @@ test("module auto-bootstraps when document exists", async () => {
   });
 
   const elements = {
+    "[data-auth-panel]": createElement(),
+    "[data-auth-form]": createElement(),
+    "[data-auth-error]": createElement(),
+    "[data-auth-user]": createElement(),
+    "[data-logout]": createElement(),
+    "[data-app-shell]": createElement(),
     "[data-secret-list]": createElement(),
     "[data-list-status]": createElement(),
     "[data-detail-panel]": createElement(),
@@ -642,6 +753,11 @@ test("module auto-bootstraps when document exists", async () => {
     status: 200,
     json: async () => []
   });
+  globalThis.localStorage = {
+    getItem: () => "jwt-token",
+    setItem() {},
+    removeItem() {}
+  };
 
   try {
     await import(`../src/app.js?bootstrap=${Date.now()}`);
@@ -651,7 +767,153 @@ test("module auto-bootstraps when document exists", async () => {
   } finally {
     globalThis.document = originalDocument;
     globalThis.fetch = originalFetch;
+    delete globalThis.localStorage;
   }
+});
+
+test("createApp binds token getter when it creates the default API store", async () => {
+  const calls = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url, options = {}) => {
+    calls.push({ url, options });
+    return {
+      ok: true,
+      status: 200,
+      json: async () => []
+    };
+  };
+
+  const elements = createAppElements();
+  const documentRef = {
+    querySelector(selector) {
+      return elements[selector];
+    },
+    createElement: createTestElement
+  };
+  const tokenStorage = {
+    token: "jwt-token",
+    get() {
+      return this.token;
+    },
+    set(token) {
+      this.token = token;
+    },
+    clear() {
+      this.token = "";
+    }
+  };
+
+  try {
+    createApp({ document: documentRef, tokenStorage });
+    await Promise.resolve();
+    await Promise.resolve();
+    assert.equal(calls[0].options.headers.Authorization, "Bearer jwt-token");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("handleLogin tolerates missing optional auth error element", async () => {
+  const originalFormData = globalThis.FormData;
+  globalThis.FormData = class {
+    constructor(form) {
+      this.form = form;
+    }
+
+    get(name) {
+      return this.form.values[name] ?? null;
+    }
+  };
+
+  const elements = createAppElements();
+  elements["[data-auth-error]"] = null;
+  const documentRef = {
+    querySelector(selector) {
+      return elements[selector];
+    },
+    createElement: createTestElement
+  };
+  const store = {
+    getState: () => ({
+      loading: false,
+      error: "",
+      secrets: [],
+      selectedId: null,
+      selected: null,
+      audit: { secretId: null, loading: false, error: "", events: [], filters: { action: "", account: "" } }
+    }),
+    subscribe(listener) {
+      listener(this.getState());
+      return () => {};
+    },
+    load: async () => null
+  };
+
+  try {
+    const app = createApp({
+      document: documentRef,
+      store,
+      tokenStorage: {
+        get: () => "",
+        set() {},
+        clear() {}
+      },
+      authApi: {
+        login: async () => ({ accessToken: "jwt-token" })
+      }
+    });
+
+    await app.handleLogin({
+      preventDefault() {},
+      currentTarget: {
+        reset() {},
+        values: { username: "", password: "" }
+      }
+    });
+  } finally {
+    globalThis.FormData = originalFormData;
+  }
+});
+
+test("handleLogout clears state and tolerates missing optional toast", () => {
+  const elements = createAppElements();
+  elements["[data-toast]"] = null;
+  const documentRef = {
+    querySelector(selector) {
+      return elements[selector];
+    },
+    createElement: createTestElement
+  };
+  let clears = 0;
+  const store = {
+    getState: () => ({
+      loading: false,
+      error: "",
+      secrets: [{ id: "secret-1", name: "alpha" }],
+      selectedId: "secret-1",
+      selected: { id: "secret-1", name: "alpha" },
+      audit: { secretId: "secret-1", loading: false, error: "", events: [], filters: { action: "", account: "" } }
+    }),
+    subscribe(listener) {
+      listener(this.getState());
+      return () => {};
+    },
+    load: async () => null,
+    clear() {
+      clears += 1;
+    }
+  };
+  const tokenStorage = {
+    get: () => "jwt-token",
+    set() {},
+    clear() {}
+  };
+
+  const app = createApp({ document: documentRef, store, tokenStorage });
+  app.handleLogout();
+
+  assert.equal(clears, 1);
+  assert.equal(elements["[data-app-shell]"].hidden, true);
 });
 
 function createDeferred() {
@@ -661,4 +923,51 @@ function createDeferred() {
     deferred.reject = reject;
   });
   return deferred;
+}
+
+function createTestElement() {
+  const listeners = {};
+  return {
+    value: "",
+    textContent: "",
+    innerHTML: "",
+    className: "",
+    type: "",
+    children: [],
+    classList: {
+      add() {},
+      remove() {}
+    },
+    addEventListener(event, handler) {
+      listeners[event] = handler;
+    },
+    replaceChildren(...children) {
+      this.children = children;
+    },
+    append(child) {
+      this.children.push(child);
+    },
+    querySelector() {
+      return createTestElement();
+    }
+  };
+}
+
+function createAppElements() {
+  return {
+    "[data-auth-panel]": createTestElement(),
+    "[data-auth-form]": createTestElement(),
+    "[data-auth-error]": createTestElement(),
+    "[data-auth-user]": createTestElement(),
+    "[data-logout]": createTestElement(),
+    "[data-app-shell]": createTestElement(),
+    "[data-secret-list]": createTestElement(),
+    "[data-list-status]": createTestElement(),
+    "[data-detail-panel]": createTestElement(),
+    "[data-create-form]": createTestElement(),
+    "[data-create-error]": createTestElement(),
+    "[data-refresh]": createTestElement(),
+    "[data-search]": createTestElement(),
+    "[data-toast]": createTestElement()
+  };
 }

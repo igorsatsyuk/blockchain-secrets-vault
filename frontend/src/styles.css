@@ -35,6 +35,32 @@ textarea {
   min-height: 100vh;
 }
 
+.auth-panel {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.auth-panel[hidden],
+.app-shell[hidden] {
+  display: none;
+}
+
+.auth-form {
+  display: grid;
+  gap: 14px;
+  width: min(100%, 380px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  padding: 24px;
+}
+
+.auth-form .brand {
+  margin-bottom: 4px;
+}
+
 .sidebar {
   border-right: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.92);
@@ -78,6 +104,7 @@ textarea {
 }
 
 .search-field input,
+.auth-form input,
 .secret-form input,
 .audit-filters input,
 .audit-filters select,
@@ -91,6 +118,7 @@ textarea {
 }
 
 .search-field input:focus,
+.auth-form input:focus,
 .secret-form input:focus,
 .audit-filters input:focus,
 .audit-filters select:focus,
@@ -98,6 +126,7 @@ textarea {
 .icon-button:focus,
 .primary-button:focus,
 .danger-button:focus,
+.text-button:focus,
 .secret-row:focus {
   outline: 3px solid color-mix(in srgb, var(--focus), transparent 76%);
   outline-offset: 1px;
@@ -207,6 +236,14 @@ textarea {
   font-weight: 750;
 }
 
+.auth-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--brand);
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+
 .secret-form textarea {
   resize: vertical;
 }
@@ -230,6 +267,25 @@ textarea {
 
 .primary-button {
   background: var(--brand);
+}
+
+.text-button {
+  border: 0;
+  background: transparent;
+  color: var(--brand);
+  cursor: pointer;
+  font-weight: 800;
+  padding: 0;
+}
+
+.session-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  color: var(--muted);
+  font-size: 0.86rem;
 }
 
 .danger-button {

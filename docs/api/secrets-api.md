@@ -7,9 +7,46 @@ server-side audit event hash publishing for ACL mutations, issue #13 exposes
 published audit events so the UI can browse and filter audit history, and issue
 #14 adds controlled encryption key rotation with secret re-encryption. Issue
 #15 moves payload storage to envelope encryption with per-secret DEKs wrapped by
-versioned KEKs.
+versioned KEKs. Issue #16 protects backend APIs with JWT bearer authentication
+and adds UI login.
 
 Base path: `/api/v1/secrets`
+
+All `/api/**` endpoints except `/api/v1/auth/login` require:
+
+```http
+Authorization: Bearer <accessToken>
+```
+
+## Authentication
+
+`POST /api/v1/auth/login`
+
+```json
+{
+  "username": "admin",
+  "password": "change-me"
+}
+```
+
+Returns `200 OK` with an HMAC-SHA256 signed JWT.
+
+```json
+{
+  "tokenType": "Bearer",
+  "accessToken": "<jwt>",
+  "expiresIn": 3600
+}
+```
+
+The username defaults to `admin`, but `secrets.auth.password` and
+`secrets.auth.jwt-secret` must be configured explicitly before the API starts:
+
+- `secrets.auth.username`
+- `secrets.auth.password`
+- `secrets.auth.jwt-secret`, must be at least 32 bytes
+- `secrets.auth.issuer`, default `blockchain-secrets-vault`
+- `secrets.auth.token-ttl`, default `PT1H`
 
 ## Model
 
