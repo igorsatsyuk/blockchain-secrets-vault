@@ -29,6 +29,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtService {
 
+    private static final String INVALID_TOKEN_ERROR_CODE = "invalid_token";
+
     private final AuthProperties properties;
     private final Clock clock;
     private final JwtEncoder jwtEncoder;
@@ -69,9 +71,9 @@ public class JwtService {
             return subject;
         } catch (BadJwtException exception) {
             throw new JwtAuthenticationException(exception.getMessage());
-        } catch (JwtException exception) {
+        } catch (JwtException _) {
             throw new JwtAuthenticationException("Invalid bearer token");
-        } catch (IllegalArgumentException exception) {
+        } catch (IllegalArgumentException _) {
             throw new JwtAuthenticationException("Invalid bearer token claims");
         }
     }
@@ -82,7 +84,7 @@ public class JwtService {
                 this::validateTimeClaims,
                 jwt -> jwt.getSubject() == null || jwt.getSubject().isBlank()
                         ? OAuth2TokenValidatorResult.failure(new OAuth2Error(
-                                "invalid_token",
+                                INVALID_TOKEN_ERROR_CODE,
                                 "Bearer token subject is required",
                                 null
                         ))
@@ -96,10 +98,10 @@ public class JwtService {
         Instant notBefore = jwt.getNotBefore();
         List<OAuth2Error> errors = new ArrayList<>();
         if (expiresAt == null || !now.isBefore(expiresAt)) {
-            errors.add(new OAuth2Error("invalid_token", "Bearer token has expired", null));
+            errors.add(new OAuth2Error(INVALID_TOKEN_ERROR_CODE, "Bearer token has expired", null));
         }
         if (notBefore != null && now.isBefore(notBefore)) {
-            errors.add(new OAuth2Error("invalid_token", "Bearer token is not active yet", null));
+            errors.add(new OAuth2Error(INVALID_TOKEN_ERROR_CODE, "Bearer token is not active yet", null));
         }
         return errors.isEmpty()
                 ? OAuth2TokenValidatorResult.success()
