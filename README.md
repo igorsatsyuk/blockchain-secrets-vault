@@ -1,7 +1,13 @@
 # Blockchain Secrets Vault
 
-Blockchain Secrets Vault is a distributed secrets storage that uses a blockchain
-as an immutable ACL and audit layer, while encrypted secrets are kept off-chain.
+Blockchain Secrets Vault is a zero‑trust distributed secrets storage system
+that combines AES‑GCM envelope encryption, blockchain‑anchored ACL enforcement,
+and Merkle‑verified audit events. Secrets are stored off‑chain in encrypted
+form, while access rights and audit integrity are validated on‑chain via a
+Solidity smart contract. The platform includes a reactive WebFlux API, a
+dedicated KMS module with key rotation, an encrypted persistence layer, an
+audit writer that publishes event hashes to the blockchain, and optional
+Kubernetes/Grafana production deployment stack.
 
 The project demonstrates:
 
@@ -10,7 +16,7 @@ The project demonstrates:
 - AES-GCM envelope encryption with DEK/KEK separation
 - Key rotation
 - On-chain access auditing
-- Microservice architecture (Senior/Architect level)
+- Microservice architecture
 
 ## Architecture
 
