@@ -1,7 +1,6 @@
 {{- define "bsv.labels" -}}
 app.kubernetes.io/part-of: {{ .Values.global.partOf | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-app.kubernetes.io/instance: {{ .Release.Name | quote }}
 {{- end -}}
 
 {{- define "bsv.fullname" -}}
