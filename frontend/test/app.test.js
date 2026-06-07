@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { createApp, escapeAttribute, escapeHtml, readForm, showToast } from "../src/app.js";
+
+test("login form posts credentials when JavaScript is unavailable", () => {
+  const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  assert.match(html, /<form[^>]*data-auth-form[^>]*method="post"/);
+});
 
 test("readForm normalizes string-only fields", () => {
   const originalFormData = globalThis.FormData;

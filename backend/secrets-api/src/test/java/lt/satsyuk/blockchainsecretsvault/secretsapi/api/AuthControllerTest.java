@@ -56,6 +56,7 @@ class AuthControllerTest {
                 .uri("/api/v1/secrets")
                 .exchange()
                 .expectStatus().isUnauthorized()
+                .expectHeader().valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
                 .expectBody(ErrorResponse.class)
                 .value(error -> assertThat(error.message()).isEqualTo("Authentication is required"));
 

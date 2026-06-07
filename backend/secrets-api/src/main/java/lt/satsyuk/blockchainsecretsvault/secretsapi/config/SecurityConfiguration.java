@@ -36,7 +36,9 @@ public class SecurityConfiguration {
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint((exchange, exception) -> {
                             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                            exchange.getResponse().getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+                            HttpHeaders headers = exchange.getResponse().getHeaders();
+                            headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+                            headers.set(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
                             DataBuffer body = exchange.getResponse().bufferFactory().wrap(unauthorizedBody(objectMapper));
                             return exchange.getResponse().writeWith(Mono.just(body));
                         }))
