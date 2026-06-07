@@ -99,9 +99,10 @@ public record EncryptedData(
         if (this == o) {
             return true;
         }
-        if (!(o instanceof EncryptedData other)) {
+        if (o == null || o.getClass() != EncryptedData.class) {
             return false;
         }
+        EncryptedData other = (EncryptedData) o;
         return other.keyVersion == keyVersion &&
                Arrays.equals(ciphertext, other.ciphertext) &&
                Arrays.equals(nonce, other.nonce) &&
