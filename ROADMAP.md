@@ -26,7 +26,7 @@
 
 - [x] [#14](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/14) Key rotation for secret encryption keys
 - [x] [#15](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/15) Envelope encryption with DEK/KEK model
-- [ ] [#16](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/16) JWT authentication for UI and backend APIs
+- [x] [#16](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/16) JWT authentication for UI and backend APIs
 
 ## Phase 5 - Production
 

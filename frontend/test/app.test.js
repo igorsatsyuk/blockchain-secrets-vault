@@ -196,6 +196,12 @@ test("createApp handles create, update, delete and rendering flows", async () =>
   createForm.values = { name: "alpha", description: "desc", payload: "payload", tags: "prod" };
 
   const elements = {
+    "[data-auth-panel]": createElement(),
+    "[data-auth-form]": createElement(),
+    "[data-auth-error]": createElement(),
+    "[data-auth-user]": createElement(),
+    "[data-logout]": createElement(),
+    "[data-app-shell]": createElement(),
     "[data-secret-list]": createElement(),
     "[data-list-status]": createElement(),
     "[data-detail-panel]": detailPanel,
@@ -334,10 +340,34 @@ test("createApp handles create, update, delete and rendering flows", async () =>
       subscriber(state);
     }
   };
+  const tokenStorage = {
+    token: "jwt-token",
+    get() {
+      return this.token;
+    },
+    set(token) {
+      this.token = token;
+    },
+    clear() {
+      this.token = "";
+    }
+  };
+  const authApi = {
+    logins: 0,
+    async login(credentials) {
+      this.logins += 1;
+      if (credentials.password === "bad") {
+        throw new Error("login failed");
+      }
+      return { accessToken: "new-jwt-token" };
+    }
+  };
 
   try {
-    const app = createApp({ document: documentRef, store });
+    const app = createApp({ document: documentRef, store, tokenStorage, authApi });
     assert.equal(store.loads, 1);
+    assert.equal(elements["[data-app-shell]"].hidden, false);
+    assert.equal(elements["[data-auth-panel]"].hidden, true);
     assert.match(elements["[data-list-status]"].textContent, /No secrets yet\./);
     assert.match(detailPanel.innerHTML, /Select a secret/);
 
@@ -363,6 +393,35 @@ test("createApp handles create, update, delete and rendering flows", async () =>
       currentTarget: createForm
     });
     assert.match(elements["[data-create-error]"].textContent, /required/i);
+
+    const authForm = elements["[data-auth-form]"];
+    authForm.reset = () => {};
+    authForm.values = { username: "admin", password: "secret" };
+    await app.handleLogin({
+      preventDefault() {},
+      currentTarget: authForm
+    });
+    assert.equal(authApi.logins, 1);
+    assert.equal(tokenStorage.token, "new-jwt-token");
+    assert.equal(elements["[data-auth-error]"].textContent, "");
+
+    authForm.values = { username: "", password: "" };
+    await app.handleLogin({
+      preventDefault() {},
+      currentTarget: authForm
+    });
+    assert.match(elements["[data-auth-error]"].textContent, /required/i);
+
+    authForm.values = { username: "admin", password: "bad" };
+    await app.handleLogin({
+      preventDefault() {},
+      currentTarget: authForm
+    });
+    assert.equal(elements["[data-auth-error]"].textContent, "login failed");
+
+    app.handleLogout();
+    assert.equal(tokenStorage.token, "");
+    assert.equal(elements["[data-app-shell]"].hidden, true);
 
     store.create = async () => {
       throw new Error("create failed");
@@ -621,6 +680,12 @@ test("module auto-bootstraps when document exists", async () => {
   });
 
   const elements = {
+    "[data-auth-panel]": createElement(),
+    "[data-auth-form]": createElement(),
+    "[data-auth-error]": createElement(),
+    "[data-auth-user]": createElement(),
+    "[data-logout]": createElement(),
+    "[data-app-shell]": createElement(),
     "[data-secret-list]": createElement(),
     "[data-list-status]": createElement(),
     "[data-detail-panel]": createElement(),
@@ -642,6 +707,11 @@ test("module auto-bootstraps when document exists", async () => {
     status: 200,
     json: async () => []
   });
+  globalThis.localStorage = {
+    getItem: () => "jwt-token",
+    setItem() {},
+    removeItem() {}
+  };
 
   try {
     await import(`../src/app.js?bootstrap=${Date.now()}`);
@@ -651,6 +721,7 @@ test("module auto-bootstraps when document exists", async () => {
   } finally {
     globalThis.document = originalDocument;
     globalThis.fetch = originalFetch;
+    delete globalThis.localStorage;
   }
 });
 

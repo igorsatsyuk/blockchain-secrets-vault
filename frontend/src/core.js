@@ -1,4 +1,6 @@
 const DEFAULT_BASE_URL = "/api/v1/secrets";
+const DEFAULT_AUTH_URL = "/api/v1/auth/login";
+const DEFAULT_TOKEN_KEY = "blockchain-secrets-vault.jwt";
 
 export function parseTags(value) {
   if (Array.isArray(value)) {
@@ -137,36 +139,89 @@ export function toUpdateSecretPayload(formData) {
 export function createSecretsApi(options = {}) {
   const baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
   const fetchImpl = Object.hasOwn(options, "fetchImpl") ? options.fetchImpl : globalThis.fetch;
+  const getToken = options.getToken ?? createTokenStorage().get;
   if (typeof fetchImpl !== "function") {
     throw new TypeError("A fetch implementation is required.");
   }
 
   return {
-    list: () => requestJson(fetchImpl, baseUrl),
-    get: (id) => requestJson(fetchImpl, `${baseUrl}/${encodeURIComponent(id)}`),
+    list: () => requestJson(fetchImpl, baseUrl, { getToken }),
+    get: (id) => requestJson(fetchImpl, `${baseUrl}/${encodeURIComponent(id)}`, { getToken }),
     create: (secret) => requestJson(fetchImpl, baseUrl, {
+      getToken,
       method: "POST",
       body: JSON.stringify(secret)
     }),
     update: (id, secret) => requestJson(fetchImpl, `${baseUrl}/${encodeURIComponent(id)}`, {
+      getToken,
       method: "PUT",
       body: JSON.stringify(secret)
     }),
     remove: (id) => requestJson(fetchImpl, `${baseUrl}/${encodeURIComponent(id)}`, {
+      getToken,
       method: "DELETE"
     }),
     grantAccess: (id, account, permissions) => requestJson(fetchImpl, `${baseUrl}/${encodeURIComponent(id)}/acl/${encodeURIComponent(account)}`, {
+      getToken,
       method: "PUT",
       body: JSON.stringify({
         canRead: Boolean(permissions?.canRead),
         canWrite: Boolean(permissions?.canWrite)
       })
     }),
-    getAccess: (id, account) => requestJson(fetchImpl, `${baseUrl}/${encodeURIComponent(id)}/acl/${encodeURIComponent(account)}`),
+    getAccess: (id, account) => requestJson(fetchImpl, `${baseUrl}/${encodeURIComponent(id)}/acl/${encodeURIComponent(account)}`, { getToken }),
     revokeAccess: (id, account) => requestJson(fetchImpl, `${baseUrl}/${encodeURIComponent(id)}/acl/${encodeURIComponent(account)}`, {
+      getToken,
       method: "DELETE"
     }),
-    listAudit: (id, filters = {}) => requestJson(fetchImpl, `${baseUrl}/${encodeURIComponent(id)}/audit${buildAuditQuery(filters)}`)
+    listAudit: (id, filters = {}) => requestJson(fetchImpl, `${baseUrl}/${encodeURIComponent(id)}/audit${buildAuditQuery(filters)}`, { getToken })
+  };
+}
+
+export function createAuthApi(options = {}) {
+  const loginUrl = options.loginUrl ?? DEFAULT_AUTH_URL;
+  const fetchImpl = Object.hasOwn(options, "fetchImpl") ? options.fetchImpl : globalThis.fetch;
+  if (typeof fetchImpl !== "function") {
+    throw new TypeError("A fetch implementation is required.");
+  }
+
+  return {
+    login: (credentials) => requestJson(fetchImpl, loginUrl, {
+      method: "POST",
+      body: JSON.stringify({
+        username: String(credentials?.username ?? "").trim(),
+        password: String(credentials?.password ?? "")
+      })
+    })
+  };
+}
+
+export function createTokenStorage(options = {}) {
+  const storage = options.storage ?? globalThis.localStorage ?? createMemoryStorage();
+  const key = options.key ?? DEFAULT_TOKEN_KEY;
+
+  return {
+    get() {
+      try {
+        return storage.getItem(key) ?? "";
+      } catch {
+        return "";
+      }
+    },
+    set(token) {
+      try {
+        storage.setItem(key, token);
+      } catch {
+        // Non-persistent storage is acceptable for restricted browser contexts.
+      }
+    },
+    clear() {
+      try {
+        storage.removeItem(key);
+      } catch {
+        // Nothing else to clear when browser storage is unavailable.
+      }
+    }
   };
 }
 
@@ -301,11 +356,16 @@ export function createSecretsStore(api) {
 async function requestJson(fetchImpl, url, options = {}) {
   const restOptions = { ...options };
   delete restOptions.headers;
+  delete restOptions.getToken;
 
   const headers = {
     Accept: "application/json",
     ...(options.body ? { "Content-Type": "application/json" } : {})
   };
+  const token = typeof options.getToken === "function" ? options.getToken() : "";
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
   if (options.headers) {
     Object.assign(headers, options.headers);
   }
@@ -387,4 +447,13 @@ function buildAuditQuery(filters = {}) {
   }
   const query = params.toString();
   return query ? `?${query}` : "";
+}
+
+function createMemoryStorage() {
+  const values = new Map();
+  return {
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => values.set(key, String(value)),
+    removeItem: (key) => values.delete(key)
+  };
 }

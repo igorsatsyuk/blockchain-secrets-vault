@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -34,6 +35,9 @@ class SecretsControllerTest {
     @BeforeEach
     void clearRepository() {
         secretRepository.deleteAll();
+        webTestClient = webTestClient.mutate()
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + login())
+                .build();
     }
 
 
@@ -330,5 +334,24 @@ class SecretsControllerTest {
                 .expectBody(SecretResponse.class)
                 .returnResult()
                 .getResponseBody();
+    }
+
+    private String login() {
+        AuthResponse response = webTestClient.mutate()
+                .defaultHeaders(headers -> headers.remove(HttpHeaders.AUTHORIZATION))
+                .build()
+                .post()
+                .uri("/api/v1/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("username", "admin", "password", "change-me"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(AuthResponse.class)
+                .returnResult()
+                .getResponseBody();
+        assertThat(response).isNotNull();
+        assertThat(response.tokenType()).isEqualTo("Bearer");
+        assertThat(response.expiresIn()).isPositive();
+        return response.accessToken();
     }
 }
