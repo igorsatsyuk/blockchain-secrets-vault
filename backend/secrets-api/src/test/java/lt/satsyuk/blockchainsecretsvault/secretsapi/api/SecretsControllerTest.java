@@ -39,7 +39,10 @@ class SecretsControllerTest {
     void clearRepository() {
         secretRepository.deleteAll();
         webTestClient = webTestClient.mutate()
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + login())
+                .defaultHeaders(headers -> {
+                    headers.remove(HttpHeaders.AUTHORIZATION);
+                    headers.setBearerAuth(login());
+                })
                 .build();
     }
 

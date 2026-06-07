@@ -94,8 +94,15 @@ export function createApp(options = {}) {
     tokenStorage.clear();
     authenticated = false;
     lastAuditRequestKey = "";
+    store.clear?.();
     renderAuth();
-    showToast(elements.toast, "Signed out.");
+    showOptionalToast("Signed out.");
+  }
+
+  function showOptionalToast(message) {
+    if (elements.toast) {
+      showToast(elements.toast, message);
+    }
   }
 
   function renderList() {

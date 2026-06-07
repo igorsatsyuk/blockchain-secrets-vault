@@ -261,6 +261,7 @@ test("createApp handles create, update, delete and rendering flows", async () =>
     checks: 0,
     revokes: 0,
     auditLoads: 0,
+    clears: 0,
     auditRequests: [],
     getState() {
       return state;
@@ -302,6 +303,26 @@ test("createApp handles create, update, delete and rendering flows", async () =>
       state = { ...state, secrets: state.secrets.filter((item) => item.id !== id), selectedId: null, selected: null };
       subscriber(state);
       return null;
+    },
+    clear() {
+      this.clears += 1;
+      state = {
+        ...state,
+        secrets: [],
+        selectedId: null,
+        selected: null,
+        audit: {
+          secretId: null,
+          loading: false,
+          error: "",
+          events: [],
+          filters: {
+            action: "",
+            account: ""
+          }
+        }
+      };
+      subscriber(state);
     },
     async grantAccess() {
       this.grants += 1;
@@ -421,6 +442,8 @@ test("createApp handles create, update, delete and rendering flows", async () =>
 
     app.handleLogout();
     assert.equal(tokenStorage.token, "");
+    assert.equal(store.clears, 1);
+    assert.equal(state.secrets.length, 0);
     assert.equal(elements["[data-app-shell]"].hidden, true);
 
     store.create = async () => {
@@ -827,6 +850,47 @@ test("handleLogin tolerates missing optional auth error element", async () => {
   } finally {
     globalThis.FormData = originalFormData;
   }
+});
+
+test("handleLogout clears state and tolerates missing optional toast", () => {
+  const elements = createAppElements();
+  elements["[data-toast]"] = null;
+  const documentRef = {
+    querySelector(selector) {
+      return elements[selector];
+    },
+    createElement: createTestElement
+  };
+  let clears = 0;
+  const store = {
+    getState: () => ({
+      loading: false,
+      error: "",
+      secrets: [{ id: "secret-1", name: "alpha" }],
+      selectedId: "secret-1",
+      selected: { id: "secret-1", name: "alpha" },
+      audit: { secretId: "secret-1", loading: false, error: "", events: [], filters: { action: "", account: "" } }
+    }),
+    subscribe(listener) {
+      listener(this.getState());
+      return () => {};
+    },
+    load: async () => null,
+    clear() {
+      clears += 1;
+    }
+  };
+  const tokenStorage = {
+    get: () => "jwt-token",
+    set() {},
+    clear() {}
+  };
+
+  const app = createApp({ document: documentRef, store, tokenStorage });
+  app.handleLogout();
+
+  assert.equal(clears, 1);
+  assert.equal(elements["[data-app-shell]"].hidden, true);
 });
 
 function createDeferred() {

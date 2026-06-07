@@ -339,6 +339,10 @@ test("store loads, selects, creates, updates, removes, and reports load errors",
   assert.equal(store.getState().audit.loading, false);
   assert.equal(store.getState().audit.events.length, 1);
   assert.equal(store.getState().audit.events[0].action, "READ");
+  store.clear();
+  assert.equal(store.getState().secrets.length, 0);
+  assert.equal(store.getState().selectedId, null);
+  assert.equal(store.getState().audit.events.length, 0);
   assert.ok(events.length >= 7);
   unsubscribe();
 

@@ -264,6 +264,15 @@ export function createSecretsStore(api) {
     select(id) {
       setState({ selectedId: id });
     },
+    clear() {
+      setState({
+        loading: false,
+        error: "",
+        secrets: [],
+        selectedId: null,
+        audit: createAuditState()
+      });
+    },
     async create(secret) {
       const created = await api.create(secret);
       setState({ secrets: [...state.secrets, created], selectedId: created.id });
