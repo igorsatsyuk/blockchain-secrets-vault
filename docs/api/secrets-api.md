@@ -5,7 +5,9 @@ payload handling. Issue #8 adds KMS-backed encryption, issue #9 adds
 blockchain ACL grant, revoke and access-check operations, issue #10 adds
 server-side audit event hash publishing for ACL mutations, issue #13 exposes
 published audit events so the UI can browse and filter audit history, and issue
-#14 adds controlled encryption key rotation with secret re-encryption.
+#14 adds controlled encryption key rotation with secret re-encryption. Issue
+#15 moves payload storage to envelope encryption with per-secret DEKs wrapped by
+versioned KEKs.
 
 Base path: `/api/v1/secrets`
 
@@ -45,11 +47,16 @@ above and intentionally omits `payload`.
 
 `POST /api/v1/secrets/encryption-key/rotate`
 
-Rotates the active default encryption key and re-encrypts all stored secrets
-that use this key id.
+Rotates the active default KEK. Envelope-encrypted secrets keep their existing
+payload ciphertext and only re-wrap their DEK with the new active KEK version.
+Legacy directly encrypted payloads are decrypted and re-encrypted into the
+envelope format during rotation.
 
-Returns `200 OK` with key version metadata and the number of re-encrypted
-secrets.
+Returns `200 OK` with key version metadata and the number of rotated secrets.
+For envelope-encrypted secrets this count means the wrapped DEK was updated;
+for legacy directly encrypted payloads it means the payload was re-encrypted
+into the envelope format. The response field name remains `reEncryptedSecrets`
+for API compatibility.
 
 ```json
 {

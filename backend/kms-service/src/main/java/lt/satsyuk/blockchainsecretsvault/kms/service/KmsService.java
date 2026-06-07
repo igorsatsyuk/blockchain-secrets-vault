@@ -24,6 +24,11 @@ public interface KmsService {
      * Decrypt data using the metadata in EncryptedData
      */
     byte[] decrypt(EncryptedData encryptedData);
+
+    /**
+     * Re-wrap the data encryption key with the currently active key encryption key
+     */
+    EncryptedData rewrapDataKey(EncryptedData encryptedData);
     
     /**
      * Get key by ID and version

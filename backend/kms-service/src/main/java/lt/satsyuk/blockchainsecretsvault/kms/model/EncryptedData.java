@@ -8,28 +8,28 @@ public record EncryptedData(
     byte[] nonce,
     byte[] authTag,
     String keyId,
-    int keyVersion
+    int keyVersion,
+    byte[] encryptedDataKey,
+    byte[] dataKeyNonce,
+    byte[] dataKeyAuthTag
 ) {
+    public EncryptedData(byte[] ciphertext, byte[] nonce, byte[] authTag, String keyId, int keyVersion) {
+        this(ciphertext, nonce, authTag, keyId, keyVersion, null, null, null);
+    }
+
     public EncryptedData {
-        if (ciphertext == null || ciphertext.length == 0) {
-            throw new IllegalArgumentException("ciphertext cannot be empty");
-        }
-        if (nonce == null || nonce.length == 0) {
-            throw new IllegalArgumentException("nonce cannot be empty");
-        }
-        if (authTag == null || authTag.length == 0) {
-            throw new IllegalArgumentException("authTag cannot be empty");
-        }
-        if (keyId == null || keyId.isBlank()) {
-            throw new IllegalArgumentException("keyId cannot be blank");
-        }
-        if (keyVersion < 0) {
-            throw new IllegalArgumentException("keyVersion cannot be negative");
-        }
+        validateRequiredSegment(ciphertext, "ciphertext");
+        validateRequiredSegment(nonce, "nonce");
+        validateRequiredSegment(authTag, "authTag");
+        validateKeyMetadata(keyId, keyVersion);
+        validateEnvelopeMetadata(encryptedDataKey, dataKeyNonce, dataKeyAuthTag);
 
         ciphertext = ciphertext.clone();
         nonce = nonce.clone();
         authTag = authTag.clone();
+        encryptedDataKey = encryptedDataKey == null ? null : encryptedDataKey.clone();
+        dataKeyNonce = dataKeyNonce == null ? null : dataKeyNonce.clone();
+        dataKeyAuthTag = dataKeyAuthTag == null ? null : dataKeyAuthTag.clone();
     }
 
     @Override
@@ -48,13 +48,69 @@ public record EncryptedData(
     }
 
     @Override
+    public byte[] encryptedDataKey() {
+        return encryptedDataKey == null ? null : encryptedDataKey.clone();
+    }
+
+    @Override
+    public byte[] dataKeyNonce() {
+        return dataKeyNonce == null ? null : dataKeyNonce.clone();
+    }
+
+    @Override
+    public byte[] dataKeyAuthTag() {
+        return dataKeyAuthTag == null ? null : dataKeyAuthTag.clone();
+    }
+
+    public boolean envelopeEncrypted() {
+        return encryptedDataKey != null;
+    }
+
+    private static void validateKeyMetadata(String keyId, int keyVersion) {
+        if (keyId == null || keyId.isBlank()) {
+            throw new IllegalArgumentException("keyId cannot be blank");
+        }
+        if (keyVersion < 0) {
+            throw new IllegalArgumentException("keyVersion cannot be negative");
+        }
+    }
+
+    private static void validateEnvelopeMetadata(byte[] encryptedDataKey, byte[] dataKeyNonce, byte[] dataKeyAuthTag) {
+        if (!hasEnvelopeMetadata(encryptedDataKey, dataKeyNonce, dataKeyAuthTag)) {
+            return;
+        }
+        validateRequiredSegment(encryptedDataKey, "encryptedDataKey");
+        validateRequiredSegment(dataKeyNonce, "dataKeyNonce");
+        validateRequiredSegment(dataKeyAuthTag, "dataKeyAuthTag");
+    }
+
+    private static boolean hasEnvelopeMetadata(byte[] encryptedDataKey, byte[] dataKeyNonce, byte[] dataKeyAuthTag) {
+        return encryptedDataKey != null || dataKeyNonce != null || dataKeyAuthTag != null;
+    }
+
+    private static void validateRequiredSegment(byte[] segment, String name) {
+        if (segment == null || segment.length == 0) {
+            throw new IllegalArgumentException(name + " cannot be empty");
+        }
+    }
+
+    @Override
     public boolean equals(Object o) {
-        return o instanceof EncryptedData(byte[] ct, byte[] n, byte[] at, String id, int kv) &&
-               kv == keyVersion &&
-               Arrays.equals(ciphertext, ct) &&
-               Arrays.equals(nonce, n) &&
-               Arrays.equals(authTag, at) &&
-               Objects.equals(keyId, id);
+        if (this == o) {
+            return true;
+        }
+        if (o == null || o.getClass() != EncryptedData.class) {
+            return false;
+        }
+        EncryptedData other = (EncryptedData) o;
+        return other.keyVersion == keyVersion &&
+               Arrays.equals(ciphertext, other.ciphertext) &&
+               Arrays.equals(nonce, other.nonce) &&
+               Arrays.equals(authTag, other.authTag) &&
+               Arrays.equals(encryptedDataKey, other.encryptedDataKey) &&
+               Arrays.equals(dataKeyNonce, other.dataKeyNonce) &&
+               Arrays.equals(dataKeyAuthTag, other.dataKeyAuthTag) &&
+               Objects.equals(keyId, other.keyId);
     }
 
     @Override
@@ -63,6 +119,9 @@ public record EncryptedData(
         result = 31 * result + Arrays.hashCode(ciphertext);
         result = 31 * result + Arrays.hashCode(nonce);
         result = 31 * result + Arrays.hashCode(authTag);
+        result = 31 * result + Arrays.hashCode(encryptedDataKey);
+        result = 31 * result + Arrays.hashCode(dataKeyNonce);
+        result = 31 * result + Arrays.hashCode(dataKeyAuthTag);
         return result;
     }
 
@@ -74,6 +133,8 @@ public record EncryptedData(
                 ", authTagLength=" + authTag.length +
                 ", keyId='" + keyId + '\'' +
                 ", keyVersion=" + keyVersion +
+                ", envelopeEncrypted=" + envelopeEncrypted() +
+                ", encryptedDataKeyLength=" + (encryptedDataKey == null ? 0 : encryptedDataKey.length) +
                 '}';
     }
 }

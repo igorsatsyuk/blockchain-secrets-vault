@@ -19,6 +19,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -47,9 +48,7 @@ public class AesGcmKmsService implements KmsService {
             }
             
             try {
-                KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
-                keyGen.init(KEY_SIZE, secureRandom);
-                byte[] keyMaterial = keyGen.generateKey().getEncoded();
+                byte[] keyMaterial = generateRawKeyMaterial();
                 
                 EncryptionKey key = new EncryptionKey(
                     keyId,
@@ -79,9 +78,7 @@ public class AesGcmKmsService implements KmsService {
             
             try {
                 int newVersion = activeKey.version() + 1;
-                KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
-                keyGen.init(KEY_SIZE, secureRandom);
-                byte[] keyMaterial = keyGen.generateKey().getEncoded();
+                byte[] keyMaterial = generateRawKeyMaterial();
                 
                 EncryptionKey rotatedKey = new EncryptionKey(
                     activeKey.keyId(),
@@ -120,29 +117,27 @@ public class AesGcmKmsService implements KmsService {
             throw new IllegalArgumentException("Plaintext cannot be empty");
         }
         
-        EncryptionKey key = getActiveKey(keyId);
+        EncryptionKey keyEncryptionKey = getActiveKey(keyId);
         
         try {
-            byte[] nonce = new byte[IV_SIZE];
-            secureRandom.nextBytes(nonce);
-            
-            Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
-            GCMParameterSpec spec = new GCMParameterSpec(AUTH_TAG_SIZE, nonce);
-            SecretKeySpec keySpec = new SecretKeySpec(key.keyMaterial(), 0, key.keyMaterial().length, ALGORITHM);
-            
-            cipher.init(Cipher.ENCRYPT_MODE, keySpec, spec);
-            byte[] ciphertext = cipher.doFinal(plaintext);
-            
-            byte[] authTag = extractAuthTag(ciphertext);
-            byte[] actualCiphertext = removeSuffixAuthTag(ciphertext, authTag.length);
-            
-            return new EncryptedData(
-                actualCiphertext,
-                nonce,
-                authTag,
-                keyId,
-                key.version()
-            );
+            byte[] dataEncryptionKey = generateRawKeyMaterial();
+            try {
+                EncryptionResult payload = encryptWithKey(dataEncryptionKey, plaintext);
+                EncryptionResult wrappedDataKey = encryptWithKey(keyEncryptionKey.keyMaterial(), dataEncryptionKey);
+
+                return new EncryptedData(
+                    payload.ciphertext(),
+                    payload.nonce(),
+                    payload.authTag(),
+                    keyId,
+                    keyEncryptionKey.version(),
+                    wrappedDataKey.ciphertext(),
+                    wrappedDataKey.nonce(),
+                    wrappedDataKey.authTag()
+                );
+            } finally {
+                Arrays.fill(dataEncryptionKey, (byte) 0);
+            }
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
             logger.error("Encryption failed for keyId: {}", keyId, e);
             throw new EncryptionFailedException("Encryption failed", e);
@@ -157,20 +152,64 @@ public class AesGcmKmsService implements KmsService {
         EncryptionKey key = getKey(encryptedData.keyId(), encryptedData.keyVersion());
         
         try {
-            Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
-            GCMParameterSpec spec = new GCMParameterSpec(AUTH_TAG_SIZE, encryptedData.nonce());
-            SecretKeySpec keySpec = new SecretKeySpec(key.keyMaterial(), 0, key.keyMaterial().length, ALGORITHM);
-            
-            cipher.init(Cipher.DECRYPT_MODE, keySpec, spec);
-            
-            byte[] ciphertextWithTag = new byte[encryptedData.ciphertext().length + encryptedData.authTag().length];
-            System.arraycopy(encryptedData.ciphertext(), 0, ciphertextWithTag, 0, encryptedData.ciphertext().length);
-            System.arraycopy(encryptedData.authTag(), 0, ciphertextWithTag, encryptedData.ciphertext().length, encryptedData.authTag().length);
-            
-            return cipher.doFinal(ciphertextWithTag);
+            if (!encryptedData.envelopeEncrypted()) {
+                return decryptWithKey(key.keyMaterial(), encryptedData.ciphertext(), encryptedData.nonce(), encryptedData.authTag());
+            }
+
+            byte[] dataEncryptionKey = decryptWithKey(
+                key.keyMaterial(),
+                encryptedData.encryptedDataKey(),
+                encryptedData.dataKeyNonce(),
+                encryptedData.dataKeyAuthTag()
+            );
+            try {
+                return decryptWithKey(dataEncryptionKey, encryptedData.ciphertext(), encryptedData.nonce(), encryptedData.authTag());
+            } finally {
+                Arrays.fill(dataEncryptionKey, (byte) 0);
+            }
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
             logger.error("Decryption failed for keyId: {}, version: {}", encryptedData.keyId(), encryptedData.keyVersion(), e);
             throw new DecryptionFailedException("Decryption failed", e);
+        }
+    }
+
+    @Override
+    public EncryptedData rewrapDataKey(EncryptedData encryptedData) {
+        if (encryptedData == null) {
+            throw new IllegalArgumentException("Encrypted data cannot be null");
+        }
+        if (!encryptedData.envelopeEncrypted()) {
+            throw new IllegalArgumentException("Encrypted data does not contain an envelope data key");
+        }
+
+        EncryptionKey previousKeyEncryptionKey = getKey(encryptedData.keyId(), encryptedData.keyVersion());
+        EncryptionKey activeKeyEncryptionKey = getActiveKey(encryptedData.keyId());
+
+        try {
+            byte[] dataEncryptionKey = decryptWithKey(
+                previousKeyEncryptionKey.keyMaterial(),
+                encryptedData.encryptedDataKey(),
+                encryptedData.dataKeyNonce(),
+                encryptedData.dataKeyAuthTag()
+            );
+            try {
+                EncryptionResult wrappedDataKey = encryptWithKey(activeKeyEncryptionKey.keyMaterial(), dataEncryptionKey);
+                return new EncryptedData(
+                    encryptedData.ciphertext(),
+                    encryptedData.nonce(),
+                    encryptedData.authTag(),
+                    activeKeyEncryptionKey.keyId(),
+                    activeKeyEncryptionKey.version(),
+                    wrappedDataKey.ciphertext(),
+                    wrappedDataKey.nonce(),
+                    wrappedDataKey.authTag()
+                );
+            } finally {
+                Arrays.fill(dataEncryptionKey, (byte) 0);
+            }
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
+            logger.error("Data key re-wrap failed for keyId: {}, version: {}", encryptedData.keyId(), encryptedData.keyVersion(), e);
+            throw new EncryptionFailedException("Data key re-wrap failed", e);
         }
     }
     
@@ -250,6 +289,46 @@ public class AesGcmKmsService implements KmsService {
             throw new IllegalArgumentException("keyId cannot be blank");
         }
     }
+
+    private byte[] generateRawKeyMaterial() throws NoSuchAlgorithmException {
+        KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
+        keyGen.init(KEY_SIZE, secureRandom);
+        return keyGen.generateKey().getEncoded();
+    }
+
+    private EncryptionResult encryptWithKey(byte[] keyMaterial, byte[] plaintext)
+            throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException,
+            InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        byte[] nonce = new byte[IV_SIZE];
+        secureRandom.nextBytes(nonce);
+
+        Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+        GCMParameterSpec spec = new GCMParameterSpec(AUTH_TAG_SIZE, nonce);
+        SecretKeySpec keySpec = new SecretKeySpec(keyMaterial, 0, keyMaterial.length, ALGORITHM);
+
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, spec);
+        byte[] ciphertextWithTag = cipher.doFinal(plaintext);
+
+        byte[] authTag = extractAuthTag(ciphertextWithTag);
+        byte[] ciphertext = removeSuffixAuthTag(ciphertextWithTag, authTag.length);
+        return new EncryptionResult(ciphertext, nonce, authTag);
+    }
+
+    private byte[] decryptWithKey(byte[] keyMaterial, byte[] ciphertext, byte[] nonce, byte[] authTag)
+            throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException,
+            InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+        GCMParameterSpec spec = new GCMParameterSpec(AUTH_TAG_SIZE, nonce);
+        SecretKeySpec keySpec = new SecretKeySpec(keyMaterial, 0, keyMaterial.length, ALGORITHM);
+
+        cipher.init(Cipher.DECRYPT_MODE, keySpec, spec);
+
+        byte[] ciphertextWithTag = new byte[ciphertext.length + authTag.length];
+        System.arraycopy(ciphertext, 0, ciphertextWithTag, 0, ciphertext.length);
+        System.arraycopy(authTag, 0, ciphertextWithTag, ciphertext.length, authTag.length);
+
+        return cipher.doFinal(ciphertextWithTag);
+    }
     
     private byte[] extractAuthTag(byte[] ciphertext) {
         byte[] authTag = new byte[AUTH_TAG_SIZE / 8];
@@ -261,5 +340,30 @@ public class AesGcmKmsService implements KmsService {
         byte[] result = new byte[ciphertext.length - authTagLength];
         System.arraycopy(ciphertext, 0, result, 0, result.length);
         return result;
+    }
+
+    @SuppressWarnings("java:S6206") // A record would expose generated byte[] equality semantics.
+    private static final class EncryptionResult {
+        private final byte[] ciphertext;
+        private final byte[] nonce;
+        private final byte[] authTag;
+
+        private EncryptionResult(byte[] ciphertext, byte[] nonce, byte[] authTag) {
+            this.ciphertext = ciphertext;
+            this.nonce = nonce;
+            this.authTag = authTag;
+        }
+
+        private byte[] ciphertext() {
+            return ciphertext;
+        }
+
+        private byte[] nonce() {
+            return nonce;
+        }
+
+        private byte[] authTag() {
+            return authTag;
+        }
     }
 }
