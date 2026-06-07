@@ -1,10 +1,9 @@
-# Kubernetes manifests
+# Kubernetes manifests and Helm chart
 
-This directory contains plain Kubernetes manifests for issue #17.
+This directory contains:
 
-## Layout
-
-- `base/` - deployable manifests for the current project topology
+- `base/` - plain Kubernetes manifests from issue #17
+- `helm/blockchain-secrets-vault/` - Helm chart for parameterized environment deployments (issue #18)
 
 ## What gets deployed
 
@@ -33,7 +32,7 @@ docker build -f blockchain/Dockerfile -t ghcr.io/igorsatsyuk/blockchain-secrets-
 
 Update tags in `base/*.yaml` if you publish different image names.
 
-## Deploy
+## Deploy with plain manifests (kustomize)
 
 The base manifests intentionally fail closed for required secrets. At the
 current stage of the project, only `secrets-api` is required for the working
@@ -104,3 +103,32 @@ kubectl -n blockchain-secrets-vault rollout restart deployment/secrets-api
 
 Once both values are non-empty, `secrets-api` automatically enables the
 Web3j-backed ACL client.
+
+## Deploy with Helm (dev/stage/prod values)
+
+Install or upgrade:
+
+```bash
+helm upgrade --install blockchain-secrets-vault k8s/helm/blockchain-secrets-vault \
+  --namespace blockchain-secrets-vault \
+  --create-namespace \
+  -f k8s/helm/blockchain-secrets-vault/values-dev.yaml
+```
+
+Use a different environment values file:
+
+- `values-dev.yaml`
+- `values-stage.yaml`
+- `values-prod.yaml`
+
+For production-like environments, override secret values at deploy time:
+
+```bash
+helm upgrade --install blockchain-secrets-vault k8s/helm/blockchain-secrets-vault \
+  --namespace blockchain-secrets-vault \
+  --create-namespace \
+  -f k8s/helm/blockchain-secrets-vault/values-prod.yaml \
+  --set secretsApi.secrets.authPassword='replace-with-strong-password' \
+  --set secretsApi.secrets.authJwtSecret='replace-with-at-least-32-bytes-of-secret-material' \
+  --set postgres.auth.password='replace-with-strong-password'
+```

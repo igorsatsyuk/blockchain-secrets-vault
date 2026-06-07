@@ -31,5 +31,5 @@
 ## Phase 5 - Production
 
 - [x] [#17](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/17) Kubernetes manifests for all services
-- [ ] [#18](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/18) Helm chart for environment deployments
+- [x] [#18](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/18) Helm chart for environment deployments
 - [ ] [#19](https://github.com/igorsatsyuk/blockchain-secrets-vault/issues/19) Grafana dashboards for observability and monitoring

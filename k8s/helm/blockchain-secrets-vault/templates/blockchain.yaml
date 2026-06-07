@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: blockchain-node
+  labels:
+    {{- include "bsv.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "bsv.selectorLabel" "blockchain-node" | nindent 4 }}
+  ports:
+    - name: rpc
+      port: {{ .Values.blockchainNode.service.port }}
+      targetPort: {{ .Values.blockchainNode.service.port }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blockchain-node
+  labels:
+    {{- include "bsv.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.blockchainNode.replicas }}
+  selector:
+    matchLabels:
+      {{- include "bsv.selectorLabel" "blockchain-node" | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "bsv.selectorLabel" "blockchain-node" | nindent 8 }}
+        {{- include "bsv.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: blockchain-node
+          image: {{ .Values.blockchainNode.image.repository }}:{{ .Values.blockchainNode.image.tag }}
+          imagePullPolicy: {{ .Values.blockchainNode.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.blockchainNode.service.port }}
+              name: rpc
+          readinessProbe:
+            tcpSocket:
+              port: rpc
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: rpc
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.blockchainNode.resources | nindent 12 }}
