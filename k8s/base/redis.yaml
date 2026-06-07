@@ -29,8 +29,9 @@ spec:
           image: redis:7.4-alpine
           args:
             - --save
-            - "60"
-            - "1"
+            - ""
+            - --appendonly
+            - "no"
           ports:
             - containerPort: 6379
               name: redis

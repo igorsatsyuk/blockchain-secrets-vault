@@ -35,15 +35,23 @@ Update tags in `base/*.yaml` if you publish different image names.
 
 ## Deploy
 
-The base manifests intentionally fail closed for required secrets. Provide the
-database password and Secrets API auth values before expecting pods to become
-healthy.
+The base manifests intentionally fail closed for required secrets. At the
+current stage of the project, only `secrets-api` is required for the working
+MVP path; it still uses an in-memory repository and does not yet depend on the
+deployed PostgreSQL or Redis pods. PostgreSQL and Redis are included here as
+production-oriented infrastructure placeholders for the next persistence and
+caching steps.
+
+Provide Secrets API auth values before expecting the API pod to become healthy.
+Configure `postgres-secrets` only if you also want the PostgreSQL pod itself to
+become Ready.
 
 1. Apply the base manifests.
-2. Patch `postgres-secrets` with a real `POSTGRES_PASSWORD`.
-3. Patch `secrets-api-secrets` with:
+2. Patch `secrets-api-secrets` with:
    - `SECRETS_AUTH_PASSWORD`
    - `SECRETS_AUTH_JWT_SECRET`
+3. Optionally patch `postgres-secrets` with a real `POSTGRES_PASSWORD` if you
+   want the PostgreSQL pod itself to come up cleanly.
 4. Deploy the ACL contract and patch optional blockchain writer secrets:
    - `BLOCKCHAIN_ACL_CONTRACT_ADDRESS`
    - `BLOCKCHAIN_ACL_PRIVATE_KEY`
@@ -55,19 +63,23 @@ Apply the base manifests:
 kubectl apply -k k8s/base
 ```
 
-Patch the required secrets:
+Patch the required Secrets API credentials:
+
+```bash
+kubectl -n blockchain-secrets-vault patch secret secrets-api-secrets \
+  --type merge \
+  -p '{"stringData":{"SECRETS_AUTH_PASSWORD":"replace-with-strong-password","SECRETS_AUTH_JWT_SECRET":"replace-with-at-least-32-bytes-of-secret-material"}}'
+kubectl -n blockchain-secrets-vault rollout restart deployment/secrets-api
+```
+
+Optionally bring PostgreSQL up with a real password:
 
 ```bash
 kubectl -n blockchain-secrets-vault patch secret postgres-secrets \
   --type merge \
   -p '{"stringData":{"POSTGRES_PASSWORD":"replace-with-strong-password"}}'
 
-kubectl -n blockchain-secrets-vault patch secret secrets-api-secrets \
-  --type merge \
-  -p '{"stringData":{"SECRETS_AUTH_PASSWORD":"replace-with-strong-password","SECRETS_AUTH_JWT_SECRET":"replace-with-at-least-32-bytes-of-secret-material"}}'
-
 kubectl -n blockchain-secrets-vault rollout restart statefulset/postgres
-kubectl -n blockchain-secrets-vault rollout restart deployment/secrets-api
 ```
 
 ## Enable blockchain ACL integration
