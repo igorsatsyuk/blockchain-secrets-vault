@@ -51,6 +51,8 @@ Secrets API contract: [docs/api/secrets-api.md](docs/api/secrets-api.md)
 ### Infrastructure
 - Docker Compose, optional Kubernetes
 
+Kubernetes manifests: [k8s/README.md](k8s/README.md)
+
 ## Repository Layout
 
 ```text
