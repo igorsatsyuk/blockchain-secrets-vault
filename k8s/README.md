@@ -109,13 +109,18 @@ Web3j-backed ACL client.
 Install or upgrade:
 
 ```bash
+# create local files with secret values (do not commit them)
+printf 'replace-with-strong-password' > auth-password.txt
+printf 'replace-with-at-least-32-bytes-of-secret-material' > jwt-secret.txt
+printf 'replace-with-strong-password' > postgres-password.txt
+
 helm upgrade --install blockchain-secrets-vault k8s/helm/blockchain-secrets-vault \
   --namespace blockchain-secrets-vault \
   --create-namespace \
   -f k8s/helm/blockchain-secrets-vault/values-dev.yaml \
-  --set secretsApi.secrets.authPassword='replace-with-strong-password' \
-  --set secretsApi.secrets.authJwtSecret='replace-with-at-least-32-bytes-of-secret-material' \
-  --set postgres.auth.password='replace-with-strong-password'
+  --set-file secretsApi.secrets.authPassword=auth-password.txt \
+  --set-file secretsApi.secrets.authJwtSecret=jwt-secret.txt \
+  --set-file postgres.auth.password=postgres-password.txt
 ```
 
 Use a different environment values file:
@@ -126,15 +131,22 @@ Use a different environment values file:
 
 All Helm environments require overriding `secretsApi.secrets.authPassword`,
 `secretsApi.secrets.authJwtSecret`, and `postgres.auth.password`.
+Unlike `k8s/base`, this chart always deploys PostgreSQL, so a non-empty
+`postgres.auth.password` is mandatory for successful startup.
 
 For production-like environments, use `values-prod.yaml` and override secrets:
 
 ```bash
+# create local files with production secret values (do not commit them)
+printf 'replace-with-strong-password' > auth-password.txt
+printf 'replace-with-at-least-32-bytes-of-secret-material' > jwt-secret.txt
+printf 'replace-with-strong-password' > postgres-password.txt
+
 helm upgrade --install blockchain-secrets-vault k8s/helm/blockchain-secrets-vault \
   --namespace blockchain-secrets-vault \
   --create-namespace \
   -f k8s/helm/blockchain-secrets-vault/values-prod.yaml \
-  --set secretsApi.secrets.authPassword='replace-with-strong-password' \
-  --set secretsApi.secrets.authJwtSecret='replace-with-at-least-32-bytes-of-secret-material' \
-  --set postgres.auth.password='replace-with-strong-password'
+  --set-file secretsApi.secrets.authPassword=auth-password.txt \
+  --set-file secretsApi.secrets.authJwtSecret=jwt-secret.txt \
+  --set-file postgres.auth.password=postgres-password.txt
 ```
