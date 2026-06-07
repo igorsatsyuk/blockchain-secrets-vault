@@ -67,9 +67,16 @@ class AesGcmKmsServiceTest {
         assertNotNull(encrypted.ciphertext());
         assertNotNull(encrypted.nonce());
         assertNotNull(encrypted.authTag());
+        assertNotNull(encrypted.encryptedDataKey());
+        assertNotNull(encrypted.dataKeyNonce());
+        assertNotNull(encrypted.dataKeyAuthTag());
+        assertTrue(encrypted.envelopeEncrypted());
         assertTrue(encrypted.ciphertext().length > 0);
         assertEquals(12, encrypted.nonce().length);
         assertEquals(16, encrypted.authTag().length);
+        assertEquals(32, encrypted.encryptedDataKey().length);
+        assertEquals(12, encrypted.dataKeyNonce().length);
+        assertEquals(16, encrypted.dataKeyAuthTag().length);
     }
     
     @Test
@@ -177,6 +184,35 @@ class AesGcmKmsServiceTest {
         
         byte[] decrypted = kmsService.decrypt(encryptedWithV0);
         assertArrayEquals(TEST_PLAINTEXT, decrypted);
+    }
+
+    @Test
+    void testRewrapDataKeyAfterRotationDoesNotChangeSecretCiphertext() {
+        kmsService.generateKey(TEST_KEY_ID);
+        EncryptedData encryptedWithV0 = kmsService.encrypt(TEST_KEY_ID, TEST_PLAINTEXT);
+
+        kmsService.rotateKey(TEST_KEY_ID);
+        EncryptedData rewrapped = kmsService.rewrapDataKey(encryptedWithV0);
+
+        assertEquals(1, rewrapped.keyVersion());
+        assertArrayEquals(encryptedWithV0.ciphertext(), rewrapped.ciphertext());
+        assertArrayEquals(encryptedWithV0.nonce(), rewrapped.nonce());
+        assertArrayEquals(encryptedWithV0.authTag(), rewrapped.authTag());
+        assertFalse(java.util.Arrays.equals(encryptedWithV0.encryptedDataKey(), rewrapped.encryptedDataKey()));
+        assertArrayEquals(TEST_PLAINTEXT, kmsService.decrypt(rewrapped));
+    }
+
+    @Test
+    void testRewrapRejectsLegacyEncryptedData() {
+        kmsService.generateKey(TEST_KEY_ID);
+        EncryptedData legacy = new EncryptedData(new byte[32], new byte[12], new byte[16], TEST_KEY_ID, 0);
+
+        assertThrows(IllegalArgumentException.class, () -> kmsService.rewrapDataKey(legacy));
+    }
+
+    @Test
+    void testRewrapNullEncryptedData() {
+        assertThrows(IllegalArgumentException.class, () -> kmsService.rewrapDataKey(null));
     }
     
     @Test
@@ -379,6 +415,10 @@ class AesGcmKmsServiceTest {
         
         assertThrows(IllegalArgumentException.class, () -> {
             new EncryptedData(new byte[10], new byte[12], new byte[16], "key", -1);
+        });
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            new EncryptedData(new byte[10], new byte[12], new byte[16], "key", 0, new byte[32], null, new byte[16]);
         });
     }
     

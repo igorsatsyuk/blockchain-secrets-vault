@@ -54,6 +54,7 @@ class SecretsServiceKeyRotationTest {
         SecretRecord afterRotation = repository.findById(created.id()).orElseThrow();
         assertThat(afterRotation.encryptionKeyVersion()).isEqualTo(1);
         assertThat(afterRotation.encryptedPayload()).isNotEqualTo(beforeRotation.encryptedPayload());
+        assertThat(envelopeCiphertext(afterRotation)).isEqualTo(envelopeCiphertext(beforeRotation));
         assertThat(decryptPayload(afterRotation)).isEqualTo(payloadBeforeRotation);
     }
 
@@ -98,30 +99,67 @@ class SecretsServiceKeyRotationTest {
     }
 
     private String decryptPayload(SecretRecord secret) {
+        EncryptedData encryptedData = decodeEncryptedData(secret);
+        return new String(kmsService.decrypt(encryptedData), StandardCharsets.UTF_8);
+    }
+
+    private String envelopeCiphertext(SecretRecord secret) {
+        return Base64.getEncoder().encodeToString(decodeEncryptedData(secret).ciphertext());
+    }
+
+    private EncryptedData decodeEncryptedData(SecretRecord secret) {
         ByteBuffer buffer = ByteBuffer.wrap(Base64.getDecoder().decode(secret.encryptedPayload()));
         byte[] ciphertext = readSegment(buffer);
         byte[] nonce = readSegment(buffer);
         byte[] authTag = readSegment(buffer);
-        EncryptedData encryptedData = new EncryptedData(
+        byte[] encryptedDataKey = null;
+        byte[] dataKeyNonce = null;
+        byte[] dataKeyAuthTag = null;
+        if (buffer.hasRemaining()) {
+            encryptedDataKey = readSegment(buffer);
+            dataKeyNonce = readSegment(buffer);
+            dataKeyAuthTag = readSegment(buffer);
+        }
+        return new EncryptedData(
                 ciphertext,
                 nonce,
                 authTag,
                 secret.encryptionKeyId(),
-                secret.encryptionKeyVersion()
+                secret.encryptionKeyVersion(),
+                encryptedDataKey,
+                dataKeyNonce,
+                dataKeyAuthTag
         );
-        return new String(kmsService.decrypt(encryptedData), StandardCharsets.UTF_8);
     }
 
     private static String encodeEncryptedData(EncryptedData encrypted) {
-        int size = encrypted.ciphertext().length + encrypted.nonce().length + encrypted.authTag().length + 12;
+        int size = encodedSegmentSize(encrypted.ciphertext())
+                + encodedSegmentSize(encrypted.nonce())
+                + encodedSegmentSize(encrypted.authTag());
+        if (encrypted.envelopeEncrypted()) {
+            size += encodedSegmentSize(encrypted.encryptedDataKey())
+                    + encodedSegmentSize(encrypted.dataKeyNonce())
+                    + encodedSegmentSize(encrypted.dataKeyAuthTag());
+        }
         ByteBuffer buffer = ByteBuffer.allocate(size);
-        buffer.putInt(encrypted.ciphertext().length);
-        buffer.put(encrypted.ciphertext());
-        buffer.putInt(encrypted.nonce().length);
-        buffer.put(encrypted.nonce());
-        buffer.putInt(encrypted.authTag().length);
-        buffer.put(encrypted.authTag());
+        writeSegment(buffer, encrypted.ciphertext());
+        writeSegment(buffer, encrypted.nonce());
+        writeSegment(buffer, encrypted.authTag());
+        if (encrypted.envelopeEncrypted()) {
+            writeSegment(buffer, encrypted.encryptedDataKey());
+            writeSegment(buffer, encrypted.dataKeyNonce());
+            writeSegment(buffer, encrypted.dataKeyAuthTag());
+        }
         return Base64.getEncoder().encodeToString(buffer.array());
+    }
+
+    private static int encodedSegmentSize(byte[] segment) {
+        return Integer.BYTES + segment.length;
+    }
+
+    private static void writeSegment(ByteBuffer buffer, byte[] segment) {
+        buffer.putInt(segment.length);
+        buffer.put(segment);
     }
 
     private static byte[] readSegment(ByteBuffer buffer) {

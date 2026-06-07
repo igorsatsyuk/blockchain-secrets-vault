@@ -21,6 +21,34 @@ class EncryptedDataTest {
         assertArrayEquals(authTag, data.authTag());
         assertEquals(keyId, data.keyId());
         assertEquals(keyVersion, data.keyVersion());
+        assertFalse(data.envelopeEncrypted());
+        assertNull(data.encryptedDataKey());
+    }
+
+    @Test
+    void testEnvelopeEncryptedDataCreation() {
+        byte[] ciphertext = new byte[32];
+        byte[] nonce = new byte[12];
+        byte[] authTag = new byte[16];
+        byte[] encryptedDataKey = new byte[32];
+        byte[] dataKeyNonce = new byte[12];
+        byte[] dataKeyAuthTag = new byte[16];
+
+        EncryptedData data = new EncryptedData(
+                ciphertext,
+                nonce,
+                authTag,
+                "test-key",
+                1,
+                encryptedDataKey,
+                dataKeyNonce,
+                dataKeyAuthTag
+        );
+
+        assertTrue(data.envelopeEncrypted());
+        assertArrayEquals(encryptedDataKey, data.encryptedDataKey());
+        assertArrayEquals(dataKeyNonce, data.dataKeyNonce());
+        assertArrayEquals(dataKeyAuthTag, data.dataKeyAuthTag());
     }
     
     @Test
@@ -133,6 +161,7 @@ class EncryptedDataTest {
         assertFalse(str.contains("ciphertext=["));
         assertFalse(str.contains("nonce=["));
         assertFalse(str.contains("authTag=["));
+        assertFalse(str.contains("encryptedDataKey=["));
     }
 
     @Test
@@ -156,17 +185,48 @@ class EncryptedDataTest {
 
     @Test
     void testEncryptedDataDefensiveCopyOnAccessor() {
-        EncryptedData data = new EncryptedData(new byte[32], new byte[12], new byte[16], "key", 0);
+        EncryptedData data = new EncryptedData(
+                new byte[32],
+                new byte[12],
+                new byte[16],
+                "key",
+                0,
+                new byte[32],
+                new byte[12],
+                new byte[16]
+        );
 
         byte[] ciphertext = data.ciphertext();
         byte[] nonce = data.nonce();
         byte[] authTag = data.authTag();
+        byte[] encryptedDataKey = data.encryptedDataKey();
+        byte[] dataKeyNonce = data.dataKeyNonce();
+        byte[] dataKeyAuthTag = data.dataKeyAuthTag();
         ciphertext[0] = 1;
         nonce[0] = 1;
         authTag[0] = 1;
+        encryptedDataKey[0] = 1;
+        dataKeyNonce[0] = 1;
+        dataKeyAuthTag[0] = 1;
 
         assertEquals(0, data.ciphertext()[0]);
         assertEquals(0, data.nonce()[0]);
         assertEquals(0, data.authTag()[0]);
+        assertEquals(0, data.encryptedDataKey()[0]);
+        assertEquals(0, data.dataKeyNonce()[0]);
+        assertEquals(0, data.dataKeyAuthTag()[0]);
+    }
+
+    @Test
+    void testEnvelopeMetadataValidation() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new EncryptedData(new byte[32], new byte[12], new byte[16], "key", 0, new byte[0], new byte[12], new byte[16]);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            new EncryptedData(new byte[32], new byte[12], new byte[16], "key", 0, new byte[32], new byte[0], new byte[16]);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            new EncryptedData(new byte[32], new byte[12], new byte[16], "key", 0, new byte[32], new byte[12], new byte[0]);
+        });
     }
 }

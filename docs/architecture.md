@@ -19,3 +19,17 @@ Source: `docs/diagrams/sequence-read-secret.puml`
 ![Grant and revoke access sequence](./diagrams/sequence-grant-revoke.png)
 
 Source: `docs/diagrams/sequence-grant-revoke.puml`
+
+## Envelope Encryption
+
+Secrets API stores encrypted payloads off-chain using envelope encryption. KMS
+generates a fresh data encryption key (DEK) for each payload, encrypts the
+payload with AES-GCM, and wraps the DEK with the active key encryption key
+(KEK). Stored metadata includes the KEK id/version plus nonce and authentication
+tag material for both the payload and wrapped DEK.
+
+Key rotation creates a new active KEK version. Existing envelope-encrypted
+secrets are rotated by re-wrapping their DEK with the new KEK; the encrypted
+secret payload is not decrypted or rewritten. Legacy payloads without wrapped
+DEK metadata are still readable and are migrated to envelope encryption during
+the next rotation.

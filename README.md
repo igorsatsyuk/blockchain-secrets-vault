@@ -7,7 +7,7 @@ The project demonstrates:
 
 - Zero-trust architecture
 - Blockchain-based access control
-- AES-GCM encryption
+- AES-GCM envelope encryption with DEK/KEK separation
 - Key rotation
 - On-chain access auditing
 - Microservice architecture (Senior/Architect level)
@@ -25,7 +25,7 @@ Secrets API contract: [docs/api/secrets-api.md](docs/api/secrets-api.md)
 - **Secrets API** - CRUD over secrets and API contract for the MVP. KMS
   encryption/decryption and blockchain ACL checks are planned follow-up work
   (#8, #9).
-- **KMS Service** - master key generation, AES-GCM encryption, key rotation.
+- **KMS Service** - KEK generation, per-secret DEK envelope encryption, key rotation.
 - **Blockchain ACL Contract** - stores ACL (who can read/write), revocations, and
   access audit.
 - **Audit Writer** - writes hashes of access events to the blockchain.

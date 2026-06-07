@@ -69,14 +69,23 @@ public class SecretsService {
     }
 
     private String encodeEncryptedData(EncryptedData encrypted) {
-        int size = encrypted.ciphertext().length + encrypted.nonce().length + encrypted.authTag().length + 12;
+        int size = encodedSegmentSize(encrypted.ciphertext())
+                + encodedSegmentSize(encrypted.nonce())
+                + encodedSegmentSize(encrypted.authTag());
+        if (encrypted.envelopeEncrypted()) {
+            size += encodedSegmentSize(encrypted.encryptedDataKey())
+                    + encodedSegmentSize(encrypted.dataKeyNonce())
+                    + encodedSegmentSize(encrypted.dataKeyAuthTag());
+        }
         ByteBuffer buffer = ByteBuffer.allocate(size);
-        buffer.putInt(encrypted.ciphertext().length);
-        buffer.put(encrypted.ciphertext());
-        buffer.putInt(encrypted.nonce().length);
-        buffer.put(encrypted.nonce());
-        buffer.putInt(encrypted.authTag().length);
-        buffer.put(encrypted.authTag());
+        writeEncodedSegment(buffer, encrypted.ciphertext());
+        writeEncodedSegment(buffer, encrypted.nonce());
+        writeEncodedSegment(buffer, encrypted.authTag());
+        if (encrypted.envelopeEncrypted()) {
+            writeEncodedSegment(buffer, encrypted.encryptedDataKey());
+            writeEncodedSegment(buffer, encrypted.dataKeyNonce());
+            writeEncodedSegment(buffer, encrypted.dataKeyAuthTag());
+        }
         return Base64.getEncoder().encodeToString(buffer.array());
     }
 
@@ -170,33 +179,34 @@ public class SecretsService {
                     .filter(secret -> secret.encryptionKeyVersion() <= previousVersion)
                     .toList();
 
-            for (SecretRecord secret : secretsToRotate) {
-                byte[] plaintext = kmsService.decrypt(decodeEncryptedData(secret));
-                java.util.Arrays.fill(plaintext, (byte) 0);
-            }
-
             EncryptionKey newActiveKey = kmsService.rotateKey(DEFAULT_KEY_ID);
             Instant now = Instant.now(clock);
 
             for (SecretRecord secret : secretsToRotate) {
-                byte[] plaintext = kmsService.decrypt(decodeEncryptedData(secret));
-                try {
-                    EncryptedData reEncrypted = kmsService.encrypt(DEFAULT_KEY_ID, plaintext);
-                    SecretRecord updated = new SecretRecord(
-                            secret.id(),
-                            secret.name(),
-                            secret.description(),
-                            encodeEncryptedData(reEncrypted),
-                            secret.encryptionKeyId(),
-                            reEncrypted.keyVersion(),
-                            secret.tags(),
-                            secret.createdAt(),
-                            now
-                    );
-                    secretRepository.save(updated);
-                } finally {
-                    java.util.Arrays.fill(plaintext, (byte) 0);
+                EncryptedData encryptedData = decodeEncryptedData(secret);
+                EncryptedData reEncrypted;
+                if (encryptedData.envelopeEncrypted()) {
+                    reEncrypted = kmsService.rewrapDataKey(encryptedData);
+                } else {
+                    byte[] plaintext = kmsService.decrypt(encryptedData);
+                    try {
+                        reEncrypted = kmsService.encrypt(DEFAULT_KEY_ID, plaintext);
+                    } finally {
+                        java.util.Arrays.fill(plaintext, (byte) 0);
+                    }
                 }
+                SecretRecord updated = new SecretRecord(
+                        secret.id(),
+                        secret.name(),
+                        secret.description(),
+                        encodeEncryptedData(reEncrypted),
+                        secret.encryptionKeyId(),
+                        reEncrypted.keyVersion(),
+                        secret.tags(),
+                        secret.createdAt(),
+                        now
+                );
+                secretRepository.save(updated);
             }
 
             return new KeyRotationResult(
@@ -350,6 +360,14 @@ public class SecretsService {
             byte[] ciphertext = readEncodedSegment(buffer, "ciphertext");
             byte[] nonce = readEncodedSegment(buffer, "nonce");
             byte[] authTag = readEncodedSegment(buffer, "authTag");
+            byte[] encryptedDataKey = null;
+            byte[] dataKeyNonce = null;
+            byte[] dataKeyAuthTag = null;
+            if (buffer.hasRemaining()) {
+                encryptedDataKey = readEncodedSegment(buffer, "encryptedDataKey");
+                dataKeyNonce = readEncodedSegment(buffer, "dataKeyNonce");
+                dataKeyAuthTag = readEncodedSegment(buffer, "dataKeyAuthTag");
+            }
             if (buffer.hasRemaining()) {
                 throw new IllegalArgumentException(
                         "Encrypted payload contains trailing bytes for secret " + secret.id()
@@ -360,11 +378,23 @@ public class SecretsService {
                     nonce,
                     authTag,
                     secret.encryptionKeyId(),
-                    secret.encryptionKeyVersion()
+                    secret.encryptionKeyVersion(),
+                    encryptedDataKey,
+                    dataKeyNonce,
+                    dataKeyAuthTag
             );
         } catch (RuntimeException exception) {
             throw new IllegalArgumentException("Stored encrypted payload is malformed for secret " + secret.id(), exception);
         }
+    }
+
+    private static int encodedSegmentSize(byte[] segment) {
+        return Integer.BYTES + segment.length;
+    }
+
+    private static void writeEncodedSegment(ByteBuffer buffer, byte[] segment) {
+        buffer.putInt(segment.length);
+        buffer.put(segment);
     }
 
     private static byte[] readEncodedSegment(ByteBuffer buffer, String segmentName) {
