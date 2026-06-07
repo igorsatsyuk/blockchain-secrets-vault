@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { createApp, escapeAttribute, escapeHtml, readForm, showToast } from "../src/app.js";
 
-test("login form posts credentials when JavaScript is unavailable", () => {
+test("login form uses post to avoid credential leakage on fallback submission", () => {
   const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
   assert.match(html, /<form[^>]*data-auth-form[^>]*method="post"/);
 });

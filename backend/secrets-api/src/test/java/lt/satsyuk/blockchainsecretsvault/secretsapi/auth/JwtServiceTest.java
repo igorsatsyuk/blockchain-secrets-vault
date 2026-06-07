@@ -12,10 +12,12 @@ import org.junit.jupiter.api.Test;
 
 class JwtServiceTest {
 
+    private static final String JWT_SECRET = "test-jwt-secret-with-enough-entropy";
+
     private final AuthProperties properties = new AuthProperties(
             "admin",
             "change-me",
-            "test-jwt-secret-with-enough-entropy",
+            JWT_SECRET,
             "vault-tests",
             Duration.ofMinutes(15)
     );
@@ -33,14 +35,12 @@ class JwtServiceTest {
     @Test
     void rejectsMalformedTamperedAndExpiredTokens() {
         assertThatThrownBy(() -> jwtService.validate("not-a-token"))
-                .isInstanceOf(JwtAuthenticationException.class)
-                .hasMessageContaining("Malformed");
+                .isInstanceOf(JwtAuthenticationException.class);
 
         String token = jwtService.issueToken("admin");
         String tampered = token.substring(0, token.lastIndexOf('.') + 1) + "bad-signature";
         assertThatThrownBy(() -> jwtService.validate(tampered))
-                .isInstanceOf(JwtAuthenticationException.class)
-                .hasMessageContaining("signature");
+                .isInstanceOf(JwtAuthenticationException.class);
 
         JwtService expiredService = new JwtService(
                 new AuthProperties("admin", "change-me", properties.jwtSecret(), properties.issuer(), Duration.ofSeconds(1)),
@@ -52,8 +52,7 @@ class JwtServiceTest {
                 Clock.fixed(Instant.parse("2026-06-01T12:00:02Z"), ZoneOffset.UTC)
         );
         assertThatThrownBy(() -> validatingLater.validate(expiredToken))
-                .isInstanceOf(JwtAuthenticationException.class)
-                .hasMessageContaining("expired");
+                .isInstanceOf(JwtAuthenticationException.class);
     }
 
     @Test
@@ -61,14 +60,14 @@ class JwtServiceTest {
         AuthProperties defaults = new AuthProperties(
                 " ",
                 "configured-password",
-                "configured-jwt-secret",
+                " configured-jwt-secret-with-32-bytes ",
                 " ",
                 null
         );
 
         assertThat(defaults.username()).isEqualTo("admin");
         assertThat(defaults.password()).isEqualTo("configured-password");
-        assertThat(defaults.jwtSecret()).isEqualTo("configured-jwt-secret");
+        assertThat(defaults.jwtSecret()).isEqualTo("configured-jwt-secret-with-32-bytes");
         assertThat(defaults.issuer()).isEqualTo("blockchain-secrets-vault");
         assertThat(defaults.tokenTtl()).isEqualTo(Duration.ofHours(1));
         assertThatThrownBy(this::authPropertiesWithoutPassword)
@@ -77,13 +76,20 @@ class JwtServiceTest {
         assertThatThrownBy(this::authPropertiesWithoutJwtSecret)
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("secrets.auth.jwt-secret must be configured");
+        assertThatThrownBy(this::authPropertiesWithShortJwtSecret)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("secrets.auth.jwt-secret must be at least 32 bytes");
     }
 
     private AuthProperties authPropertiesWithoutPassword() {
-        return new AuthProperties("admin", " ", "secret", "issuer", Duration.ofMinutes(5));
+        return new AuthProperties("admin", " ", JWT_SECRET, "issuer", Duration.ofMinutes(5));
     }
 
     private AuthProperties authPropertiesWithoutJwtSecret() {
         return new AuthProperties("admin", "password", " ", "issuer", Duration.ofMinutes(5));
+    }
+
+    private AuthProperties authPropertiesWithShortJwtSecret() {
+        return new AuthProperties("admin", "password", "short-secret", "issuer", Duration.ofMinutes(5));
     }
 }

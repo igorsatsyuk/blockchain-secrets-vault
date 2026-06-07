@@ -2,6 +2,7 @@ package lt.satsyuk.blockchainsecretsvault.secretsapi.auth;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.config.AuthProperties;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +25,14 @@ public class AuthService {
     }
 
     private static boolean constantTimeEquals(String expected, String actual) {
-        byte[] expectedBytes = expected.getBytes(StandardCharsets.UTF_8);
-        byte[] actualBytes = String.valueOf(actual).getBytes(StandardCharsets.UTF_8);
-        return MessageDigest.isEqual(expectedBytes, actualBytes);
+        return MessageDigest.isEqual(sha256(expected), sha256(String.valueOf(actual)));
+    }
+
+    private static byte[] sha256(String value) {
+        try {
+            return MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("SHA-256 digest is unavailable", exception);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package lt.satsyuk.blockchainsecretsvault.secretsapi.config;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -14,6 +15,7 @@ public record AuthProperties(
     private static final String DEFAULT_USERNAME = "admin";
     private static final String DEFAULT_ISSUER = "blockchain-secrets-vault";
     private static final Duration DEFAULT_TOKEN_TTL = Duration.ofHours(1);
+    private static final int MINIMUM_JWT_SECRET_BYTES = 32;
 
     public AuthProperties {
         username = hasText(username) ? username.trim() : DEFAULT_USERNAME;
@@ -22,6 +24,10 @@ public record AuthProperties(
         }
         if (!hasText(jwtSecret)) {
             throw new IllegalArgumentException("secrets.auth.jwt-secret must be configured");
+        }
+        jwtSecret = jwtSecret.trim();
+        if (jwtSecret.getBytes(StandardCharsets.UTF_8).length < MINIMUM_JWT_SECRET_BYTES) {
+            throw new IllegalArgumentException("secrets.auth.jwt-secret must be at least 32 bytes");
         }
         issuer = hasText(issuer) ? issuer.trim() : DEFAULT_ISSUER;
         tokenTtl = tokenTtl == null || tokenTtl.isNegative() || tokenTtl.isZero()
