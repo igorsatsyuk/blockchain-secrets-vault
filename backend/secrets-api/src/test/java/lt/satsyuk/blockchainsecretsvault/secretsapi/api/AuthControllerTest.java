@@ -94,5 +94,14 @@ class AuthControllerTest {
                 .expectStatus().isBadRequest()
                 .expectBody(ErrorResponse.class)
                 .value(error -> assertThat(error.details()).containsKeys("username", "password"));
+
+        webTestClient.post()
+                .uri("/api/v1/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("username", "a".repeat(129), "password", "p".repeat(513)))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody(ErrorResponse.class)
+                .value(error -> assertThat(error.details()).containsKeys("username", "password"));
     }
 }
