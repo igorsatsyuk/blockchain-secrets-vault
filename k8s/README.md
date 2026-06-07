@@ -35,10 +35,39 @@ Update tags in `base/*.yaml` if you publish different image names.
 
 ## Deploy
 
+The base manifests intentionally fail closed for required secrets. Provide the
+database password and Secrets API auth values before expecting pods to become
+healthy.
+
+1. Apply the base manifests.
+2. Patch `postgres-secrets` with a real `POSTGRES_PASSWORD`.
+3. Patch `secrets-api-secrets` with:
+   - `SECRETS_AUTH_PASSWORD`
+   - `SECRETS_AUTH_JWT_SECRET`
+4. Deploy the ACL contract and patch optional blockchain writer secrets:
+   - `BLOCKCHAIN_ACL_CONTRACT_ADDRESS`
+   - `BLOCKCHAIN_ACL_PRIVATE_KEY`
+5. Restart the workloads after secret updates.
+
 Apply the base manifests:
 
 ```bash
 kubectl apply -k k8s/base
+```
+
+Patch the required secrets:
+
+```bash
+kubectl -n blockchain-secrets-vault patch secret postgres-secrets \
+  --type merge \
+  -p '{"stringData":{"POSTGRES_PASSWORD":"replace-with-strong-password"}}'
+
+kubectl -n blockchain-secrets-vault patch secret secrets-api-secrets \
+  --type merge \
+  -p '{"stringData":{"SECRETS_AUTH_PASSWORD":"replace-with-strong-password","SECRETS_AUTH_JWT_SECRET":"replace-with-at-least-32-bytes-of-secret-material"}}'
+
+kubectl -n blockchain-secrets-vault rollout restart statefulset/postgres
+kubectl -n blockchain-secrets-vault rollout restart deployment/secrets-api
 ```
 
 ## Enable blockchain ACL integration
@@ -46,12 +75,9 @@ kubectl apply -k k8s/base
 The base deployment keeps blockchain ACL integration disabled until the Secrets
 ACL contract address and writer private key are configured.
 
-1. Deploy the manifests.
-2. Deploy `SecretsAcl.sol` to the `blockchain-node` service.
-3. Patch `secrets-api-secrets` with:
-   - `BLOCKCHAIN_ACL_CONTRACT_ADDRESS`
-   - `BLOCKCHAIN_ACL_PRIVATE_KEY`
-4. Restart `secrets-api`.
+1. Deploy `SecretsAcl.sol` to the `blockchain-node` service.
+2. Patch `secrets-api-secrets` with the contract address and writer key.
+3. Restart `secrets-api`.
 
 Example:
 
