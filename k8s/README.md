@@ -43,15 +43,16 @@ production-oriented infrastructure placeholders for the next persistence and
 caching steps.
 
 Provide Secrets API auth values before expecting the API pod to become healthy.
-Configure `postgres-secrets` only if you also want the PostgreSQL pod itself to
-become Ready.
+Without `POSTGRES_PASSWORD`, the PostgreSQL container will fail to start and
+enter `CrashLoopBackOff`. Configure `postgres-secrets` only if you want the
+PostgreSQL pod itself to run, which is optional for the current in-memory MVP.
 
 1. Apply the base manifests.
 2. Patch `secrets-api-secrets` with:
    - `SECRETS_AUTH_PASSWORD`
    - `SECRETS_AUTH_JWT_SECRET`
 3. Optionally patch `postgres-secrets` with a real `POSTGRES_PASSWORD` if you
-   want the PostgreSQL pod itself to come up cleanly.
+   want the PostgreSQL pod itself to start successfully.
 4. Deploy the ACL contract and patch optional blockchain writer secrets:
    - `BLOCKCHAIN_ACL_CONTRACT_ADDRESS`
    - `BLOCKCHAIN_ACL_PRIVATE_KEY`
