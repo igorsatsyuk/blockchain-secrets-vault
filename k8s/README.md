@@ -4,6 +4,7 @@ This directory contains:
 
 - `base/` - plain Kubernetes manifests from issue #17
 - `helm/blockchain-secrets-vault/` - Helm chart for parameterized environment deployments (issue #18)
+- `observability/grafana/dashboards/` - Grafana dashboard definitions for production monitoring (issue #19)
 
 ## What gets deployed
 
@@ -154,3 +155,16 @@ helm upgrade --install blockchain-secrets-vault k8s/helm/blockchain-secrets-vaul
   --set-file secretsApi.secrets.authJwtSecret=jwt-secret.txt \
   --set-file postgres.auth.password=postgres-password.txt
 ```
+
+## Grafana dashboards
+
+Dashboards for health, errors/latency, and resource performance are provided in:
+
+- `k8s/observability/grafana/dashboards/service-health-overview.json`
+- `k8s/observability/grafana/dashboards/api-errors-and-latency.json`
+- `k8s/observability/grafana/dashboards/resource-performance.json`
+
+Import them into Grafana and connect to a Prometheus datasource that scrapes:
+
+- Kubernetes metrics (`kube-state-metrics`, `cAdvisor`/`kubelet`)
+- ingress-nginx metrics (`nginx_ingress_controller_*`) for HTTP error/latency panels
