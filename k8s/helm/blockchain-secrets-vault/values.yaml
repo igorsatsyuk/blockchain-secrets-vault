@@ -36,9 +36,11 @@ redis:
   resources:
     requests:
       cpu: 50m
+      ephemeral-storage: 64Mi
       memory: 64Mi
     limits:
       cpu: 250m
+      ephemeral-storage: 128Mi
       memory: 256Mi
 
 blockchainNode:
@@ -52,9 +54,11 @@ blockchainNode:
   resources:
     requests:
       cpu: 100m
+      ephemeral-storage: 256Mi
       memory: 256Mi
     limits:
       cpu: 500m
+      ephemeral-storage: 512Mi
       memory: 512Mi
 
 secretsApi:
@@ -86,9 +90,11 @@ secretsApi:
   resources:
     requests:
       cpu: 200m
+      ephemeral-storage: 256Mi
       memory: 512Mi
     limits:
       cpu: 1000m
+      ephemeral-storage: 512Mi
       memory: 1024Mi
 
 frontend:
@@ -106,9 +112,11 @@ frontend:
   resources:
     requests:
       cpu: 50m
+      ephemeral-storage: 64Mi
       memory: 64Mi
     limits:
       cpu: 250m
+      ephemeral-storage: 128Mi
       memory: 128Mi
 
 ingress:

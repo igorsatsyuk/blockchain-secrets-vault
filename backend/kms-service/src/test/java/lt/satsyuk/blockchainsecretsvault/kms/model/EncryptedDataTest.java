@@ -78,69 +78,48 @@ class EncryptedDataTest {
     
     @Test
     void testEncryptedDataNullCiphertext() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(null, new byte[12], new byte[16], "key", 0);
-        });
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(null, new byte[12], new byte[16], "key", 0));
     }
     
     @Test
     void testEncryptedDataEmptyCiphertext() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[0], new byte[12], new byte[16], "key", 0);
-        });
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[0], new byte[12], new byte[16], "key", 0));
     }
     
     @Test
     void testEncryptedDataNullNonce() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[32], null, new byte[16], "key", 0);
-        });
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[32], null, new byte[16], "key", 0));
     }
     
     @Test
     void testEncryptedDataEmptyNonce() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[32], new byte[0], new byte[16], "key", 0);
-        });
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[32], new byte[0], new byte[16], "key", 0));
     }
     
     @Test
     void testEncryptedDataNullAuthTag() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[32], new byte[12], null, "key", 0);
-        });
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[32], new byte[12], null, "key", 0));
     }
     
     @Test
     void testEncryptedDataEmptyAuthTag() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[32], new byte[12], new byte[0], "key", 0);
-        });
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[32], new byte[12], new byte[0], "key", 0));
     }
     
     @Test
     void testEncryptedDataBlankKeyId() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[32], new byte[12], new byte[16], "", 0);
-        });
-        
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[32], new byte[12], new byte[16], "   ", 0);
-        });
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[32], new byte[12], new byte[16], "", 0));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[32], new byte[12], new byte[16], "   ", 0));
     }
     
     @Test
     void testEncryptedDataNullKeyId() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[32], new byte[12], new byte[16], null, 0);
-        });
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[32], new byte[12], new byte[16], null, 0));
     }
     
     @Test
     void testEncryptedDataNegativeVersion() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[32], new byte[12], new byte[16], "key", -1);
-        });
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[32], new byte[12], new byte[16], "key", -1));
     }
 
     @Test
@@ -219,14 +198,8 @@ class EncryptedDataTest {
 
     @Test
     void testEnvelopeMetadataValidation() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[32], new byte[12], new byte[16], "key", 0, new byte[0], new byte[12], new byte[16]);
-        });
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[32], new byte[12], new byte[16], "key", 0, new byte[32], new byte[0], new byte[16]);
-        });
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[32], new byte[12], new byte[16], "key", 0, new byte[32], new byte[12], new byte[0]);
-        });
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[32], new byte[12], new byte[16], "key", 0, new byte[0], new byte[12], new byte[16]));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[32], new byte[12], new byte[16], "key", 0, new byte[32], new byte[0], new byte[16]));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[32], new byte[12], new byte[16], "key", 0, new byte[32], new byte[12], new byte[0]));
     }
 }

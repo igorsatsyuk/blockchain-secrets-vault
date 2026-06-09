@@ -18,7 +18,13 @@ import org.springframework.test.web.reactive.server.WebTestClient;
         "secrets.auth.jwt-secret=test-jwt-secret-with-enough-entropy"
 })
 @AutoConfigureWebTestClient
+@SuppressWarnings("java:S2068")
 class AuthControllerTest {
+    private static final String LOGIN_URI = "/api/v1/auth/login";
+    private static final String SECRETS_URI = "/api/v1/secrets";
+    private static final String USERNAME_FIELD = "username";
+    private static final String PASSWORD_FIELD = "password";
+    private static final String TEST_PASSWORD = "change-me";
 
     @Autowired
     private WebTestClient webTestClient;
@@ -29,9 +35,9 @@ class AuthControllerTest {
     @Test
     void loginIssuesBearerTokenThatUnlocksApiRequests() {
         AuthResponse response = webTestClient.post()
-                .uri("/api/v1/auth/login")
+                .uri(LOGIN_URI)
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(Map.of("username", " admin ", "password", "change-me"))
+                .bodyValue(Map.of(USERNAME_FIELD, " admin ", PASSWORD_FIELD, TEST_PASSWORD))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(AuthResponse.class)
@@ -44,7 +50,7 @@ class AuthControllerTest {
         assertThat(response.expiresIn()).isEqualTo(3600);
 
         webTestClient.get()
-                .uri("/api/v1/secrets")
+                .uri(SECRETS_URI)
                 .header(HttpHeaders.AUTHORIZATION, "bearer " + response.accessToken())
                 .exchange()
                 .expectStatus().isOk();
@@ -53,7 +59,7 @@ class AuthControllerTest {
     @Test
     void rejectsMissingInvalidAndExpiredCredentials() {
         webTestClient.get()
-                .uri("/api/v1/secrets")
+                .uri(SECRETS_URI)
                 .exchange()
                 .expectStatus().isUnauthorized()
                 .expectHeader().valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
@@ -61,23 +67,23 @@ class AuthControllerTest {
                 .value(error -> assertThat(error.message()).isEqualTo("Authentication is required"));
 
         webTestClient.get()
-                .uri("/api/v1/secrets")
+                .uri(SECRETS_URI)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer invalid-token")
                 .exchange()
                 .expectStatus().isUnauthorized();
 
         webTestClient.post()
-                .uri("/api/v1/auth/login")
+                .uri(LOGIN_URI)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer invalid-token")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(Map.of("username", "admin", "password", "change-me"))
+                .bodyValue(Map.of(USERNAME_FIELD, "admin", PASSWORD_FIELD, TEST_PASSWORD))
                 .exchange()
                 .expectStatus().isOk();
 
         webTestClient.post()
-                .uri("/api/v1/auth/login")
+                .uri(LOGIN_URI)
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(Map.of("username", "admin", "password", "wrong"))
+                .bodyValue(Map.of(USERNAME_FIELD, "admin", PASSWORD_FIELD, "wrong"))
                 .exchange()
                 .expectStatus().isUnauthorized()
                 .expectBody(ErrorResponse.class)
@@ -87,21 +93,21 @@ class AuthControllerTest {
     @Test
     void validatesLoginRequestBody() {
         webTestClient.post()
-                .uri("/api/v1/auth/login")
+                .uri(LOGIN_URI)
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(Map.of("username", "", "password", ""))
+                .bodyValue(Map.of(USERNAME_FIELD, "", PASSWORD_FIELD, ""))
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody(ErrorResponse.class)
-                .value(error -> assertThat(error.details()).containsKeys("username", "password"));
+                .value(error -> assertThat(error.details()).containsKeys(USERNAME_FIELD, PASSWORD_FIELD));
 
         webTestClient.post()
-                .uri("/api/v1/auth/login")
+                .uri(LOGIN_URI)
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(Map.of("username", "a".repeat(129), "password", "p".repeat(513)))
+                .bodyValue(Map.of(USERNAME_FIELD, "a".repeat(129), PASSWORD_FIELD, "p".repeat(513)))
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody(ErrorResponse.class)
-                .value(error -> assertThat(error.details()).containsKeys("username", "password"));
+                .value(error -> assertThat(error.details()).containsKeys(USERNAME_FIELD, PASSWORD_FIELD));
     }
 }

@@ -34,6 +34,7 @@ class Web3jBlockchainAclClientTest {
     private static final UUID SECRET_ID = UUID.fromString("00112233-4455-6677-8899-aabbccddeeff");
     private static final String ACCOUNT = "0x1111111111111111111111111111111111111111";
     private static final String CONTRACT = "0x2222222222222222222222222222222222222222";
+    private static final String TRANSACTION_HASH = "0xtransaction";
     private static final BigInteger GAS_PRICE = BigInteger.valueOf(10);
     private static final BigInteger GAS_LIMIT = BigInteger.valueOf(20);
     private static final long CHAIN_ID = 31_337L;
@@ -63,8 +64,8 @@ class Web3jBlockchainAclClientTest {
     void submitsGrantAndRevokeTransactions() {
         Web3jBlockchainAclClient client = clientWithTransactionSender(successfulTransactionSender());
 
-        assertThat(client.grantAccess(SECRET_ID, ACCOUNT, true, false)).isEqualTo("0xtransaction");
-        assertThat(client.revokeAccess(SECRET_ID, ACCOUNT)).isEqualTo("0xtransaction");
+        assertThat(client.grantAccess(SECRET_ID, ACCOUNT, true, false)).isEqualTo(TRANSACTION_HASH);
+        assertThat(client.revokeAccess(SECRET_ID, ACCOUNT)).isEqualTo(TRANSACTION_HASH);
     }
 
     @Test
@@ -90,7 +91,7 @@ class Web3jBlockchainAclClientTest {
         });
 
         assertThat(client.auditEvent(SECRET_ID, ACCOUNT, AccessAuditAction.WRITE, detailsHash))
-                .isEqualTo("0xtransaction");
+                .isEqualTo(TRANSACTION_HASH);
     }
 
     @Test
@@ -231,7 +232,7 @@ class Web3jBlockchainAclClientTest {
     private static Web3jBlockchainAclClient.TransactionSender successfulTransactionSender() {
         return (_, _, _, _, _) -> {
             EthSendTransaction response = new EthSendTransaction();
-            response.setResult("0xtransaction");
+            response.setResult(TRANSACTION_HASH);
             return response;
         };
     }

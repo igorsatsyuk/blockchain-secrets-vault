@@ -26,6 +26,13 @@ import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 class SecretsServiceTest {
+    private static final String ALPHA = "alpha";
+    private static final String PAYLOAD = "payload";
+    private static final String DESCRIPTION = "description";
+    private static final String DEFAULT_KEY_ID = "default-secret-key";
+    private static final String ACCOUNT = "0x1111111111111111111111111111111111111111";
+    private static final String GRANT_TX = "0xgrant";
+    private static final String REVOKE_TX = "0xrevoke";
 
     private final InMemorySecretRepository repository = new InMemorySecretRepository();
     private final Clock clock = Clock.fixed(Instant.parse("2026-06-01T12:00:00Z"), ZoneOffset.UTC);
@@ -46,7 +53,7 @@ class SecretsServiceTest {
             "encrypted".getBytes(),
             new byte[12],
             new byte[16],
-            "default-secret-key",
+            DEFAULT_KEY_ID,
             0
         );
         when(mock.encrypt(anyString(), any(byte[].class))).thenReturn(mockEncrypted);
@@ -67,7 +74,7 @@ class SecretsServiceTest {
                     assertThat(secret.id()).isNotNull();
                     assertThat(secret.name()).isEqualTo("payment-api");
                     assertThat(secret.description()).isEqualTo("tokens");
-                    assertThat(secret.encryptionKeyId()).isEqualTo("default-secret-key");
+                    assertThat(secret.encryptionKeyId()).isEqualTo(DEFAULT_KEY_ID);
                     assertThat(secret.tags()).containsExactlyInAnyOrder("prod", "api");
                     assertThat(secret.createdAt()).isEqualTo(clock.instant());
                     assertThat(secret.updatedAt()).isEqualTo(clock.instant());
@@ -80,7 +87,7 @@ class SecretsServiceTest {
         Locale previousDefault = Locale.getDefault();
         Locale.setDefault(Locale.forLanguageTag("tr"));
         try {
-            CreateSecretRequest request = new CreateSecretRequest("alpha", null, "payload", Set.of("IDENTITY"));
+            CreateSecretRequest request = new CreateSecretRequest(ALPHA, null, PAYLOAD, Set.of("IDENTITY"));
 
             StepVerifier.create(service.create(request))
                     .assertNext(secret -> assertThat(secret.tags()).containsExactly("identity"))
@@ -103,18 +110,18 @@ class SecretsServiceTest {
 
     @Test
     void rejectsDuplicateCreateWhenNameDiffersOnlyByWhitespace() {
-        service.create(new CreateSecretRequest("alpha", null, "one", Set.of())).block();
+        service.create(new CreateSecretRequest(ALPHA, null, "one", Set.of())).block();
 
         StepVerifier.create(service.create(new CreateSecretRequest("  alpha  ", null, "two", Set.of())))
                 .expectErrorSatisfies(error -> assertThat(error)
                         .isInstanceOf(DuplicateSecretNameException.class)
-                        .hasMessageContaining("alpha"))
+                        .hasMessageContaining(ALPHA))
                 .verify();
     }
 
     @Test
     void listsAndGetsExistingSecrets() {
-        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
+        SecretRecord created = service.create(new CreateSecretRequest(ALPHA, null, PAYLOAD, Set.of())).block();
 
         StepVerifier.create(service.list())
                 .expectNext(created)
@@ -139,9 +146,9 @@ class SecretsServiceTest {
     @Test
     void updatesOnlyProvidedFields() {
         SecretRecord created = service.create(new CreateSecretRequest(
-                "alpha",
-                "description",
-                "payload",
+                ALPHA,
+                DESCRIPTION,
+                PAYLOAD,
                 Set.of("one")
         )).block();
 
@@ -151,8 +158,8 @@ class SecretsServiceTest {
                 .assertNext(updated -> {
                     assertThat(updated.id()).isEqualTo(created.id());
                     assertThat(updated.name()).isEqualTo("beta");
-                    assertThat(updated.description()).isEqualTo("description");
-                    assertThat(updated.encryptionKeyId()).isEqualTo("default-secret-key");
+                    assertThat(updated.description()).isEqualTo(DESCRIPTION);
+                    assertThat(updated.encryptionKeyId()).isEqualTo(DEFAULT_KEY_ID);
                     assertThat(updated.tags()).containsExactly("two");
                     assertThat(updated.createdAt()).isEqualTo(created.createdAt());
                     assertThat(updated.updatedAt()).isEqualTo(clock.instant());
@@ -163,9 +170,9 @@ class SecretsServiceTest {
     @Test
     void updateCanKeepNameWhenMissingAndClearDescriptionAndNormalizeTags() {
         SecretRecord created = service.create(new CreateSecretRequest(
-                "alpha",
-                "description",
-                "payload",
+                ALPHA,
+                DESCRIPTION,
+                PAYLOAD,
                 Set.of("one")
         )).block();
 
@@ -173,9 +180,9 @@ class SecretsServiceTest {
 
         StepVerifier.create(service.update(created.id(), request))
                 .assertNext(updated -> {
-                    assertThat(updated.name()).isEqualTo("alpha");
+                    assertThat(updated.name()).isEqualTo(ALPHA);
                     assertThat(updated.description()).isNull();
-                    assertThat(updated.encryptionKeyId()).isEqualTo("default-secret-key");
+                    assertThat(updated.encryptionKeyId()).isEqualTo(DEFAULT_KEY_ID);
                     assertThat(updated.tags()).containsExactly("two");
                 })
                 .verifyComplete();
@@ -183,7 +190,7 @@ class SecretsServiceTest {
 
     @Test
     void updateAllowsKeepingSameNameAndFailsWhenMissingSecret() {
-        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", null)).block();
+        SecretRecord created = service.create(new CreateSecretRequest(ALPHA, null, PAYLOAD, null)).block();
 
         StepVerifier.create(service.update(created.id(), new UpdateSecretRequest("ALPHA", null, null, null)))
                 .assertNext(updated -> assertThat(updated.name()).isEqualTo("ALPHA"))
@@ -199,8 +206,8 @@ class SecretsServiceTest {
 
     @Test
     void rejectsEmptyUpdateAndDuplicateRename() {
-        SecretRecord first = service.create(new CreateSecretRequest("first", null, "payload", Set.of())).block();
-        service.create(new CreateSecretRequest("second", null, "payload", Set.of())).block();
+        SecretRecord first = service.create(new CreateSecretRequest("first", null, PAYLOAD, Set.of())).block();
+        service.create(new CreateSecretRequest("second", null, PAYLOAD, Set.of())).block();
 
         StepVerifier.create(service.update(first.id(), new UpdateSecretRequest(null, null, null, null)))
                 .expectError(EmptySecretUpdateException.class)
@@ -213,7 +220,7 @@ class SecretsServiceTest {
 
     @Test
     void deletesExistingSecretAndFailsForMissingSecret() {
-        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
+        SecretRecord created = service.create(new CreateSecretRequest(ALPHA, null, PAYLOAD, Set.of())).block();
 
         StepVerifier.create(service.delete(created.id())).verifyComplete();
         StepVerifier.create(service.delete(created.id()))
@@ -225,18 +232,18 @@ class SecretsServiceTest {
     void detectsEmptyUpdateRequestOnlyWhenAllFieldsAreMissing() {
         assertThat(new UpdateSecretRequest(null, null, null, null).isEmpty()).isTrue();
         assertThat(new UpdateSecretRequest("name", null, null, null).isEmpty()).isFalse();
-        assertThat(new UpdateSecretRequest(null, "description", null, null).isEmpty()).isFalse();
-        assertThat(new UpdateSecretRequest(null, null, "payload", null).isEmpty()).isFalse();
+        assertThat(new UpdateSecretRequest(null, DESCRIPTION, null, null).isEmpty()).isFalse();
+        assertThat(new UpdateSecretRequest(null, null, PAYLOAD, null).isEmpty()).isFalse();
         assertThat(new UpdateSecretRequest(null, null, null, Set.of("tag")).isEmpty()).isFalse();
     }
 
     @Test
     void grantsRevokesAndChecksBlockchainAcl() {
-        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
-        String account = "0x1111111111111111111111111111111111111111";
+        SecretRecord created = service.create(new CreateSecretRequest(ALPHA, null, PAYLOAD, Set.of())).block();
+        String account = ACCOUNT;
 
-        when(blockchainAclClient.grantAccess(created.id(), account, true, false)).thenReturn("0xgrant");
-        when(blockchainAclClient.revokeAccess(created.id(), account)).thenReturn("0xrevoke");
+        when(blockchainAclClient.grantAccess(created.id(), account, true, false)).thenReturn(GRANT_TX);
+        when(blockchainAclClient.revokeAccess(created.id(), account)).thenReturn(REVOKE_TX);
         when(blockchainAclClient.auditEvent(any(), anyString(), any(), anyString())).thenReturn("0xaudit");
         when(blockchainAclClient.canRead(created.id(), account)).thenReturn(true);
         when(blockchainAclClient.canWrite(created.id(), account)).thenReturn(false);
@@ -244,7 +251,7 @@ class SecretsServiceTest {
         StepVerifier.create(service.grantAccess(created.id(), account, true, false))
                 .assertNext(transaction -> {
                     assertThat(transaction.account()).isEqualTo(account);
-                    assertThat(transaction.transactionHash()).isEqualTo("0xgrant");
+                    assertThat(transaction.transactionHash()).isEqualTo(GRANT_TX);
                 })
                 .verifyComplete();
 
@@ -259,7 +266,7 @@ class SecretsServiceTest {
         StepVerifier.create(service.revokeAccess(created.id(), account))
                 .assertNext(transaction -> {
                     assertThat(transaction.account()).isEqualTo(account);
-                    assertThat(transaction.transactionHash()).isEqualTo("0xrevoke");
+                    assertThat(transaction.transactionHash()).isEqualTo(REVOKE_TX);
                 })
                 .verifyComplete();
 
@@ -298,17 +305,17 @@ class SecretsServiceTest {
 
     @Test
     void grantAccessReturnsAclTransactionWhenAuditPublishFails() {
-        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
-        String account = "0x1111111111111111111111111111111111111111";
+        SecretRecord created = service.create(new CreateSecretRequest(ALPHA, null, PAYLOAD, Set.of())).block();
+        String account = ACCOUNT;
 
-        when(blockchainAclClient.grantAccess(created.id(), account, true, false)).thenReturn("0xgrant");
+        when(blockchainAclClient.grantAccess(created.id(), account, true, false)).thenReturn(GRANT_TX);
         when(blockchainAclClient.auditEvent(any(), anyString(), any(), anyString()))
                 .thenThrow(new BlockchainAclException("audit unavailable"));
 
         StepVerifier.create(service.grantAccess(created.id(), account, true, false))
                 .assertNext(transaction -> {
                     assertThat(transaction.account()).isEqualTo(account);
-                    assertThat(transaction.transactionHash()).isEqualTo("0xgrant");
+                    assertThat(transaction.transactionHash()).isEqualTo(GRANT_TX);
                 })
                 .verifyComplete();
 
@@ -317,17 +324,17 @@ class SecretsServiceTest {
 
     @Test
     void grantAccessReturnsAclTransactionWhenAuditPublishFailsUnexpectedly() {
-        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
-        String account = "0x1111111111111111111111111111111111111111";
+        SecretRecord created = service.create(new CreateSecretRequest(ALPHA, null, PAYLOAD, Set.of())).block();
+        String account = ACCOUNT;
 
-        when(blockchainAclClient.grantAccess(created.id(), account, true, false)).thenReturn("0xgrant");
+        when(blockchainAclClient.grantAccess(created.id(), account, true, false)).thenReturn(GRANT_TX);
         when(blockchainAclClient.auditEvent(any(), anyString(), any(), anyString()))
                 .thenThrow(new IllegalStateException("hashing unavailable"));
 
         StepVerifier.create(service.grantAccess(created.id(), account, true, false))
                 .assertNext(transaction -> {
                     assertThat(transaction.account()).isEqualTo(account);
-                    assertThat(transaction.transactionHash()).isEqualTo("0xgrant");
+                    assertThat(transaction.transactionHash()).isEqualTo(GRANT_TX);
                 })
                 .verifyComplete();
 
@@ -336,17 +343,17 @@ class SecretsServiceTest {
 
     @Test
     void revokeAccessReturnsAclTransactionWhenAuditPublishFails() {
-        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
-        String account = "0x1111111111111111111111111111111111111111";
+        SecretRecord created = service.create(new CreateSecretRequest(ALPHA, null, PAYLOAD, Set.of())).block();
+        String account = ACCOUNT;
 
-        when(blockchainAclClient.revokeAccess(created.id(), account)).thenReturn("0xrevoke");
+        when(blockchainAclClient.revokeAccess(created.id(), account)).thenReturn(REVOKE_TX);
         when(blockchainAclClient.auditEvent(any(), anyString(), any(), anyString()))
                 .thenThrow(new BlockchainAclException("audit unavailable"));
 
         StepVerifier.create(service.revokeAccess(created.id(), account))
                 .assertNext(transaction -> {
                     assertThat(transaction.account()).isEqualTo(account);
-                    assertThat(transaction.transactionHash()).isEqualTo("0xrevoke");
+                    assertThat(transaction.transactionHash()).isEqualTo(REVOKE_TX);
                 })
                 .verifyComplete();
 
@@ -357,7 +364,7 @@ class SecretsServiceTest {
     void blockchainAclOperationsValidateSecretAndAccount() {
         UUID missing = UUID.randomUUID();
 
-        StepVerifier.create(service.grantAccess(missing, "0x1111111111111111111111111111111111111111", true, true))
+        StepVerifier.create(service.grantAccess(missing, ACCOUNT, true, true))
                 .expectError(SecretNotFoundException.class)
                 .verify();
 
@@ -365,7 +372,7 @@ class SecretsServiceTest {
                 .expectError(SecretNotFoundException.class)
                 .verify();
 
-        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
+        SecretRecord created = service.create(new CreateSecretRequest(ALPHA, null, PAYLOAD, Set.of())).block();
 
         StepVerifier.create(service.checkAccess(created.id(), "not-an-address"))
                 .expectError(InvalidBlockchainAccountException.class)
@@ -378,8 +385,8 @@ class SecretsServiceTest {
 
     @Test
     void checksBlockchainPermissionsWithCombinedResult() {
-        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
-        String account = "0x1111111111111111111111111111111111111111";
+        SecretRecord created = service.create(new CreateSecretRequest(ALPHA, null, PAYLOAD, Set.of())).block();
+        String account = ACCOUNT;
 
         when(blockchainAclClient.canRead(created.id(), account)).thenReturn(true);
         when(blockchainAclClient.canWrite(created.id(), account)).thenReturn(false);

@@ -18,7 +18,7 @@
         </div>
         <label>
           Username
-          <input name="username" autocomplete="username" required>
+          <input name="username" type="text" autocomplete="username" required>
         </label>
         <label>
           Password
@@ -42,7 +42,7 @@
         <div class="toolbar">
           <label class="search-field">
             <span class="sr-only">Search secrets</span>
-            <input data-search type="search" placeholder="Search secrets">
+            <input data-search type="search" autocomplete="off" placeholder="Search secrets">
           </label>
           <button class="icon-button" data-refresh type="button" title="Refresh secrets" aria-label="Refresh secrets">↻</button>
         </div>
@@ -51,7 +51,7 @@
           <button class="text-button" data-logout type="button">Sign out</button>
         </div>
 
-        <div class="list-status" data-list-status role="status"></div>
+        <output class="list-status" data-list-status aria-live="polite"></output>
         <ul class="secret-list" data-secret-list></ul>
       </aside>
 
@@ -97,7 +97,7 @@
       </section>
     </main>
 
-    <div class="toast" data-toast role="status" aria-live="polite"></div>
+    <output class="toast" data-toast aria-live="polite"></output>
     <script type="module" src="./src/app.js"></script>
   </body>
 </html>
