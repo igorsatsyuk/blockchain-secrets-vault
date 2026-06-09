@@ -92,7 +92,7 @@ The `docker-compose.yml` file allows you to run the entire project in Docker, in
 - **Redis** - cache (port 6379)
 - **Blockchain** - Hardhat node (port 8545)
 - **Backend (Secrets API)** - Spring Boot application (port 8081)
-- **Frontend** - Nginx web interface (port 8080)
+- **Frontend** - Nginx web interface with `/api/` reverse proxy to `secrets-api` (port 8080)
 
 ### Requirements
 
@@ -102,6 +102,20 @@ The `docker-compose.yml` file allows you to run the entire project in Docker, in
 ### Quick Start
 
 #### 1. Start all services
+
+Create a `.env` file in the repository root before the first start:
+
+```bash
+POSTGRES_PASSWORD=secretsvault-local-dev
+SPRING_PROFILES_ACTIVE=dev
+SECRETS_AUTH_PASSWORD=change-me
+SECRETS_AUTH_JWT_SECRET=change-me-change-me-change-me-1234
+```
+
+The auth variables are required by `secrets-api`, and the JWT secret must be at
+least 32 bytes long.
+
+Then start the stack:
 
 ```bash
 docker-compose up -d
@@ -142,6 +156,10 @@ docker-compose down -v
 | PostgreSQL | localhost:5432 | 5432 |
 | Redis | localhost:6379 | 6379 |
 
+Open `http://localhost:8080` for the UI. The frontend proxies `/api/*` calls to
+`secrets-api` inside the Docker network, so the browser does not need a
+separate backend base URL.
+
 ### Environment Variables
 
 Variables are stored in the `.env` file:
@@ -149,9 +167,12 @@ Variables are stored in the `.env` file:
 ```bash
 POSTGRES_PASSWORD=secretsvault-local-dev
 SPRING_PROFILES_ACTIVE=dev
+SECRETS_AUTH_PASSWORD=change-me
+SECRETS_AUTH_JWT_SECRET=change-me-change-me-change-me-1234
 ```
 
-Modify the `.env` file to configure the database password, Spring profiles, and other parameters.
+Modify the `.env` file to configure the database password, Spring profile, and
+Secrets API authentication values used by Docker Compose.
 
 ### Service Health Check
 
