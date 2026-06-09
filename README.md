@@ -92,7 +92,7 @@ The `docker-compose.yml` file allows you to run the project in Docker, including
 - **Redis** - infrastructure service for future caching/integration work (port 6379)
 - **Blockchain** - Hardhat node (port 8545)
 - **Backend (Secrets API)** - Spring Boot application (port 8081)
-- **Frontend** - Nginx web interface with `/api/` reverse proxy to `secrets-api` (port 8080)
+- **Frontend** - Nginx web interface on `localhost:8080` with `/api/` reverse proxy to `secrets-api:8080` inside the Docker network
 
 At the moment, the Secrets API still uses an in-memory repository, so secret
 data does not persist across API restarts even though Postgres and Redis
