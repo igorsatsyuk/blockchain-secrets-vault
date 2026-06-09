@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: blockchain-vault-postgres
+    environment:
+      POSTGRES_DB: secretsvault
+      POSTGRES_USER: secretsvault
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secretsvault-local-dev}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U secretsvault -d secretsvault"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - blockchain-vault-network
+
+  # Redis Cache
+  redis:
+    image: redis:7.4-alpine
+    container_name: blockchain-vault-redis
+    command: redis-server --save "" --appendonly no
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - blockchain-vault-network
+
+  # Blockchain (Hardhat local node)
+  blockchain:
+    build:
+      context: ./blockchain
+      dockerfile: Dockerfile
+    container_name: blockchain-vault-blockchain
+    ports:
+      - "8545:8545"
+    networks:
+      - blockchain-vault-network
+    depends_on:
+      - postgres
+      - redis
+
+  # Backend (Secrets API)
+  secrets-api:
+    build:
+      context: ./backend
+      dockerfile: secrets-api/Dockerfile
+    container_name: blockchain-vault-secrets-api
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/secretsvault
+      SPRING_DATASOURCE_USERNAME: secretsvault
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-secretsvault-local-dev}
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      BLOCKCHAIN_RPC_URL: http://blockchain:8545
+    ports:
+      - "8081:8080"
+    networks:
+      - blockchain-vault-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      blockchain:
+        condition: service_started
+
+  # Frontend (Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: blockchain-vault-frontend
+    ports:
+      - "8080:8080"
+    environment:
+      # Configure backend URL if needed
+      BACKEND_URL: http://localhost:8081
+      BLOCKCHAIN_RPC_URL: http://localhost:8545
+    networks:
+      - blockchain-vault-network
+    depends_on:
+      - secrets-api
+
+volumes:
+  postgres-data:
+    driver: local
+
+networks:
+  blockchain-vault-network:
+    driver: bridge
+

@@ -83,6 +83,190 @@ cd frontend
 npm test
 ```
 
+## Docker Compose
+
+### Overview
+
+The `docker-compose.yml` file allows you to run the entire project in Docker, including:
+- **PostgreSQL** - database (port 5432)
+- **Redis** - cache (port 6379)
+- **Blockchain** - Hardhat node (port 8545)
+- **Backend (Secrets API)** - Spring Boot application (port 8081)
+- **Frontend** - Nginx web interface (port 8080)
+
+### Requirements
+
+- Docker (version 20.10+)
+- Docker Compose (version 2.0+)
+
+### Quick Start
+
+#### 1. Start all services
+
+```bash
+docker-compose up -d
+```
+
+The `-d` flag runs containers in the background.
+
+#### 2. View logs
+
+```bash
+# All services
+docker-compose logs -f
+
+# Specific service
+docker-compose logs -f secrets-api
+docker-compose logs -f blockchain
+```
+
+#### 3. Stop all services
+
+```bash
+docker-compose down
+```
+
+#### 4. Delete all data (including database)
+
+```bash
+docker-compose down -v
+```
+
+### Ports and Addresses
+
+| Service | URL | Port |
+|---------|-----|------|
+| Frontend | http://localhost:8080 | 8080 |
+| Backend API | http://localhost:8081 | 8081 |
+| Blockchain (Hardhat) | http://localhost:8545 | 8545 |
+| PostgreSQL | localhost:5432 | 5432 |
+| Redis | localhost:6379 | 6379 |
+
+### Environment Variables
+
+Variables are stored in the `.env` file:
+
+```bash
+POSTGRES_PASSWORD=secretsvault-local-dev
+SPRING_PROFILES_ACTIVE=dev
+```
+
+Modify the `.env` file to configure the database password, Spring profiles, and other parameters.
+
+### Service Health Check
+
+```bash
+# Check status of all containers
+docker-compose ps
+
+# View logs of specific services
+docker-compose logs postgres
+docker-compose logs redis
+```
+
+### Connecting to Services
+
+#### PostgreSQL
+
+```bash
+docker-compose exec postgres psql -U secretsvault -d secretsvault
+```
+
+#### Redis
+
+```bash
+docker-compose exec redis redis-cli
+```
+
+### Development Commands
+
+#### Rebuild images
+
+```bash
+# Rebuild all
+docker-compose build --no-cache
+
+# Rebuild specific service
+docker-compose build --no-cache secrets-api
+```
+
+#### Restart a service
+
+```bash
+docker-compose restart secrets-api
+```
+
+#### View logs in real-time
+
+```bash
+docker-compose logs -f --tail=100 [service-name]
+```
+
+### Troubleshooting
+
+#### Port already in use
+
+If a port is already used by another application, modify the port mapping in `docker-compose.yml`:
+
+```yaml
+services:
+  frontend:
+    ports:
+      - "8082:8080"  # Use 8082 instead of 8080
+```
+
+#### Containers fail to start
+
+Check the logs:
+
+```bash
+docker-compose logs [service-name]
+```
+
+#### Need to rebuild an image
+
+```bash
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+#### Clean everything and start over
+
+```bash
+docker-compose down -v
+docker system prune -a
+docker-compose up -d
+```
+
+### Network Details
+
+All services are connected to the `blockchain-vault-network` bridge network, allowing them to communicate using hostnames:
+- `postgres:5432`
+- `redis:6379`
+- `blockchain:8545`
+- `secrets-api:8080`
+
+### Additional Commands
+
+#### View memory usage
+
+```bash
+docker stats
+```
+
+#### Clean up unused images and containers
+
+```bash
+docker system prune -a
+```
+
+#### View environment variables
+
+```bash
+docker-compose config
+```
+
 ## Roadmap
 
 See [ROADMAP.md](./ROADMAP.md) and the
