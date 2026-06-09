@@ -69,10 +69,6 @@ services:
     networks:
       - blockchain-vault-network
     depends_on:
-      postgres:
-        condition: service_started
-      redis:
-        condition: service_started
       blockchain:
         condition: service_started
 
