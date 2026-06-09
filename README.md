@@ -87,12 +87,16 @@ npm test
 
 ### Overview
 
-The `docker-compose.yml` file allows you to run the entire project in Docker, including:
-- **PostgreSQL** - database (port 5432)
-- **Redis** - cache (port 6379)
+The `docker-compose.yml` file allows you to run the project in Docker, including:
+- **PostgreSQL** - infrastructure service for future persistence work (port 5432)
+- **Redis** - infrastructure service for future caching/integration work (port 6379)
 - **Blockchain** - Hardhat node (port 8545)
 - **Backend (Secrets API)** - Spring Boot application (port 8081)
 - **Frontend** - Nginx web interface with `/api/` reverse proxy to `secrets-api` (port 8080)
+
+At the moment, the Secrets API still uses an in-memory repository, so secret
+data does not persist across API restarts even though Postgres and Redis
+containers are available in the stack.
 
 ### Requirements
 
@@ -108,8 +112,8 @@ Create a `.env` file in the repository root before the first start:
 ```bash
 POSTGRES_PASSWORD=secretsvault-local-dev
 SPRING_PROFILES_ACTIVE=dev
-SECRETS_AUTH_PASSWORD=change-me
-SECRETS_AUTH_JWT_SECRET=change-me-change-me-change-me-1234
+SECRETS_AUTH_PASSWORD=replace-with-a-strong-password
+SECRETS_AUTH_JWT_SECRET=replace-with-a-32-byte-or-longer-secret
 ```
 
 The auth variables are required by `secrets-api`, and the JWT secret must be at
@@ -118,7 +122,7 @@ least 32 bytes long.
 Then start the stack:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 The `-d` flag runs containers in the background.
@@ -127,23 +131,23 @@ The `-d` flag runs containers in the background.
 
 ```bash
 # All services
-docker-compose logs -f
+docker compose logs -f
 
 # Specific service
-docker-compose logs -f secrets-api
-docker-compose logs -f blockchain
+docker compose logs -f secrets-api
+docker compose logs -f blockchain
 ```
 
 #### 3. Stop all services
 
 ```bash
-docker-compose down
+docker compose down
 ```
 
 #### 4. Delete all data (including database)
 
 ```bash
-docker-compose down -v
+docker compose down -v
 ```
 
 ### Ports and Addresses
@@ -158,7 +162,8 @@ docker-compose down -v
 
 Open `http://localhost:8080` for the UI. The frontend proxies `/api/*` calls to
 `secrets-api` inside the Docker network, so the browser does not need a
-separate backend base URL.
+separate backend base URL. Published ports are bound to `127.0.0.1`, so the
+stack stays local to the development machine by default.
 
 ### Environment Variables
 
@@ -167,8 +172,8 @@ Variables are stored in the `.env` file:
 ```bash
 POSTGRES_PASSWORD=secretsvault-local-dev
 SPRING_PROFILES_ACTIVE=dev
-SECRETS_AUTH_PASSWORD=change-me
-SECRETS_AUTH_JWT_SECRET=change-me-change-me-change-me-1234
+SECRETS_AUTH_PASSWORD=replace-with-a-strong-password
+SECRETS_AUTH_JWT_SECRET=replace-with-a-32-byte-or-longer-secret
 ```
 
 Modify the `.env` file to configure the database password, Spring profile, and
@@ -178,11 +183,11 @@ Secrets API authentication values used by Docker Compose.
 
 ```bash
 # Check status of all containers
-docker-compose ps
+docker compose ps
 
 # View logs of specific services
-docker-compose logs postgres
-docker-compose logs redis
+docker compose logs postgres
+docker compose logs redis
 ```
 
 ### Connecting to Services
@@ -190,13 +195,13 @@ docker-compose logs redis
 #### PostgreSQL
 
 ```bash
-docker-compose exec postgres psql -U secretsvault -d secretsvault
+docker compose exec postgres psql -U secretsvault -d secretsvault
 ```
 
 #### Redis
 
 ```bash
-docker-compose exec redis redis-cli
+docker compose exec redis redis-cli
 ```
 
 ### Development Commands
@@ -205,22 +210,22 @@ docker-compose exec redis redis-cli
 
 ```bash
 # Rebuild all
-docker-compose build --no-cache
+docker compose build --no-cache
 
 # Rebuild specific service
-docker-compose build --no-cache secrets-api
+docker compose build --no-cache secrets-api
 ```
 
 #### Restart a service
 
 ```bash
-docker-compose restart secrets-api
+docker compose restart secrets-api
 ```
 
 #### View logs in real-time
 
 ```bash
-docker-compose logs -f --tail=100 [service-name]
+docker compose logs -f --tail=100 [service-name]
 ```
 
 ### Troubleshooting
@@ -233,7 +238,7 @@ If a port is already used by another application, modify the port mapping in `do
 services:
   frontend:
     ports:
-      - "8082:8080"  # Use 8082 instead of 8080
+      - "127.0.0.1:8082:8080"  # Use 8082 instead of 8080
 ```
 
 #### Containers fail to start
@@ -241,23 +246,23 @@ services:
 Check the logs:
 
 ```bash
-docker-compose logs [service-name]
+docker compose logs [service-name]
 ```
 
 #### Need to rebuild an image
 
 ```bash
-docker-compose down
-docker-compose build --no-cache
-docker-compose up -d
+docker compose down
+docker compose build --no-cache
+docker compose up -d
 ```
 
 #### Clean everything and start over
 
 ```bash
-docker-compose down -v
-docker system prune -a
-docker-compose up -d
+docker compose down -v --remove-orphans
+docker compose build --no-cache
+docker compose up -d
 ```
 
 ### Network Details
@@ -279,13 +284,17 @@ docker stats
 #### Clean up unused images and containers
 
 ```bash
-docker system prune -a
+docker compose down --remove-orphans
+docker image prune -f
 ```
+
+`docker image prune -f` removes dangling images across Docker on the machine.
+Review the command before running it if you are working on multiple projects.
 
 #### View environment variables
 
 ```bash
-docker-compose config
+docker compose config
 ```
 
 ## Roadmap
