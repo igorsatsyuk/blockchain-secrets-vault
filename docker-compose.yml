@@ -70,9 +70,9 @@ services:
       - blockchain-vault-network
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
       redis:
-        condition: service_healthy
+        condition: service_started
       blockchain:
         condition: service_started
 
