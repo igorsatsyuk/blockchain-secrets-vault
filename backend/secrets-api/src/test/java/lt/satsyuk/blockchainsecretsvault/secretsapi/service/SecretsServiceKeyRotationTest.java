@@ -22,6 +22,10 @@ import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 class SecretsServiceKeyRotationTest {
+    private static final String ALPHA = "alpha";
+    private static final String DEFAULT_KEY_ID = "default-secret-key";
+    private static final String EXTERNAL_KEY_ID = "external-key";
+    private static final String EXTERNAL_NAME = "external";
 
     private final InMemorySecretRepository repository = new InMemorySecretRepository();
     private final Clock clock = Clock.fixed(Instant.parse("2026-06-01T12:00:00Z"), ZoneOffset.UTC);
@@ -38,13 +42,13 @@ class SecretsServiceKeyRotationTest {
 
     @Test
     void rotatesDefaultKeyAndRewrapsEnvelopeEncryptedSecrets() {
-        SecretRecord created = service.create(new CreateSecretRequest("alpha", null, "initial-value", Set.of())).block();
+        SecretRecord created = service.create(new CreateSecretRequest(ALPHA, null, "initial-value", Set.of())).block();
         SecretRecord beforeRotation = repository.findById(created.id()).orElseThrow();
         String payloadBeforeRotation = decryptPayload(beforeRotation);
 
         StepVerifier.create(service.rotateEncryptionKey())
                 .assertNext(result -> {
-                    assertThat(result.keyId()).isEqualTo("default-secret-key");
+                    assertThat(result.keyId()).isEqualTo(DEFAULT_KEY_ID);
                     assertThat(result.previousKeyVersion()).isZero();
                     assertThat(result.newKeyVersion()).isEqualTo(1);
                     assertThat(result.reEncryptedSecrets()).isEqualTo(1);
@@ -71,15 +75,15 @@ class SecretsServiceKeyRotationTest {
 
     @Test
     void rotationReEncryptsOnlyDefaultKeySecrets() {
-        SecretRecord defaultKeySecret = service.create(new CreateSecretRequest("alpha", null, "payload", Set.of())).block();
-        kmsService.generateKey("external-key");
-        EncryptedData externalEncrypted = kmsService.encrypt("external-key", "external".getBytes());
+        SecretRecord defaultKeySecret = service.create(new CreateSecretRequest(ALPHA, null, "payload", Set.of())).block();
+        kmsService.generateKey(EXTERNAL_KEY_ID);
+        EncryptedData externalEncrypted = kmsService.encrypt(EXTERNAL_KEY_ID, EXTERNAL_NAME.getBytes());
         SecretRecord externalSecret = new SecretRecord(
                 UUID.randomUUID(),
-                "external",
+                EXTERNAL_NAME,
                 null,
                 encodeEncryptedData(externalEncrypted),
-                "external-key",
+                EXTERNAL_KEY_ID,
                 externalEncrypted.keyVersion(),
                 Set.of(),
                 clock.instant(),
@@ -95,7 +99,7 @@ class SecretsServiceKeyRotationTest {
         SecretRecord unchangedExternal = repository.findById(externalSecret.id()).orElseThrow();
         assertThat(updatedDefault.encryptionKeyVersion()).isEqualTo(1);
         assertThat(unchangedExternal.encryptionKeyVersion()).isZero();
-        assertThat(decryptPayload(unchangedExternal)).isEqualTo("external");
+        assertThat(decryptPayload(unchangedExternal)).isEqualTo(EXTERNAL_NAME);
     }
 
     private String decryptPayload(SecretRecord secret) {

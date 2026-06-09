@@ -10,11 +10,14 @@ import java.time.ZoneOffset;
 import lt.satsyuk.blockchainsecretsvault.secretsapi.config.AuthProperties;
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("java:S2068")
 class AuthServiceTest {
+    private static final String USERNAME = "admin";
+    private static final String PASSWORD = "change-me";
 
     private static final AuthProperties PROPERTIES = new AuthProperties(
-            "admin",
-            "change-me",
+            USERNAME,
+            PASSWORD,
             "auth-service-test-jwt-secret-32-bytes",
             "vault-tests",
             Duration.ofMinutes(15)
@@ -26,16 +29,16 @@ class AuthServiceTest {
 
     @Test
     void issuesTokenForValidCredentials() {
-        String token = authService.login("admin", "change-me");
+        String token = authService.login(USERNAME, PASSWORD);
 
-        assertThat(jwtService.validate(token)).isEqualTo("admin");
+        assertThat(jwtService.validate(token)).isEqualTo(USERNAME);
     }
 
     @Test
     void rejectsInvalidCredentials() {
-        assertThatThrownBy(() -> authService.login("admin", "wrong-length-password"))
+        assertThatThrownBy(() -> authService.login(USERNAME, "wrong-length-password"))
                 .isInstanceOf(InvalidCredentialsException.class);
-        assertThatThrownBy(() -> authService.login("administrator", "change-me"))
+        assertThatThrownBy(() -> authService.login("administrator", PASSWORD))
                 .isInstanceOf(InvalidCredentialsException.class);
     }
 }

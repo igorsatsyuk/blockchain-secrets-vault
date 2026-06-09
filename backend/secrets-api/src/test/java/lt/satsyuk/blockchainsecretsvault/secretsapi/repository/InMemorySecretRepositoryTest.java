@@ -10,12 +10,17 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 class InMemorySecretRepositoryTest {
+    private static final String ALPHA = "alpha";
+    private static final Instant TEN_AM = Instant.parse("2026-06-01T10:00:00Z");
+    private static final Instant ELEVEN_AM = Instant.parse("2026-06-01T11:00:00Z");
+    private static final Instant TEN_O_ONE_AM = Instant.parse("2026-06-01T10:01:00Z");
+    private static final Instant TEN_O_TWO_AM = Instant.parse("2026-06-01T10:02:00Z");
 
     private final InMemorySecretRepository repository = new InMemorySecretRepository();
 
     @Test
     void savesFindsAndDeletesSecret() {
-        SecretRecord secret = secret("alpha", Instant.parse("2026-06-01T10:00:00Z"));
+        SecretRecord secret = secret(ALPHA, TEN_AM);
 
         repository.save(secret);
 
@@ -28,8 +33,8 @@ class InMemorySecretRepositoryTest {
 
     @Test
     void listsSecretsByCreationTimeAndCanClearStore() {
-        SecretRecord later = secret("later", Instant.parse("2026-06-01T11:00:00Z"));
-        SecretRecord earlier = secret("earlier", Instant.parse("2026-06-01T10:00:00Z"));
+        SecretRecord later = secret("later", ELEVEN_AM);
+        SecretRecord earlier = secret("earlier", TEN_AM);
         repository.save(later);
         repository.save(earlier);
 
@@ -42,16 +47,15 @@ class InMemorySecretRepositoryTest {
 
     @Test
     void listsSecretsWithStableIdTieBreakerWhenCreationTimeMatches() {
-        Instant createdAt = Instant.parse("2026-06-01T10:00:00Z");
         SecretRecord second = secret(
                 UUID.fromString("00000000-0000-0000-0000-000000000002"),
                 "second",
-                createdAt
+                TEN_AM
         );
         SecretRecord first = secret(
                 UUID.fromString("00000000-0000-0000-0000-000000000001"),
                 "first",
-                createdAt
+                TEN_AM
         );
         repository.save(second);
         repository.save(first);
@@ -61,23 +65,23 @@ class InMemorySecretRepositoryTest {
 
     @Test
     void savesOnlyWhenNameIsAvailable() {
-        SecretRecord existing = secret("alpha", Instant.parse("2026-06-01T10:00:00Z"));
+        SecretRecord existing = secret(ALPHA, TEN_AM);
         repository.save(existing);
 
-        SecretRecord duplicate = secret("ALPHA", Instant.parse("2026-06-01T10:01:00Z"));
+        SecretRecord duplicate = secret("ALPHA", TEN_O_ONE_AM);
         assertThat(repository.saveIfNameAvailable(duplicate, Optional.empty())).isEmpty();
         assertThat(repository.findAll()).hasSize(1);
 
         SecretRecord renamedSameId = new SecretRecord(
                 existing.id(),
-                "alpha",
+                ALPHA,
                 existing.description(),
                 existing.encryptedPayload(),
                 existing.encryptionKeyId(),
                 existing.encryptionKeyVersion(),
                 existing.tags(),
                 existing.createdAt(),
-                Instant.parse("2026-06-01T10:02:00Z")
+                TEN_O_TWO_AM
         );
         assertThat(repository.saveIfNameAvailable(renamedSameId, Optional.of(existing.id()))).contains(renamedSameId);
     }

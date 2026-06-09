@@ -24,6 +24,7 @@ spec:
       labels:
         app.kubernetes.io/name: redis
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: redis
           image: redis:7.4-alpine
@@ -52,7 +53,9 @@ spec:
           resources:
             requests:
               cpu: 50m
+              ephemeral-storage: 64Mi
               memory: 64Mi
             limits:
               cpu: 250m
+              ephemeral-storage: 128Mi
               memory: 256Mi

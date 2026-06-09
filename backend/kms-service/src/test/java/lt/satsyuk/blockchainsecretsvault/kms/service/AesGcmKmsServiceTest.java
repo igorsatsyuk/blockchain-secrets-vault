@@ -11,11 +11,12 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AesGcmKmsServiceTest {
-    
-    private AesGcmKmsService kmsService;
     private static final String TEST_KEY_ID = "test-key";
+    private static final String NON_EXISTENT_KEY_ID = "non-existent";
     private static final byte[] TEST_PLAINTEXT = "Secret data to encrypt".getBytes();
     private static final Instant FIXED_INSTANT = Instant.parse("2024-01-01T00:00:00Z");
+    
+    private AesGcmKmsService kmsService;
     
     @BeforeEach
     void setUp() {
@@ -40,9 +41,7 @@ class AesGcmKmsServiceTest {
     void testGenerateKeyDuplicate() {
         kmsService.generateKey(TEST_KEY_ID);
         
-        assertThrows(IllegalArgumentException.class, () -> {
-            kmsService.generateKey(TEST_KEY_ID);
-        });
+        assertThrows(IllegalArgumentException.class, () -> kmsService.generateKey(TEST_KEY_ID));
     }
 
     @Test
@@ -83,25 +82,19 @@ class AesGcmKmsServiceTest {
     void testEncryptWithEmptyPlaintext() {
         kmsService.generateKey(TEST_KEY_ID);
         
-        assertThrows(IllegalArgumentException.class, () -> {
-            kmsService.encrypt(TEST_KEY_ID, new byte[0]);
-        });
+        assertThrows(IllegalArgumentException.class, () -> kmsService.encrypt(TEST_KEY_ID, new byte[0]));
     }
     
     @Test
     void testEncryptWithNullPlaintext() {
         kmsService.generateKey(TEST_KEY_ID);
         
-        assertThrows(IllegalArgumentException.class, () -> {
-            kmsService.encrypt(TEST_KEY_ID, null);
-        });
+        assertThrows(IllegalArgumentException.class, () -> kmsService.encrypt(TEST_KEY_ID, null));
     }
     
     @Test
     void testEncryptWithNonExistentKey() {
-        assertThrows(KeyNotFoundException.class, () -> {
-            kmsService.encrypt("non-existent", TEST_PLAINTEXT);
-        });
+        assertThrows(KeyNotFoundException.class, () -> kmsService.encrypt(NON_EXISTENT_KEY_ID, TEST_PLAINTEXT));
     }
     
     @Test
@@ -136,9 +129,7 @@ class AesGcmKmsServiceTest {
             encrypted.keyVersion()
         );
         
-        assertThrows(DecryptionFailedException.class, () -> {
-            kmsService.decrypt(corrupted);
-        });
+        assertThrows(DecryptionFailedException.class, () -> kmsService.decrypt(corrupted));
     }
     
     @Test
@@ -156,9 +147,7 @@ class AesGcmKmsServiceTest {
             0
         );
         
-        assertThrows(DecryptionFailedException.class, () -> {
-            kmsService.decrypt(wrongKeyData);
-        });
+        assertThrows(DecryptionFailedException.class, () -> kmsService.decrypt(wrongKeyData));
     }
     
     @Test
@@ -228,18 +217,14 @@ class AesGcmKmsServiceTest {
     
     @Test
     void testGetKeyNotFound() {
-        assertThrows(KeyNotFoundException.class, () -> {
-            kmsService.getKey(TEST_KEY_ID, 0);
-        });
+        assertThrows(KeyNotFoundException.class, () -> kmsService.getKey(TEST_KEY_ID, 0));
     }
     
     @Test
     void testGetKeyWrongVersion() {
         kmsService.generateKey(TEST_KEY_ID);
         
-        assertThrows(KeyNotFoundException.class, () -> {
-            kmsService.getKey(TEST_KEY_ID, 99);
-        });
+        assertThrows(KeyNotFoundException.class, () -> kmsService.getKey(TEST_KEY_ID, 99));
     }
     
     @Test
@@ -267,9 +252,7 @@ class AesGcmKmsServiceTest {
     
     @Test
     void testGetActiveKeyNotFound() {
-        assertThrows(KeyNotFoundException.class, () -> {
-            kmsService.getActiveKey("non-existent");
-        });
+        assertThrows(KeyNotFoundException.class, () -> kmsService.getActiveKey(NON_EXISTENT_KEY_ID));
     }
     
     @Test
@@ -313,9 +296,7 @@ class AesGcmKmsServiceTest {
     
     @Test
     void testCompromiseNonExistentKey() {
-        assertThrows(KeyNotFoundException.class, () -> {
-            kmsService.compromiseKey("non-existent");
-        });
+        assertThrows(KeyNotFoundException.class, () -> kmsService.compromiseKey(NON_EXISTENT_KEY_ID));
     }
 
     @Test
@@ -357,7 +338,7 @@ class AesGcmKmsServiceTest {
 
     @Test
     void testRetireNonExistentKey() {
-        assertThrows(KeyNotFoundException.class, () -> kmsService.retireKey("non-existent"));
+        assertThrows(KeyNotFoundException.class, () -> kmsService.retireKey(NON_EXISTENT_KEY_ID));
     }
     
     @Test
@@ -397,29 +378,12 @@ class AesGcmKmsServiceTest {
     
     @Test
     void testEncryptedDataValidation() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[0], new byte[12], new byte[16], "key", 0);
-        });
-        
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[10], new byte[0], new byte[16], "key", 0);
-        });
-        
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[10], new byte[12], new byte[0], "key", 0);
-        });
-        
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[10], new byte[12], new byte[16], "", 0);
-        });
-        
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[10], new byte[12], new byte[16], "key", -1);
-        });
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            new EncryptedData(new byte[10], new byte[12], new byte[16], "key", 0, new byte[32], null, new byte[16]);
-        });
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[0], new byte[12], new byte[16], "key", 0));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[10], new byte[0], new byte[16], "key", 0));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[10], new byte[12], new byte[0], "key", 0));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[10], new byte[12], new byte[16], "", 0));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[10], new byte[12], new byte[16], "key", -1));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptedData(new byte[10], new byte[12], new byte[16], "key", 0, new byte[32], null, new byte[16]));
     }
     
     @Test

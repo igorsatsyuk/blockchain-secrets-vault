@@ -7,6 +7,7 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EncryptionKeyTest {
+    private static final String KEY_ID = "key-id";
     private static final Instant FIXED_INSTANT = Instant.parse("2024-01-01T00:00:00Z");
     
     @Test
@@ -14,9 +15,9 @@ class EncryptionKeyTest {
         byte[] keyMaterial = new byte[32];
         Instant now = FIXED_INSTANT;
         
-        EncryptionKey key = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
-        
-        assertEquals("key-id", key.keyId());
+        EncryptionKey key = new EncryptionKey(KEY_ID, keyMaterial, 0, KeyStatus.ACTIVE, now, null);
+
+        assertEquals(KEY_ID, key.keyId());
         assertArrayEquals(keyMaterial, key.keyMaterial());
         assertEquals(0, key.version());
         assertEquals(KeyStatus.ACTIVE, key.status());
@@ -37,28 +38,28 @@ class EncryptionKeyTest {
     
     @Test
     void testEncryptionKeyNullKeyMaterial() {
-        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key-id", null, 0, KeyStatus.ACTIVE, FIXED_INSTANT, null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey(KEY_ID, null, 0, KeyStatus.ACTIVE, FIXED_INSTANT, null));
     }
     
     @Test
     void testEncryptionKeyEmptyKeyMaterial() {
-        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key-id", new byte[0], 0, KeyStatus.ACTIVE, FIXED_INSTANT, null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey(KEY_ID, new byte[0], 0, KeyStatus.ACTIVE, FIXED_INSTANT, null));
     }
     
     @Test
     void testEncryptionKeyNegativeVersion() {
-        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key-id", new byte[32], -1, KeyStatus.ACTIVE, FIXED_INSTANT, null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey(KEY_ID, new byte[32], -1, KeyStatus.ACTIVE, FIXED_INSTANT, null));
     }
     
     @Test
     void testEncryptionKeyNullStatus() {
-        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey("key-id", new byte[32], 0, null, FIXED_INSTANT, null));
+        assertThrows(IllegalArgumentException.class, () -> new EncryptionKey(KEY_ID, new byte[32], 0, null, FIXED_INSTANT, null));
     }
     
     @Test
     void testEncryptionKeyNullCreatedAt() {
         assertThrows(IllegalArgumentException.class,
-            () -> new EncryptionKey("key-id", new byte[32], 0, KeyStatus.ACTIVE, null, null));
+            () -> new EncryptionKey(KEY_ID, new byte[32], 0, KeyStatus.ACTIVE, null, null));
     }
     
     @Test
@@ -66,7 +67,7 @@ class EncryptionKeyTest {
         Instant created = FIXED_INSTANT.minusSeconds(3600);
         Instant rotated = FIXED_INSTANT;
         
-        EncryptionKey key = new EncryptionKey("key-id", new byte[32], 1, KeyStatus.ROTATED, created, rotated);
+        EncryptionKey key = new EncryptionKey(KEY_ID, new byte[32], 1, KeyStatus.ROTATED, created, rotated);
         
         assertEquals(created, key.createdAt());
         assertEquals(rotated, key.rotatedAt());
@@ -77,8 +78,8 @@ class EncryptionKeyTest {
         byte[] keyMaterial = new byte[32];
         Instant now = FIXED_INSTANT;
         
-        EncryptionKey key1 = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
-        EncryptionKey key2 = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
+        EncryptionKey key1 = new EncryptionKey(KEY_ID, keyMaterial, 0, KeyStatus.ACTIVE, now, null);
+        EncryptionKey key2 = new EncryptionKey(KEY_ID, keyMaterial, 0, KeyStatus.ACTIVE, now, null);
         
         assertEquals(key1, key2);
     }
@@ -88,8 +89,8 @@ class EncryptionKeyTest {
         byte[] keyMaterial = new byte[32];
         Instant now = FIXED_INSTANT;
         
-        EncryptionKey key1 = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
-        EncryptionKey key2 = new EncryptionKey("key-id", keyMaterial, 1, KeyStatus.ACTIVE, now, null);
+        EncryptionKey key1 = new EncryptionKey(KEY_ID, keyMaterial, 0, KeyStatus.ACTIVE, now, null);
+        EncryptionKey key2 = new EncryptionKey(KEY_ID, keyMaterial, 1, KeyStatus.ACTIVE, now, null);
         
         assertNotEquals(key1, key2);
     }
@@ -99,8 +100,8 @@ class EncryptionKeyTest {
         byte[] keyMaterial = new byte[32];
         Instant now = FIXED_INSTANT;
         
-        EncryptionKey key1 = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
-        EncryptionKey key2 = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
+        EncryptionKey key1 = new EncryptionKey(KEY_ID, keyMaterial, 0, KeyStatus.ACTIVE, now, null);
+        EncryptionKey key2 = new EncryptionKey(KEY_ID, keyMaterial, 0, KeyStatus.ACTIVE, now, null);
         
         assertEquals(key1.hashCode(), key2.hashCode());
     }
@@ -110,11 +111,11 @@ class EncryptionKeyTest {
         byte[] keyMaterial = new byte[32];
         Instant now = FIXED_INSTANT;
         
-        EncryptionKey key = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, now, null);
+        EncryptionKey key = new EncryptionKey(KEY_ID, keyMaterial, 0, KeyStatus.ACTIVE, now, null);
         String str = key.toString();
         
         assertNotNull(str);
-        assertTrue(str.contains("key-id"));
+        assertTrue(str.contains(KEY_ID));
         assertTrue(str.contains("ACTIVE"));
         assertTrue(str.contains("keyMaterialLength=32"));
         assertFalse(str.contains("keyMaterial=["));
@@ -125,7 +126,7 @@ class EncryptionKeyTest {
         byte[] keyMaterial = new byte[32];
         keyMaterial[0] = 1;
 
-        EncryptionKey key = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, FIXED_INSTANT, null);
+        EncryptionKey key = new EncryptionKey(KEY_ID, keyMaterial, 0, KeyStatus.ACTIVE, FIXED_INSTANT, null);
         keyMaterial[0] = 9;
 
         assertEquals(1, key.keyMaterial()[0]);
@@ -134,7 +135,7 @@ class EncryptionKeyTest {
     @Test
     void testEncryptionKeyDefensiveCopyOnAccessor() {
         byte[] keyMaterial = new byte[32];
-        EncryptionKey key = new EncryptionKey("key-id", keyMaterial, 0, KeyStatus.ACTIVE, FIXED_INSTANT, null);
+        EncryptionKey key = new EncryptionKey(KEY_ID, keyMaterial, 0, KeyStatus.ACTIVE, FIXED_INSTANT, null);
 
         byte[] accessorValue = key.keyMaterial();
         accessorValue[0] = 7;

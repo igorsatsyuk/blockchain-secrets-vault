@@ -29,6 +29,7 @@ spec:
         {{- include "bsv.selectorLabels" (dict "root" . "name" "redis") | nindent 8 }}
         {{- include "bsv.labels" . | nindent 8 }}
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: redis
           image: {{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}

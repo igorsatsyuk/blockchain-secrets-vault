@@ -10,6 +10,12 @@ spec:
       port: 8545
       targetPort: 8545
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: blockchain-node
+automountServiceAccountToken: false
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -24,6 +30,8 @@ spec:
       labels:
         app.kubernetes.io/name: blockchain-node
     spec:
+      serviceAccountName: blockchain-node
+      automountServiceAccountToken: false
       containers:
         - name: blockchain-node
           image: ghcr.io/igorsatsyuk/blockchain-secrets-vault/blockchain-node:0.1.0
@@ -44,7 +52,9 @@ spec:
           resources:
             requests:
               cpu: 100m
+              ephemeral-storage: 256Mi
               memory: 256Mi
             limits:
               cpu: 500m
+              ephemeral-storage: 512Mi
               memory: 512Mi

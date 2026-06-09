@@ -13,6 +13,19 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+METRIC_KEYS = [
+    "coverage",
+    "new_coverage",
+    "bugs",
+    "new_bugs",
+    "vulnerabilities",
+    "new_vulnerabilities",
+    "code_smells",
+    "new_code_smells",
+    "duplicated_lines_density",
+    "new_duplicated_lines_density",
+]
+
 
 def parse_kv_file(path: Path) -> dict[str, str]:
     data: dict[str, str] = {}
@@ -86,20 +99,7 @@ def wait_for_quality_gate_status(
 
 
 def build_measures_url(host_url: str, project_key: str, pull_request: str | None, branch: str | None) -> str:
-    metric_keys = ",".join(
-        [
-            "coverage",
-            "new_coverage",
-            "bugs",
-            "new_bugs",
-            "vulnerabilities",
-            "new_vulnerabilities",
-            "code_smells",
-            "new_code_smells",
-            "duplicated_lines_density",
-            "new_duplicated_lines_density",
-        ]
-    )
+    metric_keys = ",".join(METRIC_KEYS)
     query = {
         "component": project_key,
         "metricKeys": metric_keys,
@@ -175,6 +175,123 @@ def append_summary(text: str) -> None:
         handle.write(text)
 
 
+def require_sonar_token() -> str:
+    token = os.getenv("SONAR_TOKEN", "")
+    if token:
+        return token
+
+    print("SONAR_TOKEN is missing", file=sys.stderr)
+    raise SystemExit(2)
+
+
+def load_report_context(report_task_file: str) -> tuple[str, str]:
+    configured_host_url = (os.getenv("SONAR_HOST_URL") or "").strip()
+    report_task_path = Path(report_task_file)
+    if not report_task_path.exists():
+        print(f"report-task.txt not found: {report_task_path}", file=sys.stderr)
+        raise SystemExit(2)
+
+    report = parse_kv_file(report_task_path)
+    report_server_url = (report.get("serverUrl") or "").strip()
+    host_url = (configured_host_url or report_server_url or "https://sonarcloud.io").rstrip("/")
+    ce_task_url = report.get("ceTaskUrl")
+    if ce_task_url:
+        return host_url, ce_task_url
+
+    print("ceTaskUrl is missing in report-task.txt", file=sys.stderr)
+    raise SystemExit(2)
+
+
+def load_analysis_result(
+    host_url: str,
+    project_key: str,
+    ce_task_url: str,
+    token: str,
+    timeout_seconds: int,
+    poll_seconds: int,
+) -> tuple[str, list[dict], dict[str, str]]:
+    print(f"Waiting for Sonar CE task: {ce_task_url}")
+    task = wait_for_ce_task(ce_task_url, token, timeout_seconds, poll_seconds)
+    task_status = task.get("status", "UNKNOWN")
+    analysis_id = task.get("analysisId")
+
+    if task_status != "SUCCESS" or not analysis_id:
+        raise RuntimeError(f"Sonar CE task status is {task_status}; analysisId={analysis_id}")
+
+    project_status = wait_for_quality_gate_status(
+        host_url,
+        analysis_id,
+        token,
+        timeout_seconds,
+        poll_seconds,
+    )
+    gate_status = project_status.get("status", "NONE")
+    conditions = project_status.get("conditions", [])
+    measures = fetch_measures(host_url, project_key, token)
+    return gate_status, conditions, measures
+
+
+def print_measures(component_name: str, gate_status: str, measures: dict[str, str]) -> None:
+    print(f"Quality Gate ({component_name}): {gate_status}")
+    print("Measures:")
+    for metric_key in METRIC_KEYS:
+        print(f"  {metric_key}: {measures.get(metric_key, '-')}")
+
+
+def build_summary_lines(
+    component_name: str,
+    project_key: str,
+    gate_status: str,
+    measures: dict[str, str],
+    conditions: list[dict],
+) -> list[str]:
+    summary_lines = [
+        f"### SonarQube - {component_name}",
+        "",
+        f"- Quality Gate: **{gate_status}**",
+        f"- Project key: `{project_key}`",
+        "",
+        "| Metric | Value |",
+        "|---|---:|",
+    ]
+    for metric_key in METRIC_KEYS:
+        summary_lines.append(f"| `{metric_key}` | {measures.get(metric_key, '-')} |")
+
+    summary_lines.extend(["", "| Condition metric | Status | Actual | Threshold |", "|---|---|---:|---:|"])
+    if conditions:
+        for condition in conditions:
+            summary_lines.append(
+                "| `{}` | {} | {} | {} |".format(
+                    condition.get("metricKey", "-"),
+                    condition.get("status", "-"),
+                    condition.get("actualValue", "-"),
+                    condition.get("errorThreshold", "-"),
+                )
+            )
+    else:
+        summary_lines.append("| `-` | - | - | - |")
+
+    summary_lines.append("\n")
+    return summary_lines
+
+
+def resolve_exit_code(
+    gate_status: str,
+    allow_missing_new_code_metrics: bool,
+    conditions: list[dict],
+    measures: dict[str, str],
+) -> int:
+    if gate_status == "OK":
+        return 0
+
+    if allow_missing_new_code_metrics and is_missing_new_code_metrics_only(gate_status, conditions, measures):
+        print("Quality Gate returned ERROR due to unavailable new-code metrics; treated as neutral for this run")
+        return 0
+
+    print("Quality Gate failed", file=sys.stderr)
+    return 1
+
+
 def is_missing_new_code_metrics_only(gate_status: str, conditions: list[dict], measures: dict[str, str]) -> bool:
     if gate_status != "ERROR":
         return False
@@ -218,116 +335,40 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    token = os.getenv("SONAR_TOKEN", "")
-    if not token:
-        print("SONAR_TOKEN is missing", file=sys.stderr)
-        return 2
-
-    configured_host_url = (os.getenv("SONAR_HOST_URL") or "").strip()
-    report_task_path = Path(args.report_task_file)
-    if not report_task_path.exists():
-        print(f"report-task.txt not found: {report_task_path}", file=sys.stderr)
-        return 2
-
-    report = parse_kv_file(report_task_path)
-    report_server_url = (report.get("serverUrl") or "").strip()
-    host_url = (configured_host_url or report_server_url or "https://sonarcloud.io").rstrip("/")
-    ce_task_url = report.get("ceTaskUrl")
-    if not ce_task_url:
-        print("ceTaskUrl is missing in report-task.txt", file=sys.stderr)
-        return 2
+    token = require_sonar_token()
+    host_url, ce_task_url = load_report_context(args.report_task_file)
 
     try:
-        print(f"Waiting for Sonar CE task: {ce_task_url}")
-        task = wait_for_ce_task(ce_task_url, token, args.timeout_seconds, args.poll_seconds)
-        task_status = task.get("status", "UNKNOWN")
-        analysis_id = task.get("analysisId")
-
-        if task_status != "SUCCESS" or not analysis_id:
-            print(f"Sonar CE task status is {task_status}; analysisId={analysis_id}", file=sys.stderr)
-            return 1
-
-        project_status = wait_for_quality_gate_status(
+        gate_status, conditions, measures = load_analysis_result(
             host_url,
-            analysis_id,
+            args.project_key,
+            ce_task_url,
             token,
             args.timeout_seconds,
             args.poll_seconds,
         )
-        gate_status = project_status.get("status", "NONE")
-        conditions = project_status.get("conditions", [])
-
-        measures = fetch_measures(host_url, args.project_key, token)
     except (RuntimeError, TimeoutError) as error:
         print(str(error), file=sys.stderr)
         return 1
 
-    print(f"Quality Gate ({args.component_name}): {gate_status}")
-    print("Measures:")
-    for metric_key in [
-        "coverage",
-        "new_coverage",
-        "bugs",
-        "new_bugs",
-        "vulnerabilities",
-        "new_vulnerabilities",
-        "code_smells",
-        "new_code_smells",
-        "duplicated_lines_density",
-        "new_duplicated_lines_density",
-    ]:
-        print(f"  {metric_key}: {measures.get(metric_key, '-')}")
-
-    summary_lines = [
-        f"### SonarQube - {args.component_name}",
-        "",
-        f"- Quality Gate: **{gate_status}**",
-        f"- Project key: `{args.project_key}`",
-        "",
-        "| Metric | Value |",
-        "|---|---:|",
-    ]
-    for metric_key in [
-        "coverage",
-        "new_coverage",
-        "bugs",
-        "new_bugs",
-        "vulnerabilities",
-        "new_vulnerabilities",
-        "code_smells",
-        "new_code_smells",
-        "duplicated_lines_density",
-        "new_duplicated_lines_density",
-    ]:
-        summary_lines.append(f"| `{metric_key}` | {measures.get(metric_key, '-')} |")
-
-    summary_lines.extend(["", "| Condition metric | Status | Actual | Threshold |", "|---|---|---:|---:|"])
-    if conditions:
-        for condition in conditions:
-            summary_lines.append(
-                "| `{}` | {} | {} | {} |".format(
-                    condition.get("metricKey", "-"),
-                    condition.get("status", "-"),
-                    condition.get("actualValue", "-"),
-                    condition.get("errorThreshold", "-"),
-                )
+    print_measures(args.component_name, gate_status, measures)
+    append_summary(
+        "\n".join(
+            build_summary_lines(
+                args.component_name,
+                args.project_key,
+                gate_status,
+                measures,
+                conditions,
             )
-    else:
-        summary_lines.append("| `-` | - | - | - |")
-
-    summary_lines.append("\n")
-    append_summary("\n".join(summary_lines))
-
-    if gate_status != "OK":
-        if args.allow_missing_new_code_metrics and is_missing_new_code_metrics_only(gate_status, conditions, measures):
-            print(
-                "Quality Gate returned ERROR due to unavailable new-code metrics; treated as neutral for this run"
-            )
-            return 0
-        print("Quality Gate failed", file=sys.stderr)
-        return 1
-
-    return 0
+        )
+    )
+    return resolve_exit_code(
+        gate_status,
+        args.allow_missing_new_code_metrics,
+        conditions,
+        measures,
+    )
 
 
 if __name__ == "__main__":
