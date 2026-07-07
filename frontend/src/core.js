@@ -46,8 +46,8 @@ export function validateSecretDraft(draft, options = {}) {
     errors.description = "Description must be 512 characters or fewer.";
   }
 
-  const oversizedTag = parseTags(draft.tags).find((tag) => tag.length > 64);
-  if (oversizedTag) {
+  const hasOversizedTag = parseTags(draft.tags).some((tag) => tag.length > 64);
+  if (hasOversizedTag) {
     errors.tags = "Tags must be 64 characters or fewer.";
   }
 
