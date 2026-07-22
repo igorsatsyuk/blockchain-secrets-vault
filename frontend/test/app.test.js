@@ -870,6 +870,7 @@ test("handleLogin tolerates missing optional auth error element", async () => {
         values: { username: "", password: "" }
       }
     });
+    assert.equal(elements["[data-app-shell]"].hidden, true);
   } finally {
     globalThis.FormData = originalFormData;
   }
