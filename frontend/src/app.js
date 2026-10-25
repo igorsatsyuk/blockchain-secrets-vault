@@ -268,7 +268,7 @@ export function createApp(options = {}) {
       };
       showToast(elements.toast, "Grant transaction submitted.");
       renderDetail();
-      requestAudit(secretId, { force: true });
+      void requestAudit(secretId, { force: true });
     } catch (error) {
       if (aclState.secretId !== secretId) {
         return;
@@ -308,7 +308,7 @@ export function createApp(options = {}) {
       };
       showToast(elements.toast, "Revoke transaction submitted.");
       renderDetail();
-      requestAudit(secretId, { force: true });
+      void requestAudit(secretId, { force: true });
     } catch (error) {
       if (aclState.secretId !== secretId) {
         return;
@@ -370,7 +370,7 @@ export function createApp(options = {}) {
     currentState = state;
     render();
     if (currentState.selectedId) {
-      requestAudit(currentState.selectedId);
+      void requestAudit(currentState.selectedId);
     }
   });
 
