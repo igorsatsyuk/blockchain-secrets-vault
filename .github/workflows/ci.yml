@@ -222,7 +222,7 @@ jobs:
         id: blockchain-sonar-scan
         if: steps['sonar-check'].outputs.sonar_enabled == 'true'
         continue-on-error: true
-        uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8.3.0
+        uses: SonarSource/sonarqube-scan-action@e805d875275f728fac1885b413934be6d7c63f65 # v8.4.1
         env:
           SONAR_HOST_URL: ${{ vars.SONAR_URL || 'https://sonarcloud.io' }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -232,7 +232,7 @@ jobs:
 
       - name: Retry SonarQube analysis (blockchain)
         if: steps['sonar-check'].outputs.sonar_enabled == 'true' && steps['blockchain-sonar-scan'].outcome == 'failure'
-        uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8.3.0
+        uses: SonarSource/sonarqube-scan-action@e805d875275f728fac1885b413934be6d7c63f65 # v8.4.1
         env:
           SONAR_HOST_URL: ${{ vars.SONAR_URL || 'https://sonarcloud.io' }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -537,7 +537,7 @@ jobs:
         id: frontend-sonar-scan
         if: steps['sonar-check'].outputs.sonar_enabled == 'true'
         continue-on-error: true
-        uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8.3.0
+        uses: SonarSource/sonarqube-scan-action@e805d875275f728fac1885b413934be6d7c63f65 # v8.4.1
         env:
           SONAR_HOST_URL: ${{ vars.SONAR_URL || 'https://sonarcloud.io' }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -547,7 +547,7 @@ jobs:
 
       - name: Retry SonarQube analysis (frontend)
         if: steps['sonar-check'].outputs.sonar_enabled == 'true' && steps['frontend-sonar-scan'].outcome == 'failure'
-        uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8.3.0
+        uses: SonarSource/sonarqube-scan-action@e805d875275f728fac1885b413934be6d7c63f65 # v8.4.1
         env:
           SONAR_HOST_URL: ${{ vars.SONAR_URL || 'https://sonarcloud.io' }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
